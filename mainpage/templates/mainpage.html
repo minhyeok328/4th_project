@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>mainpage</title>
+</head>
+<body>
+    <p>메인페이지 예시</p><br>
+    <p>python 변수 로드: {{ test_var }}</p>
+    <img src="{% static 'sampleimg.png' %}"><br>
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a><br>
+    <a href="{% url 'accounts:loginpage' %}">로그인페이지로</a><br>
+    <a href="{% url 'accounts:accountpage' %}">사용자정보페이지로</a><br>
+    <a href="{% url 'products:searchpage' %}">상품검색페이지로</a><br>
+    <a href="{% url 'products:productpage' %}">개별상품페이지로</a><br>
+    <a href="{% url 'chats:chatpage' %}">채팅페이지로</a><br>
+</body>
+</html>

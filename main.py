@@ -1,1 +1,0 @@
-# discord 연동 test를 위한 commit 파일 생성성
