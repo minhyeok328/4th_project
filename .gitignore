@@ -220,4 +220,4 @@ __marimo__/
 # Custom Ignore
 **/*.env
 **/test*
-!**/tests.py
+!*/tests.py
