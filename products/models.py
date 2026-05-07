@@ -25,7 +25,7 @@ class ProductAC(models.Model):
     img_link = models.URLField(max_length=500, null=True, blank=True)
     price = models.IntegerField(null=True, blank=True)
     proficiency_level = models.IntegerField(null=True, blank=True)
-    power_consum = models.IntegerField(null=True, blank=True)
+    power_consum = models.FloatField(null=True, blank=True)
     cool_cap = models.IntegerField(null=True, blank=True)
     voltage = models.IntegerField(null=True, blank=True)
     hertz = models.IntegerField(null=True, blank=True)
@@ -35,7 +35,7 @@ class ProductAC(models.Model):
     out_width = models.IntegerField(null=True, blank=True)
     out_height = models.IntegerField(null=True, blank=True)
     out_depth = models.IntegerField(null=True, blank=True)
-    coverage = models.IntegerField(null=True, blank=True)
+    coverage = models.FloatField(null=True, blank=True)
     wind_speed = models.IntegerField(null=True, blank=True)
     dehumid = models.IntegerField(null=True, blank=True)
     color = models.CharField(max_length=100, null=True, blank=True)
@@ -54,13 +54,15 @@ class ProductTV(models.Model):
     resol_code = models.ForeignKey(
         ScreenResolution,
         on_delete=models.PROTECT,
-        db_column='resol_code'
+        db_column='resol_code',
+        null=True
     )
 
     name = models.CharField(max_length=255, null=True, blank=True)
     img_link = models.URLField(max_length=500, null=True, blank=True)
     price = models.IntegerField(null=True, blank=True)
     proficiency_level = models.IntegerField(null=True, blank=True)
+    power_consum = models.FloatField(null=True, blank=True)
     screen_size = models.IntegerField(null=True, blank=True)
     display_type = models.CharField(max_length=100, null=True, blank=True)
     ref_rate = models.IntegerField(null=True, blank=True)
@@ -151,6 +153,7 @@ class ProductWash(models.Model):
     weight = models.IntegerField(null=True, blank=True)
     color = models.CharField(max_length=100, null=True, blank=True)
     door_design = models.CharField(max_length=100, null=True, blank=True)
+    control_type = models.CharField(max_length=100, null=True, blank=True)
     door_type = models.CharField(max_length=100, null=True, blank=True)
     water_temp = models.CharField(max_length=100, null=True, blank=True)
     spin_op = models.IntegerField(null=True, blank=True)
