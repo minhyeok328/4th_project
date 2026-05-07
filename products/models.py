@@ -150,6 +150,7 @@ class ProductWash(models.Model):
     depth = models.IntegerField(null=True, blank=True)
     weight = models.IntegerField(null=True, blank=True)
     color = models.CharField(max_length=100, null=True, blank=True)
+    door_design = models.CharField(max_length=100, null=True, blank=True)
     door_type = models.CharField(max_length=100, null=True, blank=True)
     water_temp = models.CharField(max_length=100, null=True, blank=True)
     spin_op = models.IntegerField(null=True, blank=True)

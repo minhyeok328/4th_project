@@ -131,6 +131,7 @@ def test_product(product_type:str):
                 depth=830,
                 weight=95,
                 color="White",
+                door_design = "Open Window",
                 door_type="Front Load",
                 water_temp="Cold/Warm/Hot",
                 spin_op=5,
