@@ -1,10 +1,17 @@
 from django.shortcuts import render
+from common.utils import get_product, get_product_type
 
 # Create your views here.
-def productpage(request):
+def productpage(request, product_code):
+    product_type, product_data = get_product(product_code)
+
     return render(
         request,
-        "productpage.html"
+        "productpage.html",
+        {
+            "product_type": product_type,
+            "product_data": product_data
+        }
     )
 
 def searchpage(request):
