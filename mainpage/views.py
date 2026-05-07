@@ -6,6 +6,6 @@ def mainpage(request):
 		request,
 		'mainpage.html',
 		{
-			"test_var": 10
+			"test_var": request.user.nickname if request.user.is_authenticated else "비로그인 상태"
 		}
 	)
