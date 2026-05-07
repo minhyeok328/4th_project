@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,12 @@
 </head>
 <body>
     <p>사용자 개인 페이지</p>
+    <p>사용자 ID: {{ username }}</p>
+    <p>유저명: {{ nickname }}</p>
     <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="action" value="logout">로그아웃</button>
+    </form>
 </body>
 </html>

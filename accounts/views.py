@@ -1,11 +1,25 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
 # Create your views here.
 def accountpage(request):
+    if not request.user.is_authenticated:
+        return redirect("accounts:loginpage")
+
+    if request.method == "POST":
+        if request.POST.get("action") == "logout":
+            logout(request)
+            return redirect("mainpage:mainpage")
+        else:
+            return redirect("accounts:accountpage")
+
     return render(
         request,
-        "accountpage.html"
+        "accountpage.html",
+        {
+            "username": request.user.username,
+            "nickname": request.user.nickname
+        }
     )
 
 def loginpage(request):
