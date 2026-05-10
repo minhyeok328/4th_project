@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from common.utils import get_product, get_product_type
+from common.utils import get_product
 
 # Create your views here.
 def productpage(request, product_code):
