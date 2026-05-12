@@ -23,6 +23,9 @@ def accountpage(request):
     )
 
 def loginpage(request):
+    if request.user.is_authenticated:
+        return redirect("accounts:accountpage")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
