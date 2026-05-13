@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <title>Document</title>
 </head>
+
 <body>
     <p>사용자 개인 페이지</p>
-{% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated %}
     <img src="{{ request.user.profile_picture.url }}">
-{% endif %}
+    {% endif %}
     <p>사용자 ID: {{ username }}</p>
     <p>유저명: {{ nickname }}</p>
     <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
@@ -19,4 +21,5 @@
         <button type="submit" name="action" value="logout">로그아웃</button>
     </form>
 </body>
+
 </html>
