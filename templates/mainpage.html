@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <title>mainpage</title>
 </head>
+
 <body>
     <p>메인페이지 예시</p><br>
     <p>현재 사용자명: {{ test_var }}</p>
@@ -17,4 +19,5 @@
     <a href="{% url 'products:productpage' product_code='ACT005' %}">개별상품페이지로</a><br>
     <a href="{% url 'chats:chatpage' %}">채팅페이지로</a><br>
 </body>
+
 </html>
