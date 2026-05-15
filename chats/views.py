@@ -28,7 +28,7 @@ def chatpage(request):
         request,
         "chatpage.html",
         {
-            "chat_names": [c.name for c in chatrooms],
+            "chatrooms": chatrooms,
             "chats": chats
         }
     )
