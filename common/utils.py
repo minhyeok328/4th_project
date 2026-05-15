@@ -50,3 +50,7 @@ def get_product(product_code:str):
             return product_type, safe_get(p_models.ProductWash, {"product_code": p_code})
         case _:
             return None, None
+
+def search_product(product_type, range, conditions):
+    model = get_model(product_type)
+    return model.search(range, **conditions)

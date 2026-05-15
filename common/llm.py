@@ -44,7 +44,7 @@ class GraphState(TypedDict, total=False):
     messages: list
 
     # 제품군 / 슬롯
-    product_category: str
+    product_type: str
     slots: list[dict]
 
     # 후속 질문 여부
@@ -102,7 +102,7 @@ def subsequence_router_node(state: GraphState) -> GraphState:
     rstate["is_subsequence"] = is_subsequence
     if not is_subsequence:
         rstate["state"] = "initial"
-        rstate["product_category"] = ""
+        rstate["product_type"] = ""
         rstate["slots"] = []
     return rstate
 
@@ -117,18 +117,18 @@ def product_classification_node(state: GraphState) -> GraphState:
     """
 
     # llm implement part
-    # 총 5개의 가전에 대해서 확인, 결과는 state["product_category"]에 저장
+    # 총 5개의 가전에 대해서 확인, 결과는 state["product_type"]에 저장
     # TV: "TVT"
     # 에어컨: "ACT"
     # 냉장고: "REF"
     # 청소기: "VAC"
     # 세탁기: "WMT"
     # 요청하지 않았으면: "" < 빈 문자열 + 답변: 먼저 ~~해주세요
-    product_category = "ACT"
+    product_type = "ACT"
 
     rstate = {**state}
-    rstate["product_category"] = product_category
-    if product_category:
+    rstate["product_type"] = product_type
+    if product_type:
         rstate["state"] = "context"
     else:
         rstate["next_state"] = "initial"
@@ -266,9 +266,9 @@ def route_from_product_classification(state: GraphState) -> RouteFromProductClas
     product_classification -->|제품군 설정| intent_router
     product_classification -->|제품군 설정 안함 next_state=initial state| end_point
     """
-    product_category = state.get("product_category", "")
+    product_type = state.get("product_type", "")
 
-    if product_category:
+    if product_type:
         return "intent_router"
 
     return "end"

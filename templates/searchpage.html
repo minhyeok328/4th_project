@@ -10,6 +10,11 @@
 
 <body>
     <p>검색 페이지</p>
+{% for p in page_obj.object_list %}
+    <p>{{ p.name }}</p>
+{% endfor %}
+
+
     <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
 </body>
 
