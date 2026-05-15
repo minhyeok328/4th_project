@@ -142,4 +142,7 @@ AUTH_USER_MODEL = "accounts.Account"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+# for Windows
+# NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+# for Liunx and Mac
+NPM_BIN_PATH = "/usr/local/bin/node"
