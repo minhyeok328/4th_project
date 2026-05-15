@@ -7,6 +7,26 @@ def safe_get(mod:models.Model, dct):
     except mod.DoesNotExist:
         return None
 
+def get_model(product_code:str):
+    if not product_code or len(product_code) < 3:
+        return None
+
+    header = product_code[0:3].upper()
+
+    match header:
+        case "ACT":
+            return p_models.ProductAC
+        case "REF":
+            return p_models.ProductFridge
+        case "TVT":
+            return p_models.ProductTV
+        case "VAC":
+            return p_models.ProductVAC
+        case "WMT":
+            return p_models.ProductWash
+        case _:
+            return None
+
 def get_product(product_code:str):
     header = product_code[0:3].upper()
 

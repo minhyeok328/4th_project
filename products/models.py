@@ -6,11 +6,38 @@ def model_to_tuple_str(instance):
     return f"({', '.join(values)})"
 
 
+def search_model(model, range, conditions):
+    ignores = ["product_code"]
+    field_names = {field.name for field in model._meta.fields if field.name not in ignores}
+    filters = {}
+
+    if range and "product_code" in {field.name for field in model._meta.fields}:
+        filters["product_code__in"] = range
+
+    for key, value in conditions.items():
+        if value is None or value == "":
+            continue
+
+        for lookup in ("gte", "lte", "in", "icontains"):
+            suffix = f"_{lookup}"
+            if key.endswith(suffix):
+                field_name = key[:-len(suffix)]
+                if field_name in field_names:
+                    filters[f"{field_name}__{lookup}"] = value
+                break
+
+    return model.objects.filter(**filters)
+
+
 class ScreenResolution(models.Model):
     resol_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     width = models.IntegerField(null=True, blank=True)
     height = models.IntegerField(null=True, blank=True)
+
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
 
     class Meta:
         db_table = 'ScreenResolution'
@@ -40,6 +67,10 @@ class ProductAC(models.Model):
     dehumid = models.IntegerField(null=True, blank=True)
     color = models.CharField(max_length=100, null=True, blank=True)
     manual_link = models.URLField(max_length=500, null=True, blank=True)
+
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
 
     class Meta:
         db_table = 'ProductAC'
@@ -74,6 +105,10 @@ class ProductTV(models.Model):
     weight = models.FloatField(null=True, blank=True)
     manual_link = models.URLField(max_length=500, null=True, blank=True)
 
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
+
     class Meta:
         db_table = 'ProductTV'
 
@@ -104,6 +139,10 @@ class ProductFridge(models.Model):
     ice_maker = models.IntegerField(null=True, blank=True)
     manual_link = models.URLField(max_length=500, null=True, blank=True)
 
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
+
     class Meta:
         db_table = 'ProductFridge'
 
@@ -130,6 +169,10 @@ class ProductVAC(models.Model):
     suction_power = models.IntegerField(null=True, blank=True)
     battery_cnt = models.IntegerField(null=True, blank=True)
     manual_link = models.URLField(max_length=500, null=True, blank=True)
+
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
 
     class Meta:
         db_table = 'ProductVAC'
@@ -158,6 +201,10 @@ class ProductWash(models.Model):
     water_temp = models.CharField(max_length=100, null=True, blank=True)
     spin_op = models.IntegerField(null=True, blank=True)
     manual_link = models.URLField(max_length=500, null=True, blank=True)
+
+    @classmethod
+    def search(cls, range:list=None, **conditions):
+        return search_model(cls, range, conditions)
 
     class Meta:
         db_table = 'ProductWash'

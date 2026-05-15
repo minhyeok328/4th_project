@@ -67,3 +67,13 @@ def print_chats(chatroom):
 
     for c in cs:
         print(f"{c.id}\t{c.index}\t{"user" if c.is_userchat else "agent"}\t{c.content}")
+
+def search_test(code, ls, dct):
+    from common.utils import get_model
+    mod = get_model(code)
+
+    res = mod.search(ls, **dct)
+    for r in res:
+        print(r)
+
+    return res
