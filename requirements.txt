@@ -1,0 +1,11 @@
+# Core (config/settings.py — Django 5.2.x, INSTALLED_APPS: tailwind, theme)
+Django==5.2.8
+django-tailwind==4.4.2
+
+# accounts.models — ImageField for profile_picture
+Pillow==12.2.0
+
+# products/data/raw/data_crawling/selenium_auto_module.py
+selenium==4.44.0
+webdriver-manager==4.0.2
+beautifulsoup4==4.14.3
