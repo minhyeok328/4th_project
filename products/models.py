@@ -1,4 +1,15 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+
+
+LOOKUPS = ("gte", "lte", "in", "icontains", "exact")
+TEXT_FIELDS = (
+    models.CharField,
+    models.TextField,
+    models.URLField,
+    models.EmailField,
+    models.SlugField,
+)
 
 
 def model_to_tuple_str(instance):
@@ -6,9 +17,76 @@ def model_to_tuple_str(instance):
     return f"({', '.join(values)})"
 
 
+def _get_compare_field(field):
+    if isinstance(field, models.ForeignKey):
+        return field.target_field
+    return field
+
+
+def _is_text_field(field):
+    return isinstance(_get_compare_field(field), TEXT_FIELDS)
+
+
+def _convert_value(field, value):
+    compare_field = _get_compare_field(field)
+
+    if value is None:
+        return None
+
+    if isinstance(value, str):
+        value = value.strip()
+
+    if value == "":
+        return None
+
+    try:
+        return compare_field.to_python(value)
+    except (TypeError, ValueError, ValidationError):
+        return None
+
+
+def _convert_filter_value(field, lookup, value):
+    if lookup == "in":
+        if isinstance(value, str):
+            values = [item.strip() for item in value.split(",")]
+        else:
+            values = value
+
+        if not isinstance(values, (list, tuple, set)):
+            values = [values]
+
+        converted_values = [
+            converted
+            for item in values
+            if (converted := _convert_value(field, item)) is not None
+        ]
+        return converted_values or None
+
+    return _convert_value(field, value)
+
+
+def _split_condition_key(key, field_names):
+    for lookup in LOOKUPS:
+        suffix = f"_{lookup}"
+        if key.endswith(suffix):
+            field_name = key[:-len(suffix)]
+            if field_name in field_names:
+                return field_name, lookup
+            return None, None
+
+    if key in field_names:
+        return key, None
+
+    return None, None
+
+
 def search_model(model, range, conditions):
     ignores = ["product_code"]
-    field_names = {field.name for field in model._meta.fields if field.name not in ignores}
+    fields = {
+        field.name: field
+        for field in model._meta.fields
+        if field.name not in ignores
+    }
     filters = {}
 
     if range and "product_code" in {field.name for field in model._meta.fields}:
@@ -18,13 +96,22 @@ def search_model(model, range, conditions):
         if value is None or value == "":
             continue
 
-        for lookup in ("gte", "lte", "in", "icontains"):
-            suffix = f"_{lookup}"
-            if key.endswith(suffix):
-                field_name = key[:-len(suffix)]
-                if field_name in field_names:
-                    filters[f"{field_name}__{lookup}"] = value
-                break
+        field_name, lookup = _split_condition_key(key, fields)
+        if not field_name:
+            continue
+
+        field = fields[field_name]
+        if lookup is None:
+            lookup = "icontains" if _is_text_field(field) else "exact"
+
+        if lookup == "icontains" and not _is_text_field(field):
+            lookup = "exact"
+
+        converted_value = _convert_filter_value(field, lookup, value)
+        if converted_value is None:
+            continue
+
+        filters[f"{field_name}__{lookup}"] = converted_value
 
     return model.objects.filter(**filters)
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Document</title>
+</head>
+
+<body>
+    <p>회원가입페이지</p>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="username">
+        <input type="password" name="password">
+        <input type="text" name="nickname">
+        <input type="file" name="profile_picture" accept="image/*">
+        <button type="submit">회원가입</button>
+    </form>
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+</body>
+
+</html>
