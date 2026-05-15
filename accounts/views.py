@@ -1,8 +1,35 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from .models import Account
 
 # Create your views here.
-def accountpage(request):
+def registerpage(request):
+    if request.user.is_authenticated:
+        return redirect("accounts:mypage")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        nickname = request.POST.get("nickname")
+        pic = request.FILES.get("profile_picture", None)
+
+        Account.objects.create_user(
+            username=username,
+            password=password,
+            nickname=nickname,
+            profile_picture=pic
+        )
+
+        return redirect("accounts:loginpage")
+
+
+    return render(
+        request,
+        "registerpage.html"
+    )
+
+
+def mypage(request):
     if not request.user.is_authenticated:
         return redirect("accounts:loginpage")
 
@@ -11,11 +38,11 @@ def accountpage(request):
             logout(request)
             return redirect("mainpage:mainpage")
         else:
-            return redirect("accounts:accountpage")
+            return redirect("accounts:mypage")
 
     return render(
         request,
-        "accountpage.html",
+        "mypage.html",
         {
             "username": request.user.username,
             "nickname": request.user.nickname
@@ -24,7 +51,7 @@ def accountpage(request):
 
 def loginpage(request):
     if request.user.is_authenticated:
-        return redirect("accounts:accountpage")
+        return redirect("accounts:mypage")
 
     if request.method == "POST":
         username = request.POST.get("username")
