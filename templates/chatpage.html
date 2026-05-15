@@ -10,12 +10,12 @@
 
 <body>
     <p>상담 채팅 페이지</p>
-{% for c in chat_names %}
-    <p>{{ c }}</p>
-{% endfor %}
-{% for chat in chats %}
+    {% for c in chatrooms %}
+    <p>{{ c.name }}</p>
+    {% endfor %}
+    {% for chat in chats %}
     <p>{{ chat.content }}</p>
-{% endfor %}
+    {% endfor %}
 
     <input type="text" id="user_input"><button id="send-button">보내기</button>
 
@@ -27,7 +27,7 @@
         const inputfield = document.getElementById("user_input");
 
         const userinput = inputfield.value;
-        
+
         if (!userinput) {
             console.log("empty input");
             return;
@@ -56,4 +56,5 @@
 
     document.getElementById("send-button").addEventListener("click", SendChat);
 </script>
+
 </html>
