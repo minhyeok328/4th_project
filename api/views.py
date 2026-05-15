@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from accounts.models import UserFavorite
@@ -42,6 +43,31 @@ def favorite(request, product_code):
 
         return JsonResponse({"is_favorite":res})
     
+def send_chat(request):
+    if request.method != "POST":
+        return
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({"response": ""})
+        
+    data = json.loads(request.body)
+    chat_id = data.get("chat_id", None)
+    user_input = data.get("user_input", None)
 
-# data = json.loads(request.body)
-# message = data.get("message")
+    if chat_id is None or user_input is None:
+        return JsonResponse({"response": ""})
+    
+    chat_id = int(chat_id)
+
+    for c in request.user.view_chatrooms():
+        if c.id != chat_id:
+            continue
+        
+        c.add_chat(True, user_input)
+
+        response = "안녕"
+
+        return JsonResponse({"response":f"사용자 입력: {user_input} > ai 답변: {response}"})
+
+    return JsonResponse({"response": ""})
+
