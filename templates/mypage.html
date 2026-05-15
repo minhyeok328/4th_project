@@ -13,11 +13,16 @@
     {% if request.user.profile_picture %}
     <img src="{{ request.user.profile_picture.url }}">
     {% endif %}
-    <p>사용자 ID: {{ username }}</p>
-    <p>닉네임: {{ nickname }}</p>
-    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+    <p>사용자 ID: {{ request.user.username }}</p>
+    <p>닉네임: {{ request.user.nickname }}</p>
 
-    <input type="text" id="product_code"><button id="favorite">관심상품 등록</button>
+{% for f in favorites %}
+    <p>{{ f.name }}</p>
+{% endfor %}
+
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a></br>
+
+    <input type="text" id="product_code"><button id="favorite">관심상품 등록</button></br>
 
     <form method="POST">
         {% csrf_token %}

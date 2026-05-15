@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from common.utils import get_product
 from .models import Account
 
 # Create your views here.
@@ -40,12 +41,13 @@ def mypage(request):
         else:
             return redirect("accounts:mypage")
 
+    favorites = [get_product(f.product_code)[1] for f in request.user.favorites.all()]
+
     return render(
         request,
         "mypage.html",
         {
-            "username": request.user.username,
-            "nickname": request.user.nickname
+            "favorites": favorites
         }
     )
 
