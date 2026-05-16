@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Document</title>
+</head>
+
+<body>
+    <p>사용자 개인 페이지</p>
+    {% if request.user.profile_picture %}
+    <img src="{{ request.user.profile_picture.url }}">
+    {% endif %}
+    <p>사용자 ID: {{ request.user.username }}</p>
+    <p>닉네임: {{ request.user.nickname }}</p>
+
+{% for f in favorites %}
+    <p>{{ f.name }}</p>
+{% endfor %}
+
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a></br>
+
+    <input type="text" id="product_code"><button id="favorite">관심상품 등록</button></br>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" name="action" value="logout">로그아웃</button>
+    </form>
+</body>
+
+<script>
+    async function SendChat() {
+        const inputfield = document.getElementById("product_code");
+
+        const userinput = inputfield.value;
+        
+        if (!userinput) {
+            console.log("empty input");
+            return;
+        }
+
+
+        const url = "{% url 'api:favorite' product_code='__p_code__' %}".replace("__p_code__", userinput);
+
+        const response = await fetch(url, {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        });
+
+        const data = await response.json();
+
+        console.log(data["is_favorite"]);
+
+        inputfield.value = "";
+    }
+
+    document.getElementById("favorite").addEventListener("click", SendChat);
+</script>
+
+</html>
