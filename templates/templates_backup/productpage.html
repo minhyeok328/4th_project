@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Document</title>
+</head>
+
+<body>
+    <p>상품 페이지</p>
+    <p>상품 종류: {{ product_type }}</p>
+    <p>상품 데이터: {{ product_data }}</p>
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+</body>
+
+</html>
