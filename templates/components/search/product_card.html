@@ -1,0 +1,16 @@
+<a href="{% url 'products:productpage' product_code=product.product_code %}"
+    class="group block overflow-hidden rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-200 hover:border-gray-200 hover:shadow-md sm:p-6">
+    <div class="mb-4 flex h-40 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 text-sm text-gray-300 sm:h-44">
+        {% if product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        {% else %}
+        이미지
+        {% endif %}
+    </div>
+
+    <p class="mb-1 text-xs font-medium uppercase tracking-wide text-gray-400">{{ product.category }}</p>
+
+    <h2 class="mb-3 line-clamp-2 text-base font-bold leading-snug text-gray-900">{{ product.name }}</h2>
+
+    <p class="text-lg font-bold text-red-600">{{ product.price|floatformat:0 }}원</p>
+</a>

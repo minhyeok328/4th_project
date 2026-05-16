@@ -1,21 +1,22 @@
-<!DOCTYPE html>
-<html lang="ko">
+{% extends "base_page.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <title>Document</title>
-</head>
+{% block title %}{% include "components/search/category_label_fragment.html" %} 검색{% endblock %}
 
-<body>
-    <p>검색 페이지</p>
-{% for p in page_obj.object_list %}
-    <p>{{ p.name }}</p>
-{% endfor %}
+{% block content %}
+{% include "components/header.html" %}
 
+<div class="min-h-screen bg-neutral-50 text-gray-900">
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {% include "components/search/category_tabs.html" %}
 
-    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
-</body>
+        <div class="mt-6 grid gap-6 md:grid-cols-[260px_1fr] lg:gap-8">
+            {% include "components/search/search_filter.html" %}
 
-</html>
+            <section class="space-y-5 sm:space-y-6">
+                {% include "components/search/search_result_header.html" %}
+                {% include "components/search/product_grid.html" %}
+            </section>
+        </div>
+    </main>
+</div>
+{% endblock %}
