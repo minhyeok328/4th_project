@@ -1,0 +1,21 @@
+<aside class="flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+    <button type="button" data-chat-new
+        class="mb-6 w-full rounded-full bg-red-600 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md">
+        새 대화
+    </button>
+
+    <section class="min-h-0 flex-1">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">최근 대화</h2>
+
+        <div class="space-y-2 overflow-y-auto">
+            {% for room in chatrooms %}
+            <a href="{% url 'chats:chatpage' %}?chat_id={{ room.id }}"
+                class="block w-full rounded-2xl border border-gray-100 px-4 py-3 text-left text-sm text-gray-800 transition-all duration-200 hover:border-gray-200 hover:bg-gray-50 hover:shadow-sm {% if request.GET.chat_id == room.id|stringformat:'s' %}border-red-200 bg-red-50/40{% endif %}">
+                {{ room.name }}
+            </a>
+            {% empty %}
+            <p class="px-1 text-sm text-gray-400">저장된 대화가 없습니다.</p>
+            {% endfor %}
+        </div>
+    </section>
+</aside>

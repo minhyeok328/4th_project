@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Document</title>
+</head>
+
+<body>
+    <p>상담 채팅 페이지</p>
+    {% for c in chatrooms %}
+    <p>{{ c.name }}</p>
+    {% endfor %}
+    {% for chat in chats %}
+    <p>{{ chat.content }}</p>
+    {% endfor %}
+
+    <input type="text" id="user_input"><button id="send-button">보내기</button>
+
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+</body>
+<script>
+
+    async function SendChat() {
+        const inputfield = document.getElementById("user_input");
+
+        const userinput = inputfield.value;
+
+        if (!userinput) {
+            console.log("empty input");
+            return;
+        }
+
+        const response = await fetch("{% url 'api:send_chat' %}", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+
+            body: JSON.stringify({
+                chat_id: 6,
+                user_input: userinput
+            })
+        });
+
+        const data = await response.json();
+
+        console.log(data.response)
+
+        inputfield.value = "";
+    }
+
+    document.getElementById("send-button").addEventListener("click", SendChat);
+</script>
+
+</html>
