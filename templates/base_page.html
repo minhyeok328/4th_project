@@ -1,0 +1,18 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LG 가전{% endblock %}</title>
+    {% tailwind_css %}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="min-h-screen bg-neutral-50 text-gray-900 antialiased">
+    {% block content %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

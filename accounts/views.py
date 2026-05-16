@@ -51,6 +51,12 @@ def mypage(request):
         }
     )
 
+def logout_view(request):
+    if request.method == "POST":
+        logout(request)
+    return redirect("mainpage:mainpage")
+
+
 def loginpage(request):
     if request.user.is_authenticated:
         return redirect("accounts:mypage")
