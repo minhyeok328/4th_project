@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>Document</title>
+</head>
+
+<body>
+    <p>로그인 페이지</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="username">
+        <input type="password" name="password">
+        <button type="submit">로그인</button>
+    </form>
+    {% if login_fail %}
+    <p>로그인 실패</p>
+    {% endif %}
+    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
+</body>
+
+</html>
