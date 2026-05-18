@@ -1,50 +1,36 @@
-<aside class="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-    <h2 class="mb-6 text-lg font-bold tracking-tight text-gray-900">필터</h2>
-
-    <section class="mb-6 border-b border-gray-100 pb-6">
-        <h3 class="mb-4 text-sm font-semibold text-gray-900">가격대</h3>
-
-        <div class="space-y-3 text-sm text-gray-700">
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                100만원 이하
-            </label>
-
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                100만원 ~ 200만원
-            </label>
-
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                200만원 이상
-            </label>
+{% load static %}
+{% with pt=request.GET.product_type|default:"REF" %}
+<aside class="md:sticky md:top-24 md:self-start" data-search-filter data-product-type="{{ pt }}">
+    <div class="rounded-3xl border border-gray-100 bg-white shadow-sm">
+        <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-6">
+            <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold tracking-tight text-gray-900">필터</h2>
+                <span class="hidden rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700" data-filter-count-badge>0</span>
+            </div>
+            <a href="{% url 'products:searchpage' %}?product_type={{ pt|urlencode }}&page=1"
+                class="text-xs font-medium text-gray-500 underline-offset-2 transition-colors hover:text-red-600 hover:underline">
+                초기화
+            </a>
         </div>
-    </section>
 
-    <section class="mb-6 border-b border-gray-100 pb-6">
-        <h3 class="mb-4 text-sm font-semibold text-gray-900">추천 기준</h3>
+        <form id="search-filter-form" method="get" action="{% url 'products:searchpage' %}" class="max-h-[calc(100vh-12rem)] overflow-y-auto px-5 py-4 sm:px-6" data-search-filter-form>
+            <input type="hidden" name="product_type" value="{{ pt }}" />
+            <input type="hidden" name="page" value="1" />
 
-        <div class="space-y-3 text-sm text-gray-700">
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                인기순
-            </label>
+            {% include "components/search/filters/common.html" %}
 
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                가격 낮은순
-            </label>
+            <section class="mt-2" data-category-filters>
+                {% include "components/search/filters/category_filters.html" %}
+            </section>
+        </form>
 
-            <label class="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-50">
-                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                리뷰 많은순
-            </label>
+        <div class="border-t border-gray-100 bg-white p-4 sm:p-5">
+            <button type="submit" form="search-filter-form"
+                class="w-full rounded-full bg-red-600 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md"
+                data-search-filter-submit>
+                <span data-filter-submit-label>필터 적용</span>
+            </button>
         </div>
-    </section>
-
-    <button type="button"
-        class="w-full rounded-full bg-red-600 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md">
-        필터 적용
-    </button>
+    </div>
 </aside>
+{% endwith %}

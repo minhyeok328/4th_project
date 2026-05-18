@@ -1,0 +1,9 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:justify-between" aria-label="페이지 이동" data-pagination
+    data-current="{{ page_obj.number }}" data-num-pages="{{ page_obj.paginator.num_pages }}"
+    data-total="{{ page_obj.paginator.count }}" data-start="{{ page_obj.start_index }}"
+    data-end="{{ page_obj.end_index }}"{% if page_obj.has_previous %} data-prev="{{ page_obj.previous_page_number }}"{% endif %}{% if page_obj.has_next %} data-next="{{ page_obj.next_page_number }}"{% endif %}>
+    <p class="text-sm text-gray-500" data-pagination-summary></p>
+    <div class="flex flex-wrap items-center justify-center gap-1.5" data-pagination-controls></div>
+</nav>
+{% endif %}

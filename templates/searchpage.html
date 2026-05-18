@@ -1,4 +1,5 @@
 {% extends "base_page.html" %}
+{% load static %}
 
 {% block title %}{% include "components/search/category_label_fragment.html" %} 검색{% endblock %}
 
@@ -15,8 +16,15 @@
             <section class="space-y-5 sm:space-y-6">
                 {% include "components/search/search_result_header.html" %}
                 {% include "components/search/product_grid.html" %}
+                {% include "components/search/pagination.html" %}
             </section>
         </div>
     </main>
 </div>
+
+<link rel="stylesheet" href="{% static 'css/search_filter.css' %}" />
+<script>
+    window.SEARCH_FILTER_OPTIONS_URL = "{% static 'data/search_filter_options.json' %}";
+</script>
+<script src="{% static 'js/searchpage.js' %}"></script>
 {% endblock %}
