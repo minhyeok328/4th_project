@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "cross-env NODE_ENV=development postcss ./static_src/src/styles.css -o ./static/css/dist/styles.css --watch",
+    "build": "cross-env NODE_ENV=production postcss ./static_src/src/styles.css -o ./static/css/dist/styles.css --minify"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
     "autoprefixer": "^10.5.0",

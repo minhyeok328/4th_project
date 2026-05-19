@@ -5,13 +5,19 @@ from common.utils import get_product, search_product
 # Create your views here.
 def productpage(request, product_code):
     product_type, product_data = get_product(product_code)
+    is_favorite = False
+    if request.user.is_authenticated and product_data is not None:
+        is_favorite = request.user.favorites.filter(
+            product_code=product_data.product_code
+        ).exists()
 
     return render(
         request,
         "productpage.html",
         {
             "product_type": product_type,
-            "product_data": product_data
+            "product_data": product_data,
+            "is_favorite": is_favorite
         }
     )
 
@@ -23,7 +29,7 @@ def searchpage(request):
         query.setdefault("product_type", default_type)
         query.setdefault("page", "1")
         return redirect(f"{request.path}?{query.urlencode()}")
-    
+
     product_type = request.GET.get("product_type", default_type)
     page_num = request.GET.get("page", 1)
 
