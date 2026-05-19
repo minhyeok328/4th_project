@@ -46,27 +46,48 @@ def favorite(request, product_code):
     
 def send_chat(request):
     if request.method != "POST":
-        return
-    
+        return JsonResponse({"response": "", "response_tail": "", "chat_id": None}, status=405)
+
     if not request.user.is_authenticated:
-        return JsonResponse({"response": "", "response_tail":""})
-        
-    data = json.loads(request.body)
-    chat_id = data.get("chat_id", None)
+        return JsonResponse({"response": "", "response_tail": "", "chat_id": None}, status=401)
+
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"response": "", "response_tail": "", "chat_id": None}, status=400)
+
+    raw_chat_id = data.get("chat_id", None)
     user_input = data.get("user_input", None)
 
-    if chat_id is None or user_input is None:
-        return JsonResponse({"response": "", "response_tail":""})
-    
-    chat_id = int(chat_id)
+    if not isinstance(user_input, str) or not user_input.strip():
+        return JsonResponse({"response": "", "response_tail": "", "chat_id": None}, status=400)
 
-    for c in request.user.view_chatrooms():
-        if c.id != chat_id:
-            continue
-        
-        response, response_tail = llm.add_chat(c, user_input)
+    user_input = user_input.strip()
 
-        return JsonResponse({"response": response, "response_tail":response_tail})
+    chat_id = None
+    if raw_chat_id not in (None, "", 0, "0"):
+        try:
+            chat_id = int(raw_chat_id)
+        except (TypeError, ValueError):
+            chat_id = None
 
-    return JsonResponse({"response": "", "response_tail":""})
+    target_room = None
+    if chat_id is not None:
+        for c in request.user.view_chatrooms():
+            if c.id == chat_id:
+                target_room = c
+                break
+
+    if target_room is None:
+        name = user_input[:30] or "새 대화"
+        target_room = request.user.add_chatroom(name)
+
+    response, response_tail = llm.add_chat(target_room, user_input)
+
+    return JsonResponse({
+        "response": response,
+        "response_tail": response_tail,
+        "chat_id": target_room.id,
+        "chatroom_name": target_room.name,
+    })
 
