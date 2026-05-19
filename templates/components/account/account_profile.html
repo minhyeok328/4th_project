@@ -1,4 +1,4 @@
-<section class="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm sm:p-8">
+<section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8">
     <div class="flex items-center gap-5 sm:gap-6">
         {% if request.user.profile_picture %}
         <img id="profile-img-view" src="{{ request.user.profile_picture.url }}" alt="프로필"
@@ -11,13 +11,14 @@
         {% endif %}
 
         <div>
-            <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ request.user.nickname }}님</h2>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-red-600">Member</p>
+            <h2 class="mt-1 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ request.user.nickname }}님</h2>
             <p class="mt-1 text-sm text-gray-500">{{ request.user.email }}</p>
         </div>
     </div>
 
     <button type="button" id="edit-open-btn" onclick="openProfileEdit()"
-        class="mt-6 w-full rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow">
+        class="mt-6 w-full rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50">
         프로필 수정
     </button>
 
@@ -26,20 +27,20 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="update_profile">
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">닉네임 변경</label>
+                <label class="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 mb-2">닉네임 변경</label>
                 <input type="text" name="nickname" value="{{ request.user.nickname }}" maxlength="12"
-                       class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-red-500 focus:outline-none">
+                       class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm transition-all focus:border-red-500 focus:ring-2 focus:ring-red-500/15 focus:outline-none">
             </div>
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">프로필 사진 변경</label>
+                <label class="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 mb-2">프로필 사진 변경</label>
                 <input type="file" name="profile_picture" accept="image/*"
                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
             </div>
             <div class="flex items-center gap-3 pt-2">
-            <button type="submit" class="flex-1 rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 transition-all duration-200">
+            <button type="submit" class="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold tracking-tight text-white shadow-sm hover:bg-red-700 hover:shadow transition-all duration-200">
                 변경 내용 저장
             </button>
-            <button type="button" onclick="closeProfileEdit()" class="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all duration-200">
+            <button type="button" onclick="closeProfileEdit()" class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all duration-200">
                 취소
             </button>
         </div>

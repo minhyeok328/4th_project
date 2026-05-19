@@ -1,17 +1,17 @@
-<aside class="flex h-full flex-col rounded-3xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+<aside class="flex h-full flex-col rounded-3xl border border-gray-200/70 bg-white p-5 shadow-sm sm:p-6">
     <a href="{% url 'chats:chatpage' %}" data-chat-new
-        class="mb-6 block w-full rounded-full bg-red-600 py-3 text-center text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md">
+        class="mb-6 block w-full rounded-xl bg-red-600 py-3 text-center text-sm font-semibold tracking-tight text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow">
         새 대화
     </a>
 
     <section class="min-h-0 flex-1">
-        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">최근 대화</h2>
+        <h2 class="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-400">최근 대화</h2>
 
         <div class="space-y-2 overflow-y-auto">
             {% for room in chatrooms %}
             <div class="group flex items-stretch gap-2">
                 <a href="{% url 'chats:chatpage' %}?chat_id={{ room.id }}"
-                    class="flex-1 truncate rounded-2xl border border-gray-100 px-4 py-3 text-left text-sm text-gray-800 transition-all duration-200 hover:border-gray-200 hover:bg-gray-50 hover:shadow-sm {% if request.GET.chat_id == room.id|stringformat:'s' %}border-red-200 bg-red-50/40 text-gray-900{% endif %}">
+                    class="flex-1 truncate rounded-xl border border-gray-200/70 px-4 py-3 text-left text-sm font-medium text-gray-700 transition-all duration-200 hover:border-red-200 hover:bg-red-50/20 hover:text-gray-900 {% if request.GET.chat_id == room.id|stringformat:'s' %}border-red-300 bg-red-50/60 text-gray-900{% endif %}">
                     {{ room.name }}
                 </a>
                 <form method="post" action="{% url 'chats:chatpage' %}" class="flex"
@@ -19,7 +19,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="delete_id" value="{{ room.id }}">
                     <button type="submit"
-                        class="rounded-2xl border border-gray-100 px-3 text-sm font-semibold text-gray-400 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                        class="rounded-xl border border-gray-200/70 px-3 text-sm font-semibold text-gray-400 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                         title="대화 삭제"
                         aria-label="대화 삭제">
                         ×
