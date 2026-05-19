@@ -1,4 +1,4 @@
-<div id="chat-messages" class="hidden flex-1 overflow-y-auto px-6 py-5 sm:px-8">
+<div id="chat-messages" class="{% if chats %}block{% else %}hidden{% endif %} min-h-0 flex-1 overflow-y-auto px-6 py-5 sm:px-8">
     <div id="chat-messages-list" class="space-y-4">
         {% for msg in chats %}
         <div data-server-message data-role="{% if msg.is_userchat %}user{% else %}assistant{% endif %}"

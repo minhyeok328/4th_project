@@ -1,20 +1,130 @@
 (function () {
     "use strict";
 
-    /** @type {{ id: number, role: "user" | "assistant", content: string }[]} */
+    /** @type {{ id: number, role: "user" | "assistant", content: string, tail?: string, pending?: boolean }[]} */
     const messages = [];
     let messageId = 0;
+    let inFlight = false;
 
     const recommended = document.getElementById("chat-recommended");
     const messagesPanel = document.getElementById("chat-messages");
     const messagesList = document.getElementById("chat-messages-list");
     const inputForm = document.getElementById("chat-input-form");
     const inputField = document.getElementById("chat-input-field");
+    const inputSubmit = document.getElementById("chat-input-submit");
     const sidebarOverlay = document.getElementById("chat-sidebar-overlay");
     const sidebarOpenBtn = document.getElementById("chat-sidebar-open");
     const sidebarCloseBtn = document.getElementById("chat-sidebar-close");
-    const newChatButtons = document.querySelectorAll("[data-chat-new]");
     const recommendedButtons = document.querySelectorAll("[data-recommended-question]");
+
+    function getConfig() {
+        if (!inputForm) {
+            return { sendUrl: "", csrf: "", chatpageUrl: "", chatId: "" };
+        }
+        return {
+            sendUrl: inputForm.dataset.sendChatUrl || "",
+            csrf: inputForm.dataset.csrfToken || "",
+            chatpageUrl: inputForm.dataset.chatpageUrl || "",
+            chatId: inputForm.dataset.chatId || "",
+        };
+    }
+
+    function setChatId(newId) {
+        if (!inputForm) {
+            return;
+        }
+
+        const idStr = newId ? String(newId) : "";
+        inputForm.dataset.chatId = idStr;
+
+        const { chatpageUrl } = getConfig();
+        if (!chatpageUrl || !window.history || !window.history.replaceState) {
+            return;
+        }
+
+        const target = idStr
+            ? chatpageUrl + "?chat_id=" + encodeURIComponent(idStr)
+            : chatpageUrl;
+        window.history.replaceState({}, "", target);
+    }
+
+    function insertSidebarRoom(chatId, name) {
+        if (!chatId) {
+            return;
+        }
+
+        const config = getConfig();
+        const chatpageUrl = config.chatpageUrl;
+        if (!chatpageUrl) {
+            return;
+        }
+
+        const idAttr = "chat_id=" + chatId;
+        const displayName = (name || "새 대화").trim() || "새 대화";
+
+        document.querySelectorAll("aside").forEach(function (aside) {
+            const listContainer = aside.querySelector(".space-y-2");
+            if (!listContainer) {
+                return;
+            }
+
+            listContainer.querySelectorAll("p").forEach(function (p) {
+                if (p.textContent && p.textContent.indexOf("저장된 대화가 없습니다") !== -1) {
+                    p.remove();
+                }
+            });
+
+            if (listContainer.querySelector('a[href*="' + idAttr + '"]')) {
+                return;
+            }
+
+            listContainer.querySelectorAll("a").forEach(function (a) {
+                a.classList.remove("border-red-200", "bg-red-50/40", "text-gray-900");
+            });
+
+            const wrap = document.createElement("div");
+            wrap.className = "group flex items-stretch gap-2";
+
+            const link = document.createElement("a");
+            link.href = chatpageUrl + "?chat_id=" + encodeURIComponent(chatId);
+            link.className =
+                "flex-1 truncate rounded-2xl border border-red-200 bg-red-50/40 px-4 py-3 text-left text-sm text-gray-900 transition-all duration-200 hover:border-gray-200 hover:bg-gray-50 hover:shadow-sm";
+            link.textContent = displayName;
+
+            const form = document.createElement("form");
+            form.method = "post";
+            form.action = chatpageUrl;
+            form.className = "flex";
+            form.setAttribute("onsubmit", "return confirm('이 대화를 삭제할까요?');");
+
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "csrfmiddlewaretoken";
+            csrfInput.value = config.csrf || "";
+
+            const idInput = document.createElement("input");
+            idInput.type = "hidden";
+            idInput.name = "delete_id";
+            idInput.value = String(chatId);
+
+            const btn = document.createElement("button");
+            btn.type = "submit";
+            btn.className =
+                "rounded-2xl border border-gray-100 px-3 text-sm font-semibold text-gray-400 transition-all duration-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600";
+            btn.title = "대화 삭제";
+            btn.setAttribute("aria-label", "대화 삭제");
+            btn.textContent = "×";
+
+            form.appendChild(csrfInput);
+            form.appendChild(idInput);
+            form.appendChild(btn);
+
+            wrap.appendChild(link);
+            wrap.appendChild(form);
+
+            listContainer.insertBefore(wrap, listContainer.firstChild);
+        });
+    }
 
     function hydrateServerMessages() {
         if (!messagesList) {
@@ -37,6 +147,105 @@
         });
     }
 
+    function escapeHtml(value) {
+        const div = document.createElement("div");
+        div.textContent = value;
+        return div.innerHTML;
+    }
+
+    const LINK_CLASS = "font-semibold text-red-600 underline hover:text-red-700";
+
+    function renderMarkdown(text) {
+        if (!text) {
+            return "";
+        }
+
+        let s = escapeHtml(String(text));
+
+        // images: ![alt](url)
+        s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_m, alt, url) {
+            return (
+                '<img src="' + url + '" alt="' + alt +
+                '" class="my-2 max-w-full rounded-lg" loading="lazy">'
+            );
+        });
+
+        // inline link: [text](url)
+        s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_m, label, url) {
+            return (
+                '<a href="' + url + '" target="_blank" rel="noopener" class="' +
+                LINK_CLASS + '">' + label + "</a>"
+            );
+        });
+
+        // bold: **text**
+        s = s.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+
+        // italic: *text*
+        s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
+
+        // raw URL autolink (only outside HTML attributes)
+        s = s.replace(/(^|[\s(])(https?:\/\/[^\s)<]+)/g, function (_m, lead, url) {
+            return (
+                lead + '<a href="' + url + '" target="_blank" rel="noopener" class="' +
+                LINK_CLASS + '">' + url + "</a>"
+            );
+        });
+
+        const lines = s.split("\n");
+        const out = [];
+        let listType = null;
+
+        function closeList() {
+            if (listType) {
+                out.push("</" + listType + ">");
+                listType = null;
+            }
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+            const raw = lines[i];
+            const olM = raw.match(/^\s*\d+\.\s+(.*)$/);
+            const ulM = raw.match(/^\s*[-*]\s+(.*)$/);
+
+            if (olM) {
+                if (listType !== "ol") {
+                    closeList();
+                    out.push('<ol class="my-2 list-decimal space-y-1 pl-5">');
+                    listType = "ol";
+                }
+                out.push("<li>" + olM[1] + "</li>");
+            } else if (ulM) {
+                if (listType !== "ul") {
+                    closeList();
+                    out.push('<ul class="my-2 list-disc space-y-1 pl-5">');
+                    listType = "ul";
+                }
+                out.push("<li>" + ulM[1] + "</li>");
+            } else {
+                closeList();
+                out.push(raw.trim() === "" ? "" : raw);
+            }
+        }
+        closeList();
+
+        let html = "";
+        for (let j = 0; j < out.length; j++) {
+            const part = out[j];
+            if (!part) {
+                html += "<br>";
+                continue;
+            }
+            if (/^<\/?(ol|ul|li|img|p|h\d|blockquote)\b/i.test(part)) {
+                html += part;
+            } else {
+                const isLast = j === out.length - 1;
+                html += part + (isLast ? "" : "<br>");
+            }
+        }
+        return html;
+    }
+
     function renderMessages() {
         if (!messagesList) {
             return;
@@ -46,20 +255,34 @@
 
         messages.forEach(function (message) {
             const bubble = document.createElement("div");
-            bubble.textContent = message.content;
 
             if (message.role === "user") {
                 bubble.className =
-                    "ml-auto max-w-[70%] rounded-2xl bg-red-600 px-5 py-4 text-white";
+                    "ml-auto max-w-[70%] whitespace-pre-wrap break-words rounded-2xl bg-red-600 px-5 py-4 text-white";
+                bubble.textContent = message.content;
             } else {
                 bubble.className =
-                    "max-w-[70%] rounded-2xl bg-gray-100 px-5 py-4 text-gray-900";
+                    "max-w-[80%] break-words rounded-2xl bg-gray-100 px-5 py-4 text-sm leading-relaxed text-gray-900" +
+                    (message.pending ? " opacity-70" : "");
+
+                let html = renderMarkdown(message.content);
+
+                if (message.tail) {
+                    html +=
+                        '<div class="mt-3 border-t border-gray-200 pt-3 text-xs leading-relaxed text-gray-600">' +
+                        renderMarkdown(message.tail) +
+                        "</div>";
+                }
+
+                bubble.innerHTML = html;
             }
 
             messagesList.appendChild(bubble);
         });
 
-        messagesPanel.scrollTop = messagesPanel.scrollHeight;
+        if (messagesPanel) {
+            messagesPanel.scrollTop = messagesPanel.scrollHeight;
+        }
     }
 
     function updateView() {
@@ -72,6 +295,7 @@
 
         if (messagesPanel) {
             messagesPanel.classList.toggle("hidden", !hasMessages);
+            messagesPanel.classList.toggle("block", hasMessages);
         }
 
         if (hasMessages) {
@@ -79,45 +303,125 @@
         }
     }
 
-    function sendMessage(content) {
-        const trimmed = content.trim();
-        if (!trimmed) {
+    function setBusy(isBusy) {
+        inFlight = isBusy;
+        if (inputField) {
+            inputField.disabled = isBusy;
+        }
+        if (inputSubmit) {
+            inputSubmit.disabled = isBusy;
+        }
+    }
+
+    function appendMessage(role, content, tail, pending) {
+        messageId += 1;
+        const msg = {
+            id: Date.now() + messageId,
+            role: role,
+            content: content,
+        };
+        if (tail) {
+            msg.tail = tail;
+        }
+        if (pending) {
+            msg.pending = true;
+        }
+        messages.push(msg);
+        return msg;
+    }
+
+    async function sendMessage(content) {
+        const trimmed = (content || "").trim();
+        if (!trimmed || inFlight) {
             return;
         }
 
-        messages.push({
-            id: Date.now(),
-            role: "user",
-            content: trimmed,
-        });
-        messageId += 1;
-
-        updateView();
-
-        /*
-         * 나중에 여기서 AI API 호출
-         *
-         * fetch(...)
-         *   .then(...)
-         *   .then(function (data) {
-         *     messages.push({
-         *       id: Date.now(),
-         *       role: "assistant",
-         *       content: data.reply,
-         *     });
-         *     updateView();
-         *   });
-         */
-    }
-
-    function handleNewChat() {
-        messages.length = 0;
-        messageId = 0;
-        if (window.history && window.history.replaceState) {
-            window.history.replaceState({}, "", window.location.pathname);
+        const config = getConfig();
+        if (!config.sendUrl || !config.csrf) {
+            return;
         }
+
+        appendMessage("user", trimmed);
         updateView();
-        closeSidebar();
+        setBusy(true);
+
+        const placeholder = appendMessage("assistant", "답변을 작성 중입니다…", "", true);
+        renderMessages();
+
+        let payloadChatId = null;
+        if (config.chatId) {
+            const parsed = Number(config.chatId);
+            if (!Number.isNaN(parsed) && parsed > 0) {
+                payloadChatId = parsed;
+            }
+        }
+
+        const wasNew = payloadChatId === null;
+
+        try {
+            const response = await fetch(config.sendUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": config.csrf,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    chat_id: payloadChatId,
+                    user_input: trimmed,
+                }),
+            });
+
+            const idx = messages.indexOf(placeholder);
+            if (idx !== -1) {
+                messages.splice(idx, 1);
+            }
+
+            if (!response.ok) {
+                appendMessage("assistant", "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                updateView();
+                return;
+            }
+
+            const data = await response.json().catch(function () {
+                return null;
+            });
+
+            if (!data) {
+                appendMessage("assistant", "응답을 해석할 수 없습니다.");
+                updateView();
+                return;
+            }
+
+            const reply = typeof data.response === "string" ? data.response : "";
+            const tail = typeof data.response_tail === "string" ? data.response_tail : "";
+
+            appendMessage("assistant", reply || "답변을 생성하지 못했습니다.", tail);
+            updateView();
+
+            if (data.chat_id) {
+                if (wasNew) {
+                    insertSidebarRoom(
+                        data.chat_id,
+                        data.chatroom_name || trimmed.slice(0, 30)
+                    );
+                }
+                setChatId(data.chat_id);
+            }
+        } catch (err) {
+            const idx = messages.indexOf(placeholder);
+            if (idx !== -1) {
+                messages.splice(idx, 1);
+            }
+            appendMessage("assistant", "네트워크 오류로 응답을 받지 못했습니다.");
+            updateView();
+        } finally {
+            setBusy(false);
+            if (inputField) {
+                inputField.focus();
+            }
+        }
     }
 
     function openSidebar() {
@@ -135,14 +439,11 @@
     if (inputForm && inputField) {
         inputForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            sendMessage(inputField.value);
+            const value = inputField.value;
             inputField.value = "";
+            sendMessage(value);
         });
     }
-
-    newChatButtons.forEach(function (button) {
-        button.addEventListener("click", handleNewChat);
-    });
 
     recommendedButtons.forEach(function (button) {
         button.addEventListener("click", function () {

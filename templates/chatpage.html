@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <main class="mx-auto h-[calc(100vh-64px)] max-w-6xl p-4 md:grid md:grid-cols-[280px_1fr] md:gap-6 md:p-6 lg:px-8">
+    <main class="mx-auto h-[calc(100vh-64px)] max-w-6xl p-4 md:grid md:grid-cols-[280px_1fr] md:grid-rows-1 md:gap-6 md:p-6 lg:px-8">
         <div class="hidden md:block">
             {% include "components/chat/chat_sidebar.html" %}
         </div>
@@ -41,5 +41,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/chatpage.js' %}"></script>
+<script src="{% static 'js/chatpage.js' %}?v={% now 'U' %}"></script>
 {% endblock %}
