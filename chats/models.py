@@ -2,6 +2,9 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 
+def default_state():
+    return {"state":"initial", "slots":{}}
+
 # Create your models here.
 class Chatroom(models.Model):
     account = models.ForeignKey(
@@ -12,6 +15,7 @@ class Chatroom(models.Model):
     
     name = models.CharField(max_length=30)
     timestamp = models.DateTimeField(default=timezone.now)
+    agent_state = models.JSONField(default=default_state)
 
     def add_chat(self, is_userchat, content):
         ind = self.chats.count()

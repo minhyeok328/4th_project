@@ -1,7 +1,6 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from common.utils import get_product, search_product
-from urllib.parse import urlencode
 
 # Create your views here.
 def productpage(request, product_code):
@@ -20,12 +19,10 @@ def searchpage(request):
     default_type = "REF"
 
     if "product_type" not in request.GET or "page" not in request.GET:
-        query = urlencode({
-            "product_type": request.GET.get("product_type", default_type),
-            "page": request.GET.get("page", 1),
-        })
-
-        return redirect(f"{request.path}?{query}")
+        query = request.GET.copy()
+        query.setdefault("product_type", default_type)
+        query.setdefault("page", "1")
+        return redirect(f"{request.path}?{query.urlencode()}")
     
     product_type = request.GET.get("product_type", default_type)
     page_num = request.GET.get("page", 1)

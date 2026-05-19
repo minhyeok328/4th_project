@@ -1,0 +1,1 @@
+{% spaceless %}{% with pt=request.GET.product_type|default:"REF" %}{% if pt == "TVT" %}TV{% elif pt == "WMT" %}세탁기{% elif pt == "REF" %}냉장고{% elif pt == "ACT" %}에어컨{% elif pt == "VAC" %}청소기{% else %}{{ pt }}{% endif %}{% endwith %}{% endspaceless %}

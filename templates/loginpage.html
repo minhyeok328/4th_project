@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="ko">
+{% extends "base_page.html" %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <title>Document</title>
-</head>
+{% block title %}로그인{% endblock %}
 
-<body>
-    <p>로그인 페이지</p>
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username">
-        <input type="password" name="password">
-        <button type="submit">로그인</button>
-    </form>
-    {% if login_fail %}
-    <p>로그인 실패</p>
-    {% endif %}
-    <a href="{% url 'mainpage:mainpage' %}">메인페이지로</a>
-</body>
+{% block content %}
+{% include "components/header.html" %}
 
-</html>
+<div class="min-h-screen bg-neutral-50 text-gray-900">
+    <main class="flex min-h-[calc(100vh-64px)] items-center justify-center px-4 py-10 sm:px-6">
+        <section class="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-8 shadow-sm sm:p-10">
+            {% include "components/auth/login_form.html" %}
+            {% include "components/auth/reset_password_form.html" %}
+        </section>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/loginpage.js' %}"></script>
+{% endblock %}

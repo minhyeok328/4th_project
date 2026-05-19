@@ -1,5 +1,6 @@
 from django.db import models
 from products import models as p_models
+from accounts import models as a_models
 
 def safe_get(mod:models.Model, dct):
     try:
@@ -51,6 +52,15 @@ def get_product(product_code:str):
         case _:
             return None, None
 
+def get_favorites(account_id:int):
+    return list(
+        a_models.UserFavorite.objects
+        .filter(account_id=account_id)
+        .values_list("product_code", flat=True)
+    )
+
 def search_product(product_type, range, conditions):
     model = get_model(product_type)
+    if model is None:
+        return []
     return model.search(range, **conditions)

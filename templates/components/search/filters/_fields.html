@@ -1,0 +1,39 @@
+{% if field_type == "text" %}
+<div class="space-y-2">
+    <label class="text-sm font-medium text-gray-800" for="filter-{{ field }}">{{ label }}</label>
+    <input type="text" id="filter-{{ field }}" name="{{ field }}" placeholder="{{ placeholder|default:label }}"
+        class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+        data-filter-param />
+</div>
+
+{% elif field_type == "range" %}
+<div class="space-y-2" data-filter-range{% if range_min != None %} data-range-min="{{ range_min }}"{% endif %}{% if range_max != None %} data-range-max="{{ range_max }}"{% endif %}{% if range_step %} data-range-step="{{ range_step }}"{% endif %}>
+    {% if label %}<p class="text-sm font-medium text-gray-800">{{ label }}</p>{% endif %}
+    <div class="{% if layout == 'stack' %}flex flex-col gap-2{% else %}grid grid-cols-2 gap-2{% endif %}">
+        <input type="{{ input_type|default:'number' }}" name="{{ field }}__gte" inputmode="numeric" placeholder="최소{% if unit %} ({{ unit }}){% endif %}"
+            class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+            data-filter-param data-filter-bound="min"{% if range_min != None and input_type != 'text' %} min="{{ range_min }}"{% endif %}{% if range_max != None and input_type != 'text' %} max="{{ range_max }}"{% endif %}{% if range_step and input_type != 'text' %} step="{{ range_step }}"{% endif %} />
+        <input type="{{ input_type|default:'number' }}" name="{{ field }}__lte" inputmode="numeric" placeholder="최대{% if unit %} ({{ unit }}){% endif %}"
+            class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+            data-filter-param data-filter-bound="max"{% if range_min != None and input_type != 'text' %} min="{{ range_min }}"{% endif %}{% if range_max != None and input_type != 'text' %} max="{{ range_max }}"{% endif %}{% if range_step and input_type != 'text' %} step="{{ range_step }}"{% endif %} />
+    </div>
+</div>
+
+{% elif field_type == "chips" %}
+<div class="space-y-2" data-filter-chips data-field="{{ field }}" data-mode="{{ mode|default:'multi' }}" data-label="{{ label }}">
+    <p class="text-sm font-medium text-gray-800">{{ label }}</p>
+    <div class="flex flex-wrap gap-2" data-filter-chips-list role="group" aria-label="{{ label }}"></div>
+    <input type="hidden" name="{% if mode == 'single' %}{{ field }}{% else %}{{ field }}__in{% endif %}" data-filter-chip-value data-filter-param />
+</div>
+
+{% elif field_type == "toggle" %}
+<div class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/80 px-3 py-2.5" data-filter-toggle data-field="{{ field }}">
+    <span class="text-sm font-medium text-gray-800">{{ label }}</span>
+    <label class="relative inline-flex cursor-pointer items-center">
+        <input type="checkbox" class="peer sr-only" data-filter-toggle-input aria-label="{{ label }}" />
+        <span class="h-6 w-11 rounded-full bg-gray-200 transition-colors peer-checked:bg-red-600 peer-focus-visible:ring-2 peer-focus-visible:ring-red-500/30"></span>
+        <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+    </label>
+    <input type="hidden" name="{{ field }}" value="" data-filter-param data-filter-toggle-hidden />
+</div>
+{% endif %}

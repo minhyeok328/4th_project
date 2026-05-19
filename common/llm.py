@@ -1,14 +1,29 @@
-from operator import add
-from typing import Annotated
+import warnings
+from langchain_core._api.deprecation import LangChainPendingDeprecationWarning
+
+warnings.filterwarnings(
+    "ignore",
+    category=LangChainPendingDeprecationWarning
+)
+
 from typing_extensions import TypedDict
-from typing import Literal, Optional, List, Dict, Any
+from typing import Literal
+from django.urls import reverse
+from urllib.parse import urlencode
+from copy import deepcopy
 from langgraph.graph import StateGraph, START, END
 
-from langchain_core.messages import AIMessage, HumanMessage
+from .utils import search_product, get_favorites
+import common.llm_agent as agents
+import common.vector_search as vector_db
+
+from chats.models import Chatroom
 
 ############################################################
 # state definition
 ############################################################
+
+result_boundary = 5
 
 ConversationState = Literal["initial", "subseq", "context"]
 
@@ -35,25 +50,32 @@ RouteFromDBSearch = Literal[
 
 
 class GraphState(TypedDict, total=False):
+    # 사용자 id
+    user_id: int
+
     # 현재 대화 상태
     state: ConversationState
     # 다음 상태
     next_state: ConversationState
 
     # 채팅 기록 MessageList
-    messages: list
+    chats: list[str]
 
     # 제품군 / 슬롯
     product_type: str
-    slots: list[dict]
+    slots: dict
+    intent: dict
 
     # 후속 질문 여부
     is_fall_case: bool
     is_subsequence: bool
 
-    # 검색 결과
-    search_results: List[Dict[str, Any]]
+    # DB 검색 결과
     result_count: int
+    search_results: list
+
+    # 사용설명서 검색 결과
+    manual_results: list[dict]
 
     # 최종 답변
     response: str
@@ -61,6 +83,176 @@ class GraphState(TypedDict, total=False):
     # 채팅 기록에는 안들어갈 추가 text
     response_tail: str
 
+
+def _is_empty_condition(value):
+    return value is None or value == "" or value == [] or value == () or value == set()
+
+
+def _as_condition_list(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    if isinstance(value, set):
+        return list(value)
+    return [value]
+
+
+def _get_condition_lookup(key):
+    for lookup in ("gte", "lte", "in", "icontains"):
+        if key.endswith(f"_{lookup}"):
+            return lookup
+    return None
+
+
+def add_condition(base_condition: dict, new_condition: dict) -> dict:
+    result = {
+        key: deepcopy(value)
+        for key, value in (base_condition or {}).items()
+        if not _is_empty_condition(value)
+    }
+
+    for key, value in (new_condition or {}).items():
+        if _is_empty_condition(value):
+            continue
+
+        lookup = _get_condition_lookup(key)
+        current = result.get(key)
+
+        if _is_empty_condition(current):
+            result[key] = deepcopy(value)
+            continue
+
+        match lookup:
+            case "gte":
+                result[key] = max(current, value)
+            case "lte":
+                result[key] = min(current, value)
+            case "in":
+                value_list = _as_condition_list(value)
+                result[key] = [
+                    item
+                    for item in _as_condition_list(current)
+                    if item in value_list
+                ]
+            case "icontains":
+                result[key] = _as_condition_list(current) + _as_condition_list(value)
+            case _:
+                result[key] = deepcopy(value)
+
+    return result
+
+def get_searchable_conditions(code_header: str) -> list[str]:
+    match code_header:
+        # TV
+        case "TVT":
+            return [
+                "이름",
+                "가격",
+                "전력소비효율등급",
+                "전력 소비량",
+                "화면 크기",
+                "디스플레이 종류",
+                "주사율",
+                "운영체제",
+                "스피커 출력",
+                "가로",
+                "세로",
+                "두께",
+                "무게",
+                "해상도",
+            ]
+
+        # 에어컨
+        case "ACT":
+            return [
+                "이름",
+                "가격",
+                "전력소비효율등급",
+                "전력 소비량",
+                "냉방 능력",
+                "전압",
+                "주파수",
+                "실내기 가로",
+                "실내기 세로",
+                "실내기 두께",
+                "실외기 가로",
+                "실외기 세로",
+                "실외기 두께",
+                "냉방 면적",
+                "풍속",
+                "제습 기능",
+                "색상",
+            ]
+
+        # 냉장고
+        case "REF":
+            return [
+                "이름",
+                "가격",
+                "전력소비효율등급",
+                "전력 소비량",
+                "설치 타입",
+                "도어 개수",
+                "전체 용량",
+                "냉장 용량",
+                "냉동 용량",
+                "가로",
+                "세로",
+                "두께",
+                "무게",
+                "색상",
+                "도어 타입",
+                "냉각 방식",
+                "스마트 진단",
+                "제빙 기능",
+            ]
+
+        # 청소기
+        case "VAC":
+            return [
+                "이름",
+                "가격",
+                "전력소비효율등급",
+                "전력 소비량",
+                "본체 가로",
+                "본체 세로",
+                "본체 두께",
+                "타워 가로",
+                "타워 세로",
+                "타워 두께",
+                "본체 무게",
+                "타워 무게",
+                "색상",
+                "흡입력",
+                "배터리 개수",
+            ]
+
+        # 세탁기
+        case "WMT":
+            return [
+                "이름",
+                "가격",
+                "전력소비효율등급",
+                "전력 소비량",
+                "세탁 용량",
+                "건조 용량",
+                "가로",
+                "세로",
+                "두께",
+                "무게",
+                "색상",
+                "도어 디자인",
+                "제어 방식",
+                "도어 타입",
+                "수온",
+                "탈수 성능",
+            ]
+
+        case _:
+            return []
 
 ############################################################
 # node definition
@@ -73,12 +265,13 @@ def fall_case_node(state: GraphState) -> GraphState:
     """
 
     # llm implement part
-    # 사교성 대화만 한 경우
-    is_fall_case = False
-    response = "안녕하세요"
+    llm_result = agents.invoke_fall_case_node(state["chats"])
+
+    is_fall_case = llm_result.is_fall_case
+    response = llm_result.response
 
     # return value
-    rstate = {**state}
+    rstate = deepcopy(state)
     rstate["is_fall_case"] = is_fall_case
     if is_fall_case:
         rstate["next_state"] = rstate["state"]
@@ -95,15 +288,17 @@ def subsequence_router_node(state: GraphState) -> GraphState:
     """
 
     # llm implement part
-    # 만약 후속 질문 의사가 있을 경우
-    is_subsequence = False
+    llm_result = agents.invoke_subsequence_router_node([state["chats"][-1]])
+    is_subsequence = llm_result.is_subsequence
 
-    rstate = {**state}
+    rstate = deepcopy(state)
     rstate["is_subsequence"] = is_subsequence
     if not is_subsequence:
         rstate["state"] = "initial"
         rstate["product_type"] = ""
-        rstate["slots"] = []
+        rstate["slots"] = {}
+        rstate["result_count"] = 0
+        rstate["search_results"] = []
     return rstate
 
 
@@ -124,12 +319,14 @@ def product_classification_node(state: GraphState) -> GraphState:
     # 청소기: "VAC"
     # 세탁기: "WMT"
     # 요청하지 않았으면: "" < 빈 문자열 + 답변: 먼저 ~~해주세요
-    product_type = "ACT"
+    llm_result = agents.invoke_product_classification_node([state["chats"][-1]])
+    product_type = llm_result.product_type
 
-    rstate = {**state}
+    rstate = deepcopy(state)
     rstate["product_type"] = product_type
     if product_type:
         rstate["state"] = "context"
+        rstate["slots"] = {}
     else:
         rstate["next_state"] = "initial"
         rstate["response"] = "먼저 검색할 상품군을 지정해주세요\n가능한 상품군 목록:\nTV, 에어컨, 냉장고, 청소기, 세탁기"
@@ -149,10 +346,26 @@ def intent_router_node(state: GraphState) -> GraphState:
     # llm implement part
     # models.py 참조해서 모든 필드가 _로 4개의 옵션 받아서 dictionary로 가공
     # slots리스트 맨 마지막에 append
-    slot = {}
+    llm_result = agents.invoke_intent_router_node(state["product_type"], state["chats"])
+    llm_result = llm_result.model_dump()
 
-    rstate = {**state}
-    rstate["slots"].append(slot)
+    cond_fav = {}
+    if llm_result["from_favorites"]:
+        cond_fav["product_code_in"] = [f for f in get_favorites(state["user_id"]) if f[:3] == state["product_type"]]
+    
+    manual_result = []
+    cond_vec = {}
+    if llm_result["vector_search"] != "":
+        manual_result = vector_db.search_manual(state["product_type"], llm_result["vector_search"])
+        cond_vec["product_code_in"] = [d["product_code"] for d in manual_result]
+
+    buff = {k:v for k, v in llm_result.items() if k not in ["from_favorites", "vector_search"]}
+    res = add_condition(cond_fav, cond_vec)
+    res = add_condition(buff, res)
+
+    rstate = deepcopy(state)
+    rstate["intent"] = res
+    rstate["manual_results"] = manual_result
     return rstate
 
 
@@ -167,12 +380,26 @@ def db_search_node(state: GraphState) -> GraphState:
 
     # DB 검색해서 결과 길이 확인
     # 충분히 짧으면 검색 결과도 반환
-    result_count = 10
-    search_result = [{}, {}, {}]
+    conditions = add_condition(state["slots"], state["intent"])
 
-    rstate = {**state}
+    if not ("product_code_in" in conditions and len(conditions["product_code_in"]) == 0):
+        db_results = search_product(state["product_type"], conditions.get("product_code_in", []), conditions)
+        result_count = len(db_results)
+
+        if result_count <= result_boundary:
+            search_result = db_results
+        else:
+            search_result = []
+    else:
+        result_count = 0
+        search_result = []
+
+    rstate = deepcopy(state)
+    if result_count != 0:
+        rstate["slots"] = conditions
+
     rstate["result_count"] = result_count
-    rstate["search_result"] = search_result
+    rstate["search_results"] = search_result
     return rstate
 
 def reverse_condition(state: GraphState) -> GraphState:
@@ -182,13 +409,12 @@ def reverse_condition(state: GraphState) -> GraphState:
     가장 최신 조건을 삭제하고 답변 생성
     """
 
-    # 답변: 죄송하지만 그 조건에 맞는 결과는 없으니까 이전 단계로 돌아갑니다
-    response = "hello"
+    response = "죄송합니다. 그 조건에 맞는 제품이 존재하지 않아 검색 조건을 되돌리겠습니다.\n다른 조건을 시도해주세요."
 
-    rstate = {**state}
+    rstate = deepcopy(state)
     rstate["next_state"] = rstate["state"]
     rstate["response"] = response
-    rstate["slots"] = rstate["slots"][:-1]
+    rstate["response_tail"] = "가능한 조건: " + ", ".join(get_searchable_conditions(state["product_type"]))
     return rstate
 
 
@@ -200,8 +426,11 @@ def answer_with_result_node(state: GraphState) -> GraphState:
     """
 
     # llm implement part
+    llm_result = agents.invoke_answer_with_result_node(state, state["chats"])
 
-    rstate = {**state}
+    rstate = deepcopy(state)
+    rstate["next_state"] = "subseq"
+    rstate["response"] = llm_result.answer
     return rstate
 
 
@@ -214,8 +443,15 @@ def answer_without_result_node(state: GraphState) -> GraphState:
 
     # 답변: 검색 결과가 너무 많아서 추가 조건이 필요해요
     # 제시할 수 있는 답변 목록
+    response = f"해당 조건에 맞는 검색 결과는 총 {state['result_count']}건 입니다.\n다른 조건을 추가하거나 아래의 링크를 이용해 주세요."
 
-    rstate = {**state}
+    base_url = reverse("products:searchpage")
+    url = f"{base_url}?{urlencode(state['slots'])}"
+
+    rstate = deepcopy(state)
+    rstate["next_state"] = "context"
+    rstate["response"] = response
+    rstate["response_tail"] = "가능한 조건: " + ", ".join(get_searchable_conditions(state["product_type"])) + "\n" + url
     return rstate
 
 
@@ -282,12 +518,12 @@ def route_from_db_search(state: GraphState) -> RouteFromDBSearch:
     db_search -->|0 < 검색 제품 수 <= n| answer_with_result
     db_search -->|검색 제품 수 > n| answer_without_result
     """
-    n = 5
+    global result_boundary
     result_count = state.get("result_count", 0)
 
     if result_count == 0:
         return "reverse_condition"
-    elif 0 < result_count <= n:
+    elif 0 < result_count <= result_boundary:
         return "answer_with_result"
 
     return "answer_without_result"
@@ -314,7 +550,7 @@ builder.add_edge(START, "fall_case_node")
 
 # fall_case_node 분기
 builder.add_conditional_edges(
-    fall_case_node,
+    "fall_case_node",
     route_from_start,
     {
         "subsequence_router": "subsequence_router",
@@ -374,43 +610,32 @@ graph_instance = builder.compile()
 # global utilities
 ############################################################
 
-def extract_messages(chats):
-    """
-    chats.models의 SingelChat list를 파싱하는 함수
-    반환값을 state에 담아서 invoke 하면 됨
-
-    input: list[SingleChat]
-    output: list[HumanMessage|AIMessage]
-    """
-    messages = []
-    for c in chats:
-        mes = HumanMessage(content=c.content) if c.is_userchat else AIMessage(content=c.content)
-        messages.append(mes)
-    
-    return messages
-
-def clean_state(state:dict) -> dict:
-    """
-    messages invoke 간의 state 청소용 함수
-    messages 이외의 모든 필드를 제거
-
-    input: AgentState
-    output: AgentState
-    """
-    for k in [l for l in state.keys() if l != "messages"]:
-        state[k] = None
-
-    return state
-
-def invoke_graph(state:dict) -> dict:
-    """
-    graph build 없이 invoke하는 함수
-
-    input: AgentState
-    output: AgentState
-    """
+def add_chat(room:Chatroom, user_input:str) -> str:
     global graph_instance
 
-    result = graph_instance.invoke(state)
+    formal_state = room.agent_state
 
-    return result
+    if "user_id" not in formal_state:
+        room.agent_state["user_id"] = room.account.id
+        formal_state = room.agent_state
+
+    state = deepcopy(formal_state)
+
+    room.add_chat(True, user_input)
+    chats = []
+    for c in room.view_chats():
+        chats.append(c.content)
+    state["chats"] = chats
+
+    result = graph_instance.invoke(state)
+    response_tail = result.get("response_tail", "")
+
+    room.agent_state["state"] = result["next_state"]
+    room.agent_state["product_type"] = result.get("product_type", "")
+    room.agent_state["slots"] = result["slots"]
+    room.agent_state["manual_results"] = result.get("manual_results", [])
+    room.save()
+
+    room.add_chat(False, result["response"])
+
+    return result["response"], response_tail
