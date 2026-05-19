@@ -1,8 +1,8 @@
 <header
-    class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-100 bg-white/95 px-4 shadow-sm backdrop-blur-md sm:px-8">
+    class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-gray-200/70 bg-white/85 px-4 backdrop-blur-md sm:px-8">
     <a href="{% url 'mainpage:mainpage' %}"
-        class="text-lg font-semibold tracking-tight text-gray-900 transition-colors duration-200 hover:text-red-600">
-        <span class="font-bold text-red-600">LG</span> Home
+        class="text-[17px] font-semibold tracking-tight text-gray-900 transition-colors duration-200 hover:text-red-600">
+        <span class="font-black tracking-tighter text-red-600">LG</span> <span class="font-medium text-gray-700">Home</span>
     </a>
 
     <div class="flex items-center gap-2 sm:gap-3">
@@ -11,21 +11,21 @@
         <form method="post" action="{% url 'accounts:logout' %}" class="inline">
             {% csrf_token %}
             <button type="submit"
-                class="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow">
+                class="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50">
                 로그아웃
             </button>
         </form>
         <a href="{% url 'accounts:mypage' %}"
-            class="rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md">
+            class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow">
             마이페이지
         </a>
         {% else %}
         <a href="{% url 'accounts:loginpage' %}"
-            class="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow">
+            class="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50">
             로그인
         </a>
         <a href="{% url 'accounts:registerpage' %}"
-            class="rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow-md">
+            class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow">
             회원가입
         </a>
         {% endif %}
