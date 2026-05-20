@@ -442,20 +442,20 @@ def answer_without_result_node(state: GraphState) -> GraphState:
     검색 결과가 너무 많거나 조건이 부족한 경우 추가 정보 요청
     """
 
-    # 답변: 검색 결과가 너무 많아서 추가 조건이 필요해요
-    # 제시할 수 있는 답변 목록
-    response = f"해당 조건에 맞는 검색 결과는 총 {state['result_count']}건 입니다.\n다른 조건을 추가하거나 아래의 링크를 이용해 주세요."
-
     subq = deepcopy(state['slots'])
     subq["product_type"] = state["product_type"]
 
     base_url = reverse("products:searchpage")
     url = f"{state['root_url']}/{base_url}?{urlencode(subq, doseq=True)}"
 
+    # 답변: 검색 결과가 너무 많아서 추가 조건이 필요해요
+    # 제시할 수 있는 답변 목록
+    response = f"해당 조건에 맞는 검색 결과는 총 {state['result_count']}건 입니다.\n다른 조건을 추가하거나 아래의 링크를 이용해 주세요.\n\n{url}"
+
     rstate = deepcopy(state)
     rstate["next_state"] = "context"
     rstate["response"] = response
-    rstate["response_tail"] = "가능한 조건: " + ", ".join(get_searchable_conditions(state["product_type"])) + "\n" + url
+    rstate["response_tail"] = "가능한 조건: " + ", ".join(get_searchable_conditions(state["product_type"]))
     return rstate
 
 
