@@ -1,3 +1,18 @@
+/**
+ * AI 챗봇 대화 페이지 클라이언트 스크립트.
+ *
+ * 역할:
+ * - 서버 렌더 메시지 복원 → in-memory 배열 → 말풍선 DOM 갱신
+ * - 사용자·추천 질문 전송 → Django JSON API → assistant 응답(마크다운+tail) 표시
+ * - 새 대화 시 사이드바 목록·`chat_id` URL 동기화(history.replaceState)
+ *
+ * 외부 연결:
+ * - `#chat-input-form` data-send-chat-url, data-csrf-token, data-chatpage-url, data-chat-id
+ * - `ApiResponse.fetchJson` + `buildJsonPostInit` (LLM 응답은 서버에서 생성)
+ * - XSS: `renderMarkdown` → `sanitizeChatHtml` (허용 태그·http(s) URL만)
+ *
+ * 실행 순서: IIFE 1회 → hydrateServerMessages → updateView → submit/추천질문 → sendMessage
+ */
 (function () {
     "use strict";
 
@@ -7,6 +22,7 @@
     }
     window.__lgChatPageInitialized = true;
 
+    // 클라이언트 메시지 상태 — 서버 HTML과 병합 후 여기서만 렌더 소스로 사용
     /** @type {{ id: number, role: "user" | "assistant", content: string, tail?: string, pending?: boolean }[]} */
     const messages = [];
     let messageId = 0;
@@ -29,6 +45,7 @@
     const mobileMedia = window.matchMedia("(max-width: 767px)");
     const recommendedButtons = document.querySelectorAll("[data-recommended-question]");
 
+    /** 폼 data-*에서 전송 URL·CSRF·채팅방 페이지 URL·현재 chat_id를 읽는다 */
     function getConfig() {
         if (!inputForm) {
             return { sendUrl: "", csrf: "", chatpageUrl: "", chatId: "" };
@@ -41,6 +58,10 @@
         };
     }
 
+    /**
+     * 활성 대화 id를 폼 dataset과 브라우저 URL(?chat_id=)에 반영한다.
+     * 새로고침·공유 시 동일 대화를 열 수 있게 history.replaceState 사용.
+     */
     function setChatId(newId) {
         if (!inputForm) {
             return;
@@ -60,6 +81,10 @@
         window.history.replaceState({}, "", target);
     }
 
+    /**
+     * 첫 메시지로 새 대화가 생성되면 사이드바에 방 링크·삭제 폼을 DOM으로 삽입한다.
+     * 서버 전체 리렌더 없이 목록만 갱신하기 위함.
+     */
     function insertSidebarRoom(chatId, name) {
         if (!chatId) {
             return;
@@ -138,6 +163,7 @@
         });
     }
 
+    /** SSR로 내려온 `[data-server-message]`를 messages 배열로 옮긴다(초기 1회) */
     function hydrateServerMessages() {
         if (!messagesList) {
             return;
@@ -159,6 +185,7 @@
         });
     }
 
+    /** 텍스트 노드 경유로 HTML 이스케이프 — 마크다운 전처리용 */
     function escapeHtml(value) {
         const div = document.createElement("div");
         div.textContent = value;
@@ -172,6 +199,10 @@
     const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|bmp|svg|avif)(\?[^\s#]*)?$/i;
     const LGE_IMAGE_PATH_RE = /\/kr\/images\//i;
 
+    /**
+     * 확장자 또는 LG 이미지 경로 패턴으로 이미지 URL 여부를 판별한다.
+     * 링크 대신 인라인 img로 렌더할지 결정하는 데 사용.
+     */
     // REFACTOR (AI 대화 이미지): URL이 이미지인지 판별 — 마크다운·자동링크를 공통 <img>로 통일
     function isImageUrl(url) {
         if (!isSafeHttpUrl(url)) {
@@ -196,6 +227,7 @@
         }
     }
 
+    /** 안전 URL 전제 하 챗용 img 태그 HTML 문자열 생성 */
     function buildChatImageHtml(url, alt) {
         const safeAlt = (alt || "상품 이미지").trim() || "상품 이미지";
         return (
@@ -231,6 +263,10 @@
         }
     }
 
+    /**
+     * LLM·마크다운 치환 HTML을 DOMParser로 파싱 후 화이트리스트 태그·클래스·URL만 허용한다.
+     * javascript:/data: 등 비안전 링크·이미지는 제거 또는 텍스트로 대체.
+     */
     // REFACTOR (챗봇 URL 보안): 렌더 결과에서 허용 태그·속성만 남기고 이벤트 핸들러·위험 URL 제거
     function sanitizeChatHtml(html) {
         if (!html) {
@@ -353,6 +389,10 @@
         return root.innerHTML;
     }
 
+    /**
+     * 제한된 마크다운(굵게·기울임·목록·링크·이미지)을 HTML로 변환 후 sanitize한다.
+     * assistant 말풍선 본문·tail 모두 이 경로를 탄다.
+     */
     function renderMarkdown(text) {
         if (!text) {
             return "";
@@ -402,6 +442,7 @@
             );
         });
 
+        // 줄 단위로 ordered/unordered 목록 태그를 열고 닫으며 HTML 조각 배열 생성
         const lines = s.split("\n");
         const out = [];
         let olOpen = false;
@@ -503,6 +544,7 @@
         return sanitizeChatHtml(html);
     }
 
+    /** messages 배열 전체를 말풍선 DOM으로 다시 그리고 패널을 맨 아래로 스크롤 */
     function renderMessages() {
         if (!messagesList) {
             return;
@@ -542,6 +584,7 @@
         }
     }
 
+    /** 메시지 유무에 따라 추천 질문 영역·대화 패널 표시를 전환하고 필요 시 renderMessages 호출 */
     function updateView() {
         const hasMessages = messages.length > 0;
 
@@ -560,6 +603,7 @@
         }
     }
 
+    /** API 요청 중 입력·전송 버튼 비활성화(inFlight와 연동) */
     function setBusy(isBusy) {
         inFlight = isBusy;
         if (inputField) {
@@ -577,6 +621,7 @@
         }
     }
 
+    /** assistant placeholder 말풍선에 "답변 작성 중..." 점 애니메이션 적용 */
     function startPendingDotsAnimation(placeholderMsg) {
         stopPendingDotsAnimation();
 
@@ -595,6 +640,7 @@
         }, 450);
     }
 
+    /** messages에 한 건 추가하고 객체 참조를 반환(placeholder 애니메이션용) */
     function appendMessage(role, content, tail, pending) {
         messageId += 1;
         const msg = {
@@ -612,6 +658,10 @@
         return msg;
     }
 
+    /**
+     * 사용자 메시지를 로컬에 추가한 뒤 챗 API로 전송하고 응답을 assistant 말풍선으로 반영한다.
+     * 새 대화(wasNew)이면 사이드바·chat_id URL을 갱신한다.
+     */
     async function sendMessage(content) {
         const trimmed = (content || "").trim();
         if (!trimmed || inFlight) {
@@ -718,6 +768,7 @@
         }
     }
 
+    /** 모바일 대화 목록 오버레이 열기 — body 스크롤 잠금 */
     function openSidebar() {
         if (sidebarOverlay) {
             sidebarOverlay.classList.remove("hidden");
@@ -741,6 +792,7 @@
         }
     }
 
+    // 이벤트: 폼 제출 → sendMessage, 추천 질문, 사이드바·ESC·모바일 입력 포커스
     if (inputForm && inputField) {
         inputForm.addEventListener("submit", function (event) {
             event.preventDefault();
@@ -791,6 +843,7 @@
         });
     }
 
+    // 초기화 마무리: SSR 메시지 복원 후 화면 상태 동기화
     hydrateServerMessages();
     updateView();
 })();

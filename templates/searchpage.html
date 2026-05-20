@@ -1,3 +1,4 @@
+{# 상품 검색 SSR + GET 필터 — LGSearchPage(filter, pagination), search_filter.css #}
 {% extends "base_page.html" %}
 {% load static %}
 
@@ -24,6 +25,7 @@
 
 <link rel="stylesheet" href="{% static 'css/search_filter.css' %}" />
 <link rel="stylesheet" href="{% static 'css/mobile-viewport.css' %}" />
+{# filter.js loadOptions()가 참조하는 정적 JSON URL — ApiResponse보다 먼저 정의 #}
 <script>
     window.SEARCH_FILTER_OPTIONS_URL = "{% static 'data/search_filter_options.json' %}";
 </script>

@@ -1,3 +1,10 @@
+"""
+상품 검색·상세 SSR 뷰.
+
+- searchpage: GET 쿼리 → common.utils.search_product → Paginator
+- productpage: product_code 경로 → get_product, 찜 여부
+"""
+
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from common.utils import get_product, search_product
@@ -6,10 +13,12 @@ LIST_CONDITION_SUFFIXES = ("_in", "_icontains", "__in", "__icontains")
 
 
 def _is_list_condition(key):
+    """필터 키가 다중값(콤마·getlist) 조건인지 접미사로 판별."""
     return key.endswith(LIST_CONDITION_SUFFIXES)
 
 
 def _get_condition_values(key, values):
+    """request.GET.getlist 값을 단일값 또는 리스트 조건으로 정규화."""
     clean_values = [value for value in values if value is not None and value != ""]
 
     if not _is_list_condition(key):
@@ -26,8 +35,8 @@ def _get_condition_values(key, values):
     return clean_values
 
 
-# Create your views here.
 def productpage(request, product_code):
+    """상품 상세 템플릿 — 로그인 시 찜 여부 is_favorite."""
     product_type, product_data = get_product(product_code)
     is_favorite = False
     if request.user.is_authenticated and product_data is not None:
@@ -46,8 +55,14 @@ def productpage(request, product_code):
     )
 
 def searchpage(request):
+    """
+    검색 결과 페이지 — product_type·page 기본값 리다이렉트 후 필터 GET → 페이지네이션.
+
+    프론트 filter.js는 동일 쿼리 키로 GET submit, pagination.js가 page 링크 생성.
+    """
     default_type = "REF"
 
+    # 북마크·첫 진입 시 product_type=REF, page=1 보장
     if "product_type" not in request.GET or "page" not in request.GET:
         query = request.GET.copy()
         query.setdefault("product_type", default_type)
@@ -61,6 +76,7 @@ def searchpage(request):
     for key in request.GET:
         if key in ["product_type", "page"]:
             continue
+        # 나머지 키는 search/filter.js 필터 name과 1:1 대응
 
         values = _get_condition_values(key, request.GET.getlist(key))
         if values is not None and values != []:

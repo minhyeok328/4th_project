@@ -1,7 +1,24 @@
+/**
+ * 검색 필터 패널 클라이언트 모듈.
+ *
+ * 역할:
+ * - URL 쿼리와 폼 입력 동기화, 활성 필터 pill·개수 뱃지
+ * - 상품군별 칩·범위·가격 프리셋 UI (옵션은 `SEARCH_FILTER_OPTIONS_URL` JSON)
+ * - 제출 시 빈 필드 name 제거 후 GET으로 검색 — 서버가 목록을 다시 렌더
+ *
+ * 외부 연결:
+ * - `window.SEARCH_FILTER_OPTIONS_URL` — 필터 선택지 API
+ * - `ApiResponse.fetchJson` — 옵션 로드·에러·로딩 UI
+ * - 등록: `window.LGSearchPage.initSearchFilter`
+ */
 (function () {
     "use strict";
 
     // REFACTOR (유지보수성): 검색 필터 관련 로직을 엔트리 파일에서 분리해 단일 책임을 명확히 유지
+    /**
+     * `[data-search-filter-form]`이 있을 때만 필터 UI 전체를 초기화한다.
+     * 흐름: URL 복원 → 옵션 fetch → 칩/프리셋 렌더 → submit·모바일 뷰포트 바인딩.
+     */
     function initSearchFilter() {
         const FILTER_LABELS = {
             name: "상품명",
@@ -95,6 +112,7 @@
             return;
         }
 
+        // product_type(REF/TV 등)는 칩 옵션 JSON 키와 URL 기본값에 사용
         const productType = filterRoot.dataset.productType || "REF";
         const params = new URLSearchParams(window.location.search);
         const priceMinInput = form.querySelector('input[name="price__gte"]');
@@ -186,6 +204,7 @@
             }
         }
 
+        /** 단일 필터 키를 제거한 GET URL — pill 클릭 시 즉시 이동용 */
         function buildUrlWithoutParam(removeKey) {
             const next = new URLSearchParams(window.location.search);
             next.delete(removeKey);
@@ -196,6 +215,7 @@
             return window.location.pathname + (query ? "?" + query : "");
         }
 
+        /** 현재 URL 파라미터를 pill 링크로 그려 한 번에 제거 가능하게 한다 */
         function renderActiveFilters() {
             if (!activeFiltersEl || !activeFiltersWrap) {
                 return;
@@ -241,6 +261,7 @@
             });
         }
 
+        /** 페이지 로드 시 URLSearchParams → 폼 input·토글 체크박스 값 복원 */
         function restoreInputsFromParams() {
             form.querySelectorAll("[data-filter-param]").forEach(function (input) {
                 const value = params.get(input.name);
@@ -343,6 +364,10 @@
             showFilterOptionsErrorUI(message);
         }
 
+        /**
+         * 상품군별 필터 칩 선택지를 API에서 로드한다.
+         * @returns {Promise<Object>} productType → field → choices[]
+         */
         function loadOptions() {
             const url = window.SEARCH_FILTER_OPTIONS_URL;
             if (!url) {
@@ -401,6 +426,7 @@
             hidden.value = values.join(",");
         }
 
+        /** API 옵션으로 칩 버튼 DOM을 만들고 클릭 시 hidden input·aria-pressed를 갱신한다 */
         function renderChipGroups() {
             const typeOptions = optionsByType[productType] || {};
             form.querySelectorAll("[data-filter-chips]").forEach(function (group) {
@@ -615,6 +641,10 @@
             return decimals > 0 ? value.toFixed(decimals) : String(value);
         }
 
+        /**
+         * 범위 필터 min/max를 dataset 한계·상대 필드와 맞춰 clamp한다.
+         * 제출 전·input/blur 시 호출되어 잘못된 숫자가 쿼리스트링에 나가지 않게 한다.
+         */
         function clampRangeInput(input) {
             const group = input.closest("[data-filter-range]");
             if (!group) {
@@ -689,6 +719,7 @@
             });
         });
 
+        // 폼 GET 제출: in-flight·busy → clamp → 빈 name 제거 → 서버 검색 리다이렉트
         form.addEventListener("submit", function (event) {
             // REFACTOR (연속 클릭 - 검색 submit): 이미 제출 중이면 기본 동작 차단(챗봇 inFlight·찜 wishlistInFlight와 동일 목적)
             if (filterSubmitInFlight) {

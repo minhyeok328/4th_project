@@ -1,8 +1,21 @@
+"""
+제품군별 ORM 모델 및 공통 검색(search_model).
+
+연결:
+- common.utils.get_model / search_product → 각 Product*.search()
+- products.views.searchpage: GET 쿼리 키(price__gte, color__in 등)
+- common.llm.db_search_node: LLM 슬롯 키(price_gte, name_icontains 등) — _split_condition_key가 둘 다 해석
+
+제품군 코드( product_code 접두 3자 ): ACT, TVT, REF, VAC, WMT
+"""
+
 from django.db import models
 from django.core.exceptions import ValidationError
 
 
+# Django ORM lookup + LLM 슬롯 접미사(gte / __gte 등) 통합
 LOOKUPS = ("gte", "lte", "in", "icontains", "exact")
+# icontains 기본 적용 대상(문자열 필드)
 TEXT_FIELDS = (
     models.CharField,
     models.TextField,
@@ -13,21 +26,25 @@ TEXT_FIELDS = (
 
 
 def model_to_tuple_str(instance):
+    """디버그·__str__용 — 모든 컬럼 값을 튜플 문자열로."""
     values = [str(getattr(instance, field.attname)) for field in instance._meta.fields]
     return f"({', '.join(values)})"
 
 
 def _get_compare_field(field):
+    """FK는 target_field 타입으로 비교·to_python."""
     if isinstance(field, models.ForeignKey):
         return field.target_field
     return field
 
 
 def _is_text_field(field):
+    """lookup 미지정 시 icontains vs exact 기본값 결정에 사용."""
     return isinstance(_get_compare_field(field), TEXT_FIELDS)
 
 
 def _convert_value(field, value):
+    """단일 조건값을 필드 타입에 맞게 변환, 실패·빈 값은 None."""
     compare_field = _get_compare_field(field)
 
     if value is None:
@@ -46,6 +63,7 @@ def _convert_value(field, value):
 
 
 def _convert_filter_value(field, lookup, value):
+    """in(콤마 분리)·icontains(리스트) 등 lookup별 값 정규화."""
     if lookup in ("in", "icontains"):
         if isinstance(value, str):
             values = [item.strip() for item in value.split(",")] if lookup == "in" else [value]
@@ -96,6 +114,15 @@ def _split_condition_key(key, field_names):
 
 
 def search_model(model, range, conditions):
+    """
+    조건 dict → QuerySet.
+
+    Args:
+        range: product_code 목록(챗봇 product_code_in 선필터). 빈 리스트면 미적용.
+        conditions: 필드명+lookup 키와 값. 무효 키·변환 실패는 스킵.
+
+    icontains는 OR에 가깝게 필터를 체인으로 누적 적용한다.
+    """
     ignores = []
     fields = {
         field.name: field
@@ -105,6 +132,7 @@ def search_model(model, range, conditions):
     filters = {}
     icontains_filters = []
 
+    # 챗봇: 찜·이전 검색 결과 code만 대상으로 제한
     if range and "product_code" in {field.name for field in model._meta.fields}:
         filters["product_code__in"] = range
 
@@ -143,7 +171,10 @@ def search_model(model, range, conditions):
     return queryset
 
 
+# --- 제품군 테이블: cls.search(range, **conditions) → search_model 위임 ---
+
 class ScreenResolution(models.Model):
+    """TV 해상도 마스터 — ProductTV.resol_code FK."""
     resol_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     width = models.IntegerField(null=True, blank=True)
@@ -161,6 +192,7 @@ class ScreenResolution(models.Model):
 
 
 class ProductAC(models.Model):
+    """에어컨(ACT). db_table ProductAC."""
     product_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     img_link = models.URLField(max_length=500, null=True, blank=True)
@@ -194,6 +226,7 @@ class ProductAC(models.Model):
 
 
 class ProductTV(models.Model):
+    """TV(TVT). db_table ProductTV."""
     product_code = models.CharField(max_length=50, primary_key=True)
 
     resol_code = models.ForeignKey(
@@ -231,6 +264,7 @@ class ProductTV(models.Model):
 
 
 class ProductFridge(models.Model):
+    """냉장고(REF). db_table ProductFridge."""
     product_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     img_link = models.URLField(max_length=500, null=True, blank=True)
@@ -265,6 +299,7 @@ class ProductFridge(models.Model):
 
 
 class ProductVAC(models.Model):
+    """청소기(VAC). db_table ProductVAC."""
     product_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     img_link = models.URLField(max_length=500, null=True, blank=True)
@@ -296,6 +331,7 @@ class ProductVAC(models.Model):
 
 
 class ProductWash(models.Model):
+    """세탁기(WMT). db_table ProductWash."""
     product_code = models.CharField(max_length=50, primary_key=True)
     name = models.CharField(max_length=255, null=True, blank=True)
     img_link = models.URLField(max_length=500, null=True, blank=True)

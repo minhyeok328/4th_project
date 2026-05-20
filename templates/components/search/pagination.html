@@ -1,3 +1,4 @@
+{# data-* → search/pagination.js initPagination 이 컨트롤·요약 DOM 생성 #}
 {% if page_obj.paginator.num_pages > 1 %}
 <nav class="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:justify-between" aria-label="페이지 이동" data-pagination
     data-current="{{ page_obj.number }}" data-num-pages="{{ page_obj.paginator.num_pages }}"

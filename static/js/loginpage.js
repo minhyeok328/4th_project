@@ -1,3 +1,13 @@
+/**
+ * 로그인·회원가입 통합 인증 페이지 스크립트.
+ *
+ * 역할:
+ * - 로그인/회원가입 패널 전환(탭 버튼 → 패널 표시)
+ * - 로그인 폼 제출 전 클라이언트 검증(HTML5 required 보완)
+ *
+ * 외부 연결: 폼은 Django `POST`로 제출 — 이 스크립트는 `preventDefault` 없이 검증만 수행.
+ * DOM: `.auth-panel`, `[data-auth-mode]`, `#auth-panel-login`
+ */
 (function () {
     "use strict";
 
@@ -7,6 +17,10 @@
     const panels = document.querySelectorAll(".auth-panel");
     const modeButtons = document.querySelectorAll("[data-auth-mode]");
 
+    /**
+     * 로그인 폼에 submit 리스너를 붙여 아이디·비밀번호 규칙을 검사한다.
+     * 실패 시 `setCustomValidity` + `reportValidity`로 브라우저 기본 UI를 띄우고 제출을 막는다.
+     */
     // REFACTOR (입력 검증): HTML5 required만으로는 공백·형식 오입력 방어가 부족해 제출 전 클라이언트 검증 추가
     function initLoginFormValidation() {
         const panel = document.getElementById("auth-panel-login");
@@ -37,6 +51,7 @@
             passwordInput.setCustomValidity("");
         });
 
+        // 제출 직전: trim·길이·패턴·비밀번호 존재 검사 — 실패 시 preventDefault
         form.addEventListener("submit", function (event) {
             clearFieldValidity();
 
@@ -77,6 +92,10 @@
         });
     }
 
+    /**
+     * 인증 모드(로그인/회원가입 등)에 해당하는 패널만 노출한다.
+     * @param {string} mode - `#auth-panel-{mode}` 접미사
+     */
     function showPanel(mode) {
         panels.forEach(function (panel) {
             panel.classList.add("hidden");

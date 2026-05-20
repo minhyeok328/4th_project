@@ -1,3 +1,10 @@
+"""
+REST JSON API (챗봇·찜).
+
+- send_chat: chatpage.js → LangGraph
+- favorite / check_favorite: REST 대안(현재 UI는 accounts:mypage toggle_favorite 주로 사용)
+"""
+
 import json
 from django.shortcuts import render
 from django.http import JsonResponse
@@ -5,8 +12,13 @@ from accounts.models import UserFavorite
 from common.utils import get_product
 from common import llm
 
-# Create your views here.
 def check_favorite(request, product_code):
+    """
+    찜 **가능 여부**만 조회(토글하지 않음).
+
+    POST, 로그인 시: 이미 찜이면 is_favorite=False, 아니면 True.
+    wishlist-toggle.js는 mypage POST를 쓰며, 이 엔드포인트는 레거시/외부 연동용.
+    """
     if request.method == "POST":
         if not request.user.is_authenticated:
             return JsonResponse({"is_favorite": False})
@@ -21,6 +33,12 @@ def check_favorite(request, product_code):
         return JsonResponse({"is_favorite": res})
 
 def favorite(request, product_code):
+    """
+    찜 on/off 토글 REST API.
+
+    POST: 기존 UserFavorite 있으면 삭제 후 is_favorite=False, 없으면 상품 존재 시 생성.
+    응답 키는 check_favorite와 동일하게 is_favorite (wishlist의 favorited와 다름).
+    """
     if request.method == "POST":
         if not request.user.is_authenticated:
             return JsonResponse({"is_favorite": False})
@@ -45,6 +63,13 @@ def favorite(request, product_code):
         return JsonResponse({"is_favorite":res})
     
 def send_chat(request):
+    """
+    챗봇 AJAX 엔드포인트 — chatpage.js가 JSON POST.
+
+    Body: { chat_id?, user_input }
+    - chat_id 없/무효 시 새 Chatroom 생성
+    - common.llm.add_chat으로 LangGraph 실행 후 response·response_tail 반환
+    """
     if request.method != "POST":
         return JsonResponse({"response": "", "response_tail": "", "chat_id": None}, status=405)
 
@@ -71,6 +96,7 @@ def send_chat(request):
         except (TypeError, ValueError):
             chat_id = None
 
+    # 기존 대화방이 없으면 user_input 앞 30자로 방 이름을 만들어 신규 생성
     target_room = None
     if chat_id is not None:
         for c in request.user.view_chatrooms():
