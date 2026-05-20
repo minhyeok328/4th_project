@@ -1,6 +1,12 @@
 (function () {
     "use strict";
 
+    // FIX (중복 복사 해결): 스크립트가 중복 실행되면 이벤트가 중복 바인딩되어 동일 메시지가 2회 생성될 수 있으므로 1회만 초기화
+    if (window.__lgChatPageInitialized) {
+        return;
+    }
+    window.__lgChatPageInitialized = true;
+
     /** @type {{ id: number, role: "user" | "assistant", content: string, tail?: string, pending?: boolean }[]} */
     const messages = [];
     let messageId = 0;
