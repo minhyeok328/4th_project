@@ -41,4 +41,5 @@
 | `static/js/` | 페이지별·공통 클라이언트 로직 (`api-response.js`, `wishlist-toggle.js`, `search/filter.js` 등) |
 | `static/css/` | 보조 CSS (`search_filter.css`, `mobile-viewport.css`) |
 | `static/data/` | 필터 옵션 JSON |
-| `theme/` | Tailwind 소스·빌드 |
+| `theme/static_src/` | Tailwind npm (`install` · `build` · `dev`) |
+| `media/` | 프로필 업로드 (accounts) |

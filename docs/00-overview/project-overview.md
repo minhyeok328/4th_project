@@ -55,7 +55,7 @@ flowchart TB
 | DB | SQLite, Django ORM |
 | LLM | OpenAI `gpt-4o-mini`, LangGraph |
 | Vector | Pinecone (`user_manual`), `text-embedding-3-small` |
-| Data | Selenium·BeautifulSoup 크롤링, Jupyter 적재 |
+| Data | `products/data/` — raw 크롤링 → preprocessing → database CSV → `loaddata.ipynb`; embedding → Pinecone |
 
 상세 스택·제한사항·로드맵은 [루트 README §3·§11·§12](../../README.md)를 참고하세요.
 
