@@ -102,11 +102,30 @@
         const presetRadios = form.querySelectorAll("[data-price-preset]");
         const countBadge = document.querySelector("[data-filter-count-badge]");
         const submitLabel = document.querySelector("[data-filter-submit-label]");
+        const submitButton = document.querySelector("[data-search-filter-submit]");
         const activeFiltersWrap = document.querySelector("[data-active-filters-wrap]");
         const activeFiltersEl = document.querySelector("[data-active-filters]");
         const activeFiltersClear = document.querySelector("[data-active-filters-clear]");
 
         let optionsByType = {};
+        // REFACTOR (연속 클릭 - 검색 submit): 필터 적용 GET 제출이 중복되지 않도록 in-flight 플래그 유지
+        let filterSubmitInFlight = false;
+
+        // REFACTOR (연속 클릭 - 검색 submit): 찜 버튼 busy와 동일하게 제출 중 비활성화·시각 피드백으로 연속 클릭 차단
+        function setFilterSubmitBusy(busy) {
+            if (!submitButton) {
+                return;
+            }
+            submitButton.disabled = busy;
+            submitButton.classList.toggle("opacity-60", busy);
+            submitButton.classList.toggle("cursor-not-allowed", busy);
+            submitButton.classList.toggle("pointer-events-none", busy);
+            if (busy) {
+                submitButton.setAttribute("aria-busy", "true");
+            } else {
+                submitButton.removeAttribute("aria-busy");
+            }
+        }
 
         function formatWon(value) {
             const num = Number(value);
@@ -242,20 +261,115 @@
             });
         }
 
+        // REFACTOR (API 실패 응답 - 필터 옵션 fetch): 테스트 기대(에러 처리 UI)에 맞게 필터 패널 인라인 배너로 실패를 표시
+        function getLoadOptionsErrorMessage(result) {
+            if (!result) {
+                return ApiResponse.MESSAGES.SERVER;
+            }
+            if (result.error === ApiResponse.ERROR_CODES.NETWORK) {
+                return ApiResponse.MESSAGES.NETWORK;
+            }
+            if (result.error === ApiResponse.ERROR_CODES.PARSE) {
+                return ApiResponse.MESSAGES.PARSE;
+            }
+            return "필터 옵션을 불러오지 못했습니다. 잠시 후 페이지를 새로고침해 주세요.";
+        }
+
+        function showFilterOptionsErrorUI(message) {
+            const root = document.querySelector("[data-search-filter]");
+            if (!root) {
+                return;
+            }
+            const wrap = root.querySelector("[data-filter-options-error]");
+            const textEl = root.querySelector("[data-filter-options-error-text]");
+            if (!wrap || !textEl) {
+                return;
+            }
+            textEl.textContent = message;
+            wrap.classList.remove("hidden");
+        }
+
+        function hideFilterOptionsErrorUI() {
+            const root = document.querySelector("[data-search-filter]");
+            if (!root) {
+                return;
+            }
+            const wrap = root.querySelector("[data-filter-options-error]");
+            const textEl = root.querySelector("[data-filter-options-error-text]");
+            if (!wrap || !textEl) {
+                return;
+            }
+            textEl.textContent = "";
+            wrap.classList.add("hidden");
+        }
+
+        // REFACTOR (로딩 상태 - 필터 옵션 fetch): 옵션 JSON 비동기 로드 중 사용자에게 진행 상태를 표시
+        function showFilterOptionsLoadingUI() {
+            const root = document.querySelector("[data-search-filter]");
+            if (!root) {
+                return;
+            }
+            const wrap = root.querySelector("[data-filter-options-loading]");
+            if (!wrap) {
+                return;
+            }
+            hideFilterOptionsErrorUI();
+            wrap.classList.remove("hidden");
+            wrap.setAttribute("aria-busy", "true");
+        }
+
+        function hideFilterOptionsLoadingUI() {
+            const root = document.querySelector("[data-search-filter]");
+            if (!root) {
+                return;
+            }
+            const wrap = root.querySelector("[data-filter-options-loading]");
+            if (!wrap) {
+                return;
+            }
+            wrap.classList.add("hidden");
+            wrap.setAttribute("aria-busy", "false");
+        }
+
+        function notifyLoadOptionsFailure(result) {
+            if (!result) {
+                return;
+            }
+            const message = getLoadOptionsErrorMessage(result);
+            // REFACTOR (API 실패 응답 - 필터 옵션 fetch): 찜과 동일하게 로그 남기고, 무음 대신 화면 내 에러 UI 노출
+            if (result.error !== ApiResponse.ERROR_CODES.NETWORK) {
+                ApiResponse.logApiError("검색 필터 옵션 로드:", result);
+            }
+            showFilterOptionsErrorUI(message);
+        }
+
         function loadOptions() {
             const url = window.SEARCH_FILTER_OPTIONS_URL;
             if (!url) {
                 return Promise.resolve({});
             }
-            return fetch(url)
-                .then(function (res) {
-                    return res.json();
+            showFilterOptionsLoadingUI();
+            // REFACTOR (API 실패 응답 - 필터 옵션 fetch): fetchJson 공통 정책 + 실패 시 인라인 UI(챗봇 말풍선·찜 alert와 동등한 피드백)
+            return ApiResponse.fetchJson(url, {}, {
+                logContext: "검색 필터 옵션 로드:",
+            })
+                .then(function (result) {
+                    if (!result) {
+                        optionsByType = {};
+                        return {};
+                    }
+                    if (!result.ok || !result.data) {
+                        notifyLoadOptionsFailure(result);
+                        optionsByType = {};
+                        return {};
+                    }
+                    hideFilterOptionsErrorUI();
+                    optionsByType = result.data || {};
+                    return optionsByType;
                 })
-                .then(function (data) {
-                    optionsByType = data || {};
-                })
-                .catch(function () {
-                    optionsByType = {};
+                .finally(function () {
+                    // REFACTOR (로딩 상태 - 필터 옵션 fetch): 성공·실패와 관계없이 로딩 UI 해제
+                    hideFilterOptionsLoadingUI();
                 });
         }
 
@@ -575,7 +689,20 @@
             });
         });
 
-        form.addEventListener("submit", function () {
+        form.addEventListener("submit", function (event) {
+            // REFACTOR (연속 클릭 - 검색 submit): 이미 제출 중이면 기본 동작 차단(챗봇 inFlight·찜 wishlistInFlight와 동일 목적)
+            if (filterSubmitInFlight) {
+                event.preventDefault();
+                return;
+            }
+            filterSubmitInFlight = true;
+            setFilterSubmitBusy(true);
+
+            // REFACTOR (입력 검증): 제출 직전 범위·가격 필드를 한 번 더 clamp해 잘못된 숫자·min>max가 URL로 나가지 않게 방어
+            form.querySelectorAll("[data-filter-range] [data-filter-param]").forEach(function (input) {
+                clampRangeInput(input);
+            });
+
             form.querySelectorAll("[data-filter-param]").forEach(function (input) {
                 if (input.value.trim() === "") {
                     input.removeAttribute("name");
@@ -601,7 +728,27 @@
             });
         });
 
+        // REFACTOR (모바일 화면): visualViewport 기준으로 필터 스크롤 영역 높이 조정(키보드·주소창 대응)
+        function initSearchFilterMobileViewport() {
+            if (!window.matchMedia("(max-width: 767px)").matches || !window.visualViewport) {
+                return;
+            }
+
+            function applyFilterFormMaxHeight() {
+                const viewport = window.visualViewport;
+                const reserved = 180;
+                const nextMax = Math.max(200, Math.floor(viewport.height - reserved));
+                form.style.maxHeight = nextMax + "px";
+            }
+
+            window.visualViewport.addEventListener("resize", applyFilterFormMaxHeight);
+            window.visualViewport.addEventListener("scroll", applyFilterFormMaxHeight);
+            applyFilterFormMaxHeight();
+        }
+
         restoreInputsFromParams();
+
+        initSearchFilterMobileViewport();
 
         loadOptions().then(function () {
             renderChipGroups();

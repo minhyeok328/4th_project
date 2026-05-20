@@ -1,0 +1,29 @@
+/* REFACTOR (모바일 화면): 작은 화면·터치·가상 키보드 환경에서 필터·입력 UI 깨짐·줌 방지 */
+
+@media (max-width: 767px) {
+    [data-filter-chip] {
+        min-height: 2.75rem;
+        touch-action: manipulation;
+    }
+
+    [data-search-filter-form] {
+        max-height: min(55dvh, calc(100dvh - 11rem));
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    [data-search-filter-form] input,
+    [data-search-filter-form] select,
+    [data-search-filter-form] textarea,
+    #chat-input-field {
+        font-size: 1rem;
+    }
+
+    #chat-input-form {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    }
+
+    [data-search-filter] > div > div:last-child {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    }
+}
