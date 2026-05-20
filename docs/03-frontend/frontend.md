@@ -28,14 +28,17 @@
 
 - [x] 요약·스펙·액션(찜·구매 UI)
 - [x] 탭 (상세/리뷰/Q&A — 리뷰·Q&A 일부 목업)
-- [x] 찜 토글 → 마이페이지 POST (`toggle_favorite`)
+- [x] 찜 토글 → `wishlist-toggle.js` + 마이페이지 POST (`toggle_favorite`)
+- [x] 찜 연속 클릭 방지·API 실패 `alert` (1차 개선)
 - [ ] 구매하기 — UI만
 
 ### 채팅 (`chatpage.html`)
 
 - [x] 대화방 사이드바·모바일 오버레이
 - [x] 메시지 영역·입력·추천 질문
-- [x] `POST /api/send_chat/` 연동 (`chatpage.js`)
+- [x] `POST /api/send_chat/` 연동 (`chatpage.js` + `api-response.js`)
+- [x] 마크다운 URL allowlist·DOM sanitizer (1차 보안 개선)
+- [x] 전송 중 `inFlight`·에러 말풍선 (`ApiResponse`)
 - [x] 대화방 삭제 (POST)
 
 ### 계정
@@ -63,14 +66,27 @@ flowchart LR
 
 | 파일 | 엔드포인트 |
 |------|------------|
+| `api-response.js` | (유틸) 챗봇·찜 `fetch` 응답 파싱·에러 문구 |
 | `chatpage.js` | `POST /api/send_chat/` |
-| `product_actions.html` (inline) | `POST /accounts/mypage/` (`toggle_favorite`) |
-| `searchpage.js` | GET 쿼리스트링 필터 (SSR 리다이렉트) |
+| `wishlist-toggle.js` | `POST /accounts/mypage/` (`toggle_favorite`) |
+| `search/filter.js` | `GET` 정적 `search_filter_options.json` |
+| `searchpage.js` | 검색 폼 submit → GET 쿼리스트링 (SSR) |
 
+상세 모듈·로드 순서: [client-javascript.md](client-javascript.md)  
 API 상세: [REST API](../06-api/rest-api.md)
+
+## 1차 프론트 개선 (요약)
+
+| 항목 | 상태 | 문서 |
+|------|------|------|
+| 챗봇 마크다운 URL 보안 | 반영 | [테스트 평가서 §0](frontend-test-report.md#0-1차-수정-반영-요약-재평가-전제) |
+| 찜 중복 실행 방지 | 반영 | [client-javascript.md § 찜](client-javascript.md#찜-wishlist-togglejs) |
+| API 실패 UX 표준화 | 챗봇·찜 반영, 검색 옵션 fetch 미연동 | [테스트 평가서 §5](frontend-test-report.md#5-우선순위별-개선-권장-사항-2차-이후) |
 
 ## 관련 문서
 
+- [클라이언트 JS 모듈](client-javascript.md)
+- [1차 수정 후 테스트 평가서](frontend-test-report.md)
 - [페이지·URL](pages-and-routes.md)
 - [기능: 검색](../08-features/search-and-filter.md)
 - [기능: 채팅](../08-features/chat-lgneer.md)

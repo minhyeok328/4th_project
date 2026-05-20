@@ -55,16 +55,28 @@ get_favorites(user_id)  # → product_code 리스트
 
 예: 「찜한 제품 중 에너지 1등급 냉장고」
 
+## 프론트엔드 찜 UI (1차 개선)
+
+| 화면 | 구현 |
+|------|------|
+| 상품 상세 | `wishlist-toggle.js` — `productPageWishlistToggle`, `#product-actions` data 속성 |
+| 마이페이지 | `wishlist-toggle.js` — `mypageWishlistToggle`, 카드 제거·빈 목록 시 reload |
+| 공통 | `wishlistInFlight`, 요청 중 버튼 disable, `ApiResponse` 파싱·실패 `alert` |
+
+스크립트: `productpage.html`·`mypage.html`에서 `api-response.js` → `wishlist-toggle.js` 순 로드.
+
+→ [client-javascript.md](../03-frontend/client-javascript.md)
+
 ## 로그인 가드
 
 | 기능 | 비로그인 |
 |------|----------|
 | `/chats/` | 로그인 페이지 리다이렉트 |
 | `send_chat` API | 401 |
-| 상품 찜 | 로그인 페이지 이동 |
+| 상품 찜 | `wishlist-toggle.js`에서 로그인 페이지 이동 |
 | 마이페이지 | 로그인 페이지 리다이렉트 |
 
-> 일부 UI에서 비로그인 찜 가드가 약함 — [제한사항](../../README.md#11-limitations)
+> 검색 결과 등 비로그인 찜 진입 경로는 UI별로 상이할 수 있음 — [제한사항](../../README.md#11-limitations)
 
 ## REST 대안
 

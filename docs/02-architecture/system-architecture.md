@@ -63,9 +63,15 @@ flowchart TB
 
 ### 채팅 (AJAX)
 
-1. `chatpage.js` → `POST /api/send_chat/`
+1. `api-response.js` + `chatpage.js` → `POST /api/send_chat/`
 2. `api/views.send_chat` → `common.llm.add_chat`
 3. LangGraph 실행 → `Chatroom`·`SingleChat`·`agent_state` 갱신
+4. 클라이언트: 마크다운 렌더·URL sanitizer·`ApiResponse` 에러 말풍선
+
+### 찜 (AJAX)
+
+1. `api-response.js` + `wishlist-toggle.js` → `POST /accounts/mypage/` (`toggle_favorite`)
+2. in-flight 가드·버튼 busy·JSON/리다이렉트 공통 파싱
 
 ## 인증
 

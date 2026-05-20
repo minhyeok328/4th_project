@@ -45,19 +45,24 @@ base_page.html
 
 ## 정적 자산 매핑
 
-| 페이지 | JS |
-|--------|-----|
-| `searchpage.html` | `static/js/searchpage.js` |
-| `productpage.html` | `static/js/productpage.js` |
-| `chatpage.html` | `static/js/chatpage.js` |
-| `loginpage.html` | `static/js/loginpage.js` |
+| 페이지 | JS (로드 순서) |
+|--------|----------------|
+| `searchpage.html` | `search/filter.js` → `search/pagination.js` → `searchpage.js` |
+| `productpage.html` | `api-response.js` → `wishlist-toggle.js` → `productpage.js` |
+| `chatpage.html` | `api-response.js` → `chatpage.js` |
+| `mypage.html` | `api-response.js` → `wishlist-toggle.js` |
+| `loginpage.html` | `loginpage.js` |
+
+`product_actions.html`·`recent_products.html`은 **인라인 fetch 없음** — `onclick`이 `wishlist-toggle.js` 전역 함수를 호출합니다.  
+data 속성: [client-javascript.md](client-javascript.md)
 
 ## 필터 데이터
 
 `static/data/search_filter_options.json` — 카테고리별 필터 필드·옵션 정의.  
-`searchpage.js`가 DOM과 동기화합니다.
+`search/filter.js`의 `loadOptions()`가 DOM과 동기화합니다.
 
 ## 관련 문서
 
+- [클라이언트 JS 모듈](client-javascript.md)
 - [디렉터리 구조](../02-architecture/directory-structure.md)
 - [검색 기능](../08-features/search-and-filter.md)

@@ -65,12 +65,18 @@ templates/
 
 | 경로 | 용도 |
 |------|------|
-| `static/js/searchpage.js` | 필터 UI·AJAX |
-| `static/js/productpage.js` | 상세 탭 등 |
-| `static/js/chatpage.js` | 채팅 전송·UI |
-| `static/js/loginpage.js` | 로그인 폼 |
+| `static/js/api-response.js` | 공통 `fetch` JSON 파싱·에러 메시지 (`ApiResponse`) |
+| `static/js/wishlist-toggle.js` | 찜 토글·in-flight·버튼 busy |
+| `static/js/chatpage.js` | 채팅 전송·마크다운 렌더·URL sanitizer |
+| `static/js/searchpage.js` | 검색 페이지 초기화 엔트리 |
+| `static/js/search/filter.js` | 필터 UI·옵션 JSON 로드 |
+| `static/js/search/pagination.js` | 페이지네이션 |
+| `static/js/productpage.js` | 상세 탭·뒤로가기 |
+| `static/js/loginpage.js` | 로그인 패널 전환 |
 | `static/data/search_filter_options.json` | 카테고리별 필터 옵션 |
 | `static/css/search_filter.css` | 검색 필터 스타일 |
+
+상세: [클라이언트 JS 모듈](../03-frontend/client-javascript.md)
 
 ## 데이터·크롤링
 

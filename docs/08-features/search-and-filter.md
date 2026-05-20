@@ -13,7 +13,7 @@
 | URL | `/products/` |
 | View | `products.views.searchpage` |
 | Template | `searchpage.html` |
-| JS | `static/js/searchpage.js` |
+| JS | `search/filter.js`, `search/pagination.js`, `searchpage.js` |
 | 필터 데이터 | `static/data/search_filter_options.json` |
 
 ### 필수 쿼리
@@ -71,5 +71,6 @@ flowchart TD
 ## 관련 문서
 
 - [상품 상세](product-detail.md)
+- [클라이언트 JS](../03-frontend/client-javascript.md)
 - [템플릿 구조](../03-frontend/templates-components.md)
 - [데이터 파이프라인](../02-architecture/data-pipeline.md)

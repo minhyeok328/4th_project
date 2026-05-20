@@ -51,6 +51,8 @@
 
 ### 프론트
 - [화면설계·체크리스트](03-frontend/frontend.md)
+- [클라이언트 JS 모듈](03-frontend/client-javascript.md) — api-response, wishlist, 챗봇 보안 (1차 개선)
+- [프론트 테스트 평가서 (1차 수정 후)](03-frontend/frontend-test-report.md)
 - [페이지·URL 매핑](03-frontend/pages-and-routes.md)
 - [템플릿·컴포넌트](03-frontend/templates-components.md)
 
@@ -73,6 +75,8 @@ docs/
 ├── 03-frontend/
 │   ├── README.md
 │   ├── frontend.md
+│   ├── client-javascript.md
+│   ├── frontend-test-report.md
 │   ├── pages-and-routes.md
 │   └── templates-components.md
 ├── 04-backend/
