@@ -39,11 +39,14 @@ flowchart LR
 
 ## 찜 연동
 
-- 로그인 필수 (`data-is-authenticated`)
+- 로그인 필수 (`#product-actions` `data-is-authenticated`)
+- 클라이언트: `static/js/wishlist-toggle.js` (`productPageWishlistToggle`)
 - `POST /accounts/mypage/` — `action=toggle_favorite`, `product_code`
 - 응답: `{ "ok": true, "favorited": bool }`
+- 연속 클릭 방지·API 실패 `alert` — `api-response.js` + in-flight 가드
 
-대안 API: [POST /api/favorite/](../06-api/rest-api.md#post-apifavoriteproduct_code)
+대안 API: [POST /api/favorite/](../06-api/rest-api.md#post-apifavoriteproduct_code)  
+프론트 상세: [client-javascript.md](../03-frontend/client-javascript.md)
 
 ## 관련 문서
 
