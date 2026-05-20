@@ -1,0 +1,36 @@
+{% load static %}
+{% with pt=request.GET.product_type|default:"REF" %}
+<aside class="md:sticky md:top-24 md:self-start" data-search-filter data-product-type="{{ pt }}">
+    <div class="rounded-3xl border border-gray-200/70 bg-white shadow-sm">
+        <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 sm:px-6">
+            <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold tracking-tight text-gray-900">필터</h2>
+                <span class="hidden rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700" data-filter-count-badge>0</span>
+            </div>
+            <a href="{% url 'products:searchpage' %}?product_type={{ pt|urlencode }}&page=1"
+                class="text-xs font-medium text-gray-500 underline-offset-2 transition-colors hover:text-red-600 hover:underline">
+                초기화
+            </a>
+        </div>
+
+        <form id="search-filter-form" method="get" action="{% url 'products:searchpage' %}" class="max-h-[calc(100vh-12rem)] overflow-y-auto px-5 py-4 sm:px-6" data-search-filter-form>
+            <input type="hidden" name="product_type" value="{{ pt }}" />
+            <input type="hidden" name="page" value="1" />
+
+            {% include "components/search/filters/common.html" %}
+
+            <section class="mt-2" data-category-filters>
+                {% include "components/search/filters/category_filters.html" %}
+            </section>
+        </form>
+
+        <div class="border-t border-gray-100 bg-white p-4 sm:p-5">
+            <button type="submit" form="search-filter-form"
+                class="w-full rounded-xl bg-red-600 py-3 text-sm font-semibold tracking-tight text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow"
+                data-search-filter-submit>
+                <span data-filter-submit-label>필터 적용</span>
+            </button>
+        </div>
+    </div>
+</aside>
+{% endwith %}

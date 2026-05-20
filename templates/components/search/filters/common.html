@@ -1,0 +1,63 @@
+<section class="space-y-1" data-filter-section="common">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>검색 · 가격</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="text" field="name" label="상품명" placeholder="브랜드·모델명 키워드" %}
+            <div class="space-y-3 rounded-2xl border border-gray-100 bg-gray-50/60 p-3">
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-sm font-medium text-gray-800">가격</p>
+                    <span class="text-xs text-gray-500">원 단위</span>
+                </div>
+                {% include "components/search/filters/_fields.html" with field_type="range" field="price" label="" unit="원" layout="stack" input_type="text" %}
+                <div class="space-y-2" data-price-presets>
+                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500">빠른 선택</p>
+                    <div class="flex flex-col gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="price_preset" value="" class="peer sr-only" data-price-preset data-price-clear checked />
+                            <span class="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition-colors peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700">직접 입력</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="price_preset" value="under-100" class="peer sr-only" data-price-preset data-price-min="" data-price-max="1000000" />
+                            <span class="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition-colors peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700">100만원 이하</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="price_preset" value="100-200" class="peer sr-only" data-price-preset data-price-min="1000000" data-price-max="2000000" />
+                            <span class="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition-colors peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700">100만원~200만원</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="price_preset" value="200-400" class="peer sr-only" data-price-preset data-price-min="2000000" data-price-max="4000000" />
+                            <span class="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition-colors peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700">200만원~400만원</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="price_preset" value="over-400" class="peer sr-only" data-price-preset data-price-min="4000000" data-price-max="" />
+                            <span class="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-xs font-medium text-gray-700 transition-colors peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700">400만원 이상</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
+
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>에너지 · 난이도</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            <div class="space-y-2" data-filter-presets data-target-min="proficiency_level__gte" data-target-max="proficiency_level__lte">
+                <p class="text-sm font-medium text-gray-800">추천 난이도</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="" data-preset-max="">전체</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="1" data-preset-max="2">입문 (1~2)</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="3" data-preset-max="3">보통 (3)</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="4" data-preset-max="5">고급 (4~5)</button>
+                </div>
+            </div>
+            {% include "components/search/filters/_fields.html" with field_type="range" field="proficiency_level" label="세부 범위" unit="1~5" range_min=1 range_max=5 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="power_consum" label="소비전력" unit="W" range_min=0 range_max=3500 range_step=0.1 %}
+        </div>
+    </details>
+</section>

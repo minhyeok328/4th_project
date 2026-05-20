@@ -1,0 +1,82 @@
+{% load humanize %}
+<section class="mt-6 overflow-hidden rounded-3xl border border-gray-200/70 bg-white shadow-sm">
+    <div class="grid grid-cols-2 border-b border-gray-100 text-center text-sm font-semibold tracking-tight sm:grid-cols-4"
+        id="product-tab-buttons">
+        <button type="button" data-product-tab="detail"
+            class="border-b-2 border-red-600 bg-red-50/40 px-3 py-4 text-red-600 sm:border-r sm:border-b-0 sm:border-r-gray-100">상세
+            정보</button>
+        <button type="button" data-product-tab="spec"
+            class="border-b border-gray-100 px-3 py-4 text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900 sm:border-r sm:border-b-0">스펙</button>
+        <button type="button" data-product-tab="review"
+            class="border-b border-gray-100 px-3 py-4 text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900 sm:border-r sm:border-b-0">리뷰</button>
+        <button type="button" data-product-tab="qna"
+            class="px-3 py-4 text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900">Q&amp;A</button>
+    </div>
+
+    <div class="p-6 sm:p-8">
+        <div id="product-tab-detail" class="product-tab-panel">
+            <h2 class="mb-6 text-lg font-bold tracking-tight text-gray-900">제품 상세 사양</h2>
+            {% include "components/product/product_detail_specs.html" %}
+        </div>
+
+        <div id="product-tab-spec" class="product-tab-panel hidden">
+            <h2 class="mb-4 text-lg font-bold tracking-tight text-gray-900">스펙</h2>
+
+            <div class="overflow-hidden rounded-2xl border border-gray-200/70">
+                <div class="grid grid-cols-1 border-b border-gray-100 sm:grid-cols-[160px_1fr]">
+                    <div class="bg-gray-50/80 p-4 text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">카테고리</div>
+                    <div class="p-4 text-sm font-medium text-gray-900">{% include "components/category_label.html" with product_type=product_type %}</div>
+                </div>
+
+                <div class="grid grid-cols-1 border-b border-gray-100 sm:grid-cols-[160px_1fr]">
+                    <div class="bg-gray-50/80 p-4 text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">모델명</div>
+                    <div class="p-4 text-sm font-medium text-gray-900">{{ product_data.name|default:"—" }}</div>
+                </div>
+
+                <div class="grid grid-cols-1 border-b border-gray-100 sm:grid-cols-[160px_1fr]">
+                    <div class="bg-gray-50/80 p-4 text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">가격</div>
+                    <div class="p-4 text-sm font-medium text-gray-900">{% if product_data.price %}{{ product_data.price|floatformat:0|intcomma }}원{% else %}—{% endif %}</div>
+                </div>
+
+                {% if product_type == 'ProductAC' or product_type == 'ProductFridge' or product_type == 'ProductVAC' or product_type == 'ProductWash' %}
+                <div class="grid grid-cols-1 sm:grid-cols-[160px_1fr]">
+                    <div class="bg-gray-50/80 p-4 text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">색상</div>
+                    <div class="p-4 text-sm font-medium text-gray-900">{{ product_data.color|default:"—" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div id="product-tab-review" class="product-tab-panel hidden">
+            <h2 class="mb-4 text-lg font-bold tracking-tight text-gray-900">리뷰</h2>
+
+            <div class="space-y-4">
+                <div class="rounded-2xl border border-gray-200/70 p-5 transition-shadow hover:shadow-sm">
+                    <p class="mb-2 text-sm font-semibold text-amber-500">★★★★★</p>
+                    <p class="text-sm leading-relaxed text-gray-600">화질이 선명하고 디자인도 깔끔해서 만족합니다.</p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200/70 p-5 transition-shadow hover:shadow-sm">
+                    <p class="mb-2 text-sm font-semibold text-amber-500">★★★★☆</p>
+                    <p class="text-sm leading-relaxed text-gray-600">가격대는 있지만 성능은 확실히 좋습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="product-tab-qna" class="product-tab-panel hidden">
+            <h2 class="mb-4 text-lg font-bold tracking-tight text-gray-900">Q&amp;A</h2>
+
+            <div class="space-y-4">
+                <div class="rounded-2xl border border-gray-200/70 p-5">
+                    <p class="text-sm font-semibold text-gray-900">Q. 배송은 얼마나 걸리나요?</p>
+                    <p class="mt-2 text-sm leading-relaxed text-gray-500">A. 지역에 따라 다르지만 보통 2~5일 정도 소요됩니다.</p>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200/70 p-5">
+                    <p class="text-sm font-semibold text-gray-900">Q. 설치 서비스가 포함되나요?</p>
+                    <p class="mt-2 text-sm leading-relaxed text-gray-500">A. 대형 가전은 기본 설치 서비스가 포함될 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

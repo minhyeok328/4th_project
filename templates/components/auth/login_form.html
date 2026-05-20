@@ -1,0 +1,37 @@
+<div id="auth-panel-login" class="auth-panel">
+    <h1 class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">로그인</h1>
+
+    <p class="mb-8 text-center text-sm leading-relaxed text-gray-500">
+        LG 가전 추천 서비스를 이용하려면 로그인해주세요.
+    </p>
+
+    {% if login_fail %}
+    <p class="mb-4 rounded-xl border border-red-100 bg-red-50/70 px-4 py-3 text-center text-sm font-medium text-red-700">아이디 또는 비밀번호가 올바르지 않습니다.</p>
+    {% endif %}
+
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
+        <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">아이디</label>
+            <input type="text" name="username" placeholder="아이디를 입력하세요" required
+                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/15" />
+        </div>
+
+        <div>
+            <label class="mb-2 block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">비밀번호</label>
+            <input type="password" name="password" placeholder="비밀번호를 입력하세요" required
+                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/15" />
+        </div>
+
+        <button type="submit"
+            class="w-full rounded-xl bg-red-600 py-3 text-sm font-semibold tracking-tight text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow">
+            로그인
+        </button>
+    </form>
+
+    <div class="mt-6 flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+        <button type="button" data-auth-mode="resetPassword" class="transition-colors hover:text-red-600">비밀번호 찾기</button>
+        <a href="{% url 'accounts:registerpage' %}"
+            class="font-semibold text-red-600 transition-colors hover:text-red-700">회원가입</a>
+    </div>
+</div>

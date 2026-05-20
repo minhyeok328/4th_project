@@ -1,0 +1,170 @@
+{% if pt == "REF" %}
+<section class="space-y-1" data-filter-section="category">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>설치 · 도어</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="install_type" label="설치 타입" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="door_type" label="도어 타입" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="cool_type" label="냉각 방식" mode="single" %}
+            <div class="space-y-2" data-filter-presets data-target-min="door_cnt__gte" data-target-max="door_cnt__lte">
+                <p class="text-sm font-medium text-gray-800">도어 수</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="" data-preset-max="">전체</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="1" data-preset-max="1">1도어</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="2" data-preset-max="2">2도어</button>
+                    <button type="button" class="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 data-[active=true]:border-red-600 data-[active=true]:bg-red-50 data-[active=true]:text-red-700" data-filter-preset data-preset-min="3" data-preset-max="">3도어 이상</button>
+                </div>
+            </div>
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>용량 · 색상</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="color" label="색상" mode="multi" %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="total_cap" label="총 용량" unit="L" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="refrige_cap" label="냉장 용량" unit="L" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="freeze_cap" label="냉동 용량" unit="L" range_min=0 range_step=1 %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>편의 기능</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="toggle" field="smart_diag" label="스마트 진단" %}
+            {% include "components/search/filters/_fields.html" with field_type="toggle" field="ice_maker" label="제빙기" %}
+        </div>
+    </details>
+</section>
+
+{% elif pt == "ACT" %}
+<section class="space-y-1" data-filter-section="category">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>냉방 스펙</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="color" label="색상" mode="multi" %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="cool_cap" label="냉방 능력" unit="W" range_min=0 range_step=100 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="coverage" label="적용 면적" unit="㎡" range_min=0 range_step=0.1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="wind_speed" label="풍속" unit="단" range_min=1 range_max=10 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="dehumid" label="제습량" range_min=0 range_step=1 %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>전기 · 규격</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="range" field="voltage" label="전압" unit="V" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="hertz" label="주파수" unit="Hz" range_min=50 range_max=60 range_step=1 %}
+        </div>
+    </details>
+</section>
+
+{% elif pt == "TVT" %}
+<section class="space-y-1" data-filter-section="category">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>화질 · 패널</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="resol_code" label="해상도" mode="single" param_name="resol_code__in" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="display_type" label="디스플레이" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="os_type" label="운영체제" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="screen_size" label="화면 크기" unit="cm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="ref_rate" label="주사율" unit="Hz" range_min=0 range_step=1 %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>사운드 · 크기</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="range" field="speaker_output" label="스피커 출력" unit="W" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="width" label="너비" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="height" label="높이" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="depth" label="두께" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="weight" label="무게" unit="kg" range_min=0 range_step=0.1 %}
+        </div>
+    </details>
+</section>
+
+{% elif pt == "WMT" %}
+<section class="space-y-1" data-filter-section="category">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>세탁 · 건조</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="range" field="washing_cap" label="세탁 용량" unit="kg" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="drying_cap" label="건조 용량" unit="kg" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="spin_op" label="탈수 옵션" range_min=0 range_step=1 %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>디자인 · 조작</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="color" label="색상" mode="multi" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="door_design" label="도어 디자인" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="control_type" label="조작 방식" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="text" field="door_type" label="도어 타입" placeholder="예: 일반 도어" %}
+            {% include "components/search/filters/_fields.html" with field_type="text" field="water_temp" label="물 온도" placeholder="예: 냉온수" %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>크기 · 무게</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="range" field="width" label="너비" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="height" label="높이" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="depth" label="깊이" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="weight" label="무게" unit="kg" range_min=0 range_step=1 %}
+        </div>
+    </details>
+</section>
+
+{% elif pt == "VAC" %}
+<section class="space-y-1" data-filter-section="category">
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>성능</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="color" label="색상" mode="multi" %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="suction_power" label="흡입력" unit="W" range_min=0 range_step=10 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="battery_cnt" label="배터리 수" unit="개" range_min=0 range_max=4 range_step=1 %}
+        </div>
+    </details>
+    <details class="group border-b border-gray-100 pb-4">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-sm font-semibold text-gray-900 marker:content-none [&::-webkit-details-marker]:hidden">
+            <span>본체 · 타워 크기</span>
+            <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
+        </summary>
+        <div class="space-y-4 pt-1">
+            {% include "components/search/filters/_fields.html" with field_type="range" field="unit_weight" label="본체 무게" unit="kg" range_min=0 range_step=0.1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="tower_weight" label="타워 무게" unit="kg" range_min=0 range_step=0.1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="unit_width" label="본체 너비" unit="mm" range_min=0 range_step=1 %}
+            {% include "components/search/filters/_fields.html" with field_type="range" field="unit_height" label="본체 높이" unit="mm" range_min=0 range_step=1 %}
+        </div>
+    </details>
+</section>
+{% endif %}

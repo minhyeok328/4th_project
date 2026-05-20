@@ -1,0 +1,151 @@
+{% extends "base_page.html" %}
+{% load static %}
+
+{% block title %}메인{% endblock %}
+
+{% block content %}
+{% include "components/header.html" %}
+
+<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+
+    <section class="relative mb-10 h-64 overflow-hidden rounded-3xl shadow-sm sm:h-72 md:h-80 bg-gradient-to-br from-[#f5f3ee] via-[#f7f6f3] to-white border border-gray-200/70">
+        <div id="slider-container" class="relative h-full w-full">
+
+            <div class="slide absolute inset-0 opacity-100 transition-opacity duration-1000 ease-in-out">
+                <div class="relative mx-auto flex h-full max-w-7xl items-center justify-between px-8 sm:px-16">
+                    <div class="z-10 max-w-md">
+                        <span class="inline-block bg-red-600 text-[11px] font-bold text-white px-2.5 py-1 rounded-full mb-3 tracking-[0.16em] uppercase">BEST ITEM</span>
+                        <h1 class="text-2xl font-extrabold text-gray-900 sm:text-4xl tracking-tight mb-2">LG QNED AI TV</h1>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">압도적 몰입감을 선사하는 LED TV의 정석.<br>TV 하나로 다 되는 AI 라이프</p>
+                    </div>
+                    <div class="relative h-full w-1/2 flex items-center justify-center">
+                        <img src="{% static 'images/evotv.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG QNED AI TV">
+                        <a href="{% url 'products:searchpage' %}?product_type=TVT&amp;page=1&amp;name={{ 'QNED AI'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 40%; left: 45%;">
+                            <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
+                            <span class="text-xs font-bold tracking-tight">상세보기</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out pointer-events-none">
+                <div class="relative mx-auto flex h-full max-w-7xl items-center justify-between px-8 sm:px-16">
+                    <div class="z-10 max-w-md">
+                        <span class="inline-block bg-red-600 text-[11px] font-bold text-white px-2.5 py-1 rounded-full mb-3 tracking-[0.16em] uppercase">PREMIUM</span>
+                        <h1 class="text-2xl font-extrabold text-gray-900 sm:text-4xl tracking-tight mb-2">LG 워시타워</h1>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">감각적인 디자인에 AI를 더한 세탁건조기.<br>공간을 원타워로 완성하다.</p>
+                    </div>
+                    <div class="relative h-full w-1/2 flex items-center justify-center">
+                        <img src="{% static 'images/washtower.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG 워시타워">
+                        <a href="{% url 'products:searchpage' %}?product_type=WMT&amp;page=1&amp;name={{ '오브제컬렉션'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 35%; left: 40%;">
+                            <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
+                            <span class="text-xs font-bold tracking-tight">상세보기</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out pointer-events-none">
+                <div class="relative mx-auto flex h-full max-w-7xl items-center justify-between px-8 sm:px-16">
+                    <div class="z-10 max-w-md">
+                        <span class="inline-block bg-red-600 text-[11px] font-bold text-white px-2.5 py-1 rounded-full mb-3 tracking-[0.16em] uppercase">KITCHEN</span>
+                        <h1 class="text-2xl font-extrabold text-gray-900 sm:text-4xl tracking-tight mb-2">LG 디오스 노크온</h1>
+                        <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">똑똑, 두드리면 내부가 보이는 혁신.<br>신선함을 더 오래 유지하세요.</p>
+                    </div>
+                    <div class="relative h-full w-1/2 flex items-center justify-center">
+                        <img src="{% static 'images/refrigerator.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG 디오스 노크온">
+                        <a href="{% url 'products:searchpage' %}?product_type=REF&amp;page=1&amp;name={{ '노크온'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 50%; left: 45%;">
+                            <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
+                            <span class="text-xs font-bold tracking-tight">상세보기</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-4 left-8 sm:left-16 flex gap-2 z-10 items-center" role="tablist" aria-label="메인 배너 슬라이드">
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-400 transition-all duration-300 cursor-pointer hover:bg-gray-600" aria-label="1번 슬라이드" aria-selected="true"></button>
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-300 transition-all duration-300 cursor-pointer hover:bg-gray-500" aria-label="2번 슬라이드" aria-selected="false"></button>
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-300 transition-all duration-300 cursor-pointer hover:bg-gray-500" aria-label="3번 슬라이드" aria-selected="false"></button>
+        </div>
+    </section>
+
+    <section class="group mb-12 overflow-hidden rounded-3xl border border-red-100/70 bg-gradient-to-br from-red-50/70 via-white to-white p-6 sm:p-10 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+        <div class="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                    </span>
+                    <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">LG봇에게 추천받기</h2>
+                </div>
+                <p class="text-base leading-relaxed text-gray-500">원하는 가전을 자연어로 검색해보세요.</p>
+            </div>
+            <a href="{% url 'chats:chatpage' %}" class="inline-flex shrink-0 items-center justify-center rounded-full bg-red-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow cursor-pointer">LG봇 시작</a>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="mb-6 text-2xl font-bold tracking-tight text-gray-900 pl-1">카테고리</h2>
+        <div class="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
+            {% for cat in categories %}
+            {% include "components/category_card.html" with label=cat.label product_type=cat.product_type %}
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const slides = document.querySelectorAll(".slide");
+        const indicators = document.querySelectorAll(".indicator");
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        const intervalTime = 10000;
+
+        let slideTimer = null;
+
+        function showSlide(index) {
+            currentSlide = index;
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.remove("opacity-0", "pointer-events-none");
+                    slide.classList.add("opacity-100");
+                    indicators[i].classList.remove("bg-gray-300", "bg-gray-400", "w-2");
+                    indicators[i].classList.add("bg-gray-800", "w-6");
+                    indicators[i].setAttribute("aria-selected", "true");
+                } else {
+                    slide.classList.remove("opacity-100");
+                    slide.classList.add("opacity-0", "pointer-events-none");
+                    indicators[i].classList.remove("bg-gray-800", "w-6");
+                    indicators[i].classList.add("bg-gray-300", "w-2");
+                    indicators[i].setAttribute("aria-selected", "false");
+                }
+            });
+        }
+
+        function nextSlide() {
+            showSlide((currentSlide + 1) % totalSlides);
+        }
+
+        function startAutoSlide() {
+            if (slideTimer) {
+                clearInterval(slideTimer);
+            }
+            slideTimer = setInterval(nextSlide, intervalTime);
+        }
+
+        indicators.forEach(function (indicator, index) {
+            indicator.addEventListener("click", function () {
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+
+        showSlide(currentSlide);
+        startAutoSlide();
+    });
+</script>
+
+{% endblock %}

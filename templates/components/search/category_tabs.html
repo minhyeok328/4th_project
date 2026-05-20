@@ -1,0 +1,24 @@
+<section class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
+    {% with pt=request.GET.product_type|default:"REF" %}
+    <a href="{% url 'products:searchpage' %}?product_type=TVT&page=1"
+        class="rounded-2xl border p-4 text-center text-sm font-medium tracking-tight transition-all duration-200 sm:p-5 {% if pt == 'TVT' %}border-red-600 bg-red-600/5 font-bold text-red-600 shadow-sm{% else %}border-gray-200/70 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md{% endif %}">
+        TV
+    </a>
+    <a href="{% url 'products:searchpage' %}?product_type=WMT&page=1"
+        class="rounded-2xl border p-4 text-center text-sm font-medium tracking-tight transition-all duration-200 sm:p-5 {% if pt == 'WMT' %}border-red-600 bg-red-600/5 font-bold text-red-600 shadow-sm{% else %}border-gray-200/70 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md{% endif %}">
+        세탁기
+    </a>
+    <a href="{% url 'products:searchpage' %}?product_type=REF&page=1"
+        class="rounded-2xl border p-4 text-center text-sm font-medium tracking-tight transition-all duration-200 sm:p-5 {% if pt == 'REF' %}border-red-600 bg-red-600/5 font-bold text-red-600 shadow-sm{% else %}border-gray-200/70 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md{% endif %}">
+        냉장고
+    </a>
+    <a href="{% url 'products:searchpage' %}?product_type=ACT&page=1"
+        class="rounded-2xl border p-4 text-center text-sm font-medium tracking-tight transition-all duration-200 sm:p-5 {% if pt == 'ACT' %}border-red-600 bg-red-600/5 font-bold text-red-600 shadow-sm{% else %}border-gray-200/70 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md{% endif %}">
+        에어컨
+    </a>
+    <a href="{% url 'products:searchpage' %}?product_type=VAC&page=1"
+        class="rounded-2xl border p-4 text-center text-sm font-medium tracking-tight transition-all duration-200 sm:p-5 {% if pt == 'VAC' %}border-red-600 bg-red-600/5 font-bold text-red-600 shadow-sm{% else %}border-gray-200/70 bg-white text-gray-700 hover:-translate-y-0.5 hover:border-red-200 hover:text-red-600 hover:shadow-md{% endif %}">
+        청소기
+    </a>
+    {% endwith %}
+</section>

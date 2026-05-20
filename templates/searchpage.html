@@ -1,0 +1,30 @@
+{% extends "base_page.html" %}
+{% load static %}
+
+{% block title %}{% include "components/category_label.html" %} 검색{% endblock %}
+
+{% block content %}
+{% include "components/header.html" %}
+
+<div class="min-h-screen bg-[#f5f5f7] text-gray-900">
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {% include "components/search/category_tabs.html" %}
+
+        <div class="mt-6 grid gap-6 md:grid-cols-[260px_1fr] lg:gap-8">
+            {% include "components/search/search_filter.html" %}
+
+            <section class="space-y-5 sm:space-y-6">
+                {% include "components/search/search_result_header.html" %}
+                {% include "components/search/product_grid.html" %}
+                {% include "components/search/pagination.html" %}
+            </section>
+        </div>
+    </main>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/search_filter.css' %}" />
+<script>
+    window.SEARCH_FILTER_OPTIONS_URL = "{% static 'data/search_filter_options.json' %}";
+</script>
+<script src="{% static 'js/searchpage.js' %}"></script>
+{% endblock %}

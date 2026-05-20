@@ -1,0 +1,21 @@
+# Django web app (config/settings.py — tailwind, theme, sqlite)
+Django==6.0.5
+django-tailwind==4.4.2
+python-dotenv==1.1.0
+
+# accounts.models — ImageField (profile_picture)
+Pillow==12.1.1
+
+# AI chat & vector search (common/llm.py, common/llm_agent.py, common/vector_search.py)
+langchain-core==1.2.27
+langchain-openai==1.1.12
+langgraph==1.1.6
+openai==2.30.0
+pinecone==9.0.0
+pydantic==2.12.4
+
+# Product data crawling (products/data/** — selenium_auto_module.py, notebooks)
+selenium==4.44.0
+webdriver-manager==4.0.2
+beautifulsoup4==4.14.3
+tqdm==4.67.3

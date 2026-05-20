@@ -1,0 +1,13 @@
+[data-filter-chip] {
+    max-width: 100%;
+}
+
+[data-filter-chip][aria-pressed="true"] {
+    border-color: rgb(220 38 38);
+    background-color: rgb(254 242 242);
+    color: rgb(185 28 28);
+}
+
+[data-active-filters]:empty {
+    display: none;
+}

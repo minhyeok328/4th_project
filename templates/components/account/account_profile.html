@@ -1,0 +1,60 @@
+<section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8">
+    <div class="flex items-center gap-5 sm:gap-6">
+        {% if request.user.profile_picture %}
+        <img id="profile-img-view" src="{{ request.user.profile_picture.url }}" alt="프로필"
+            class="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-gray-100 sm:h-24 sm:w-24">
+        {% else %}
+        <div id="profile-avatar-view"
+            class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-red-50 text-2xl font-bold text-red-600 ring-2 ring-red-100 sm:h-24 sm:w-24">
+            {{ request.user.nickname|slice:":1"|upper }}
+        </div>
+        {% endif %}
+
+        <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-red-600">Member</p>
+            <h2 class="mt-1 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">{{ request.user.nickname }}님</h2>
+            <p class="mt-1 text-sm text-gray-500">{{ request.user.email }}</p>
+        </div>
+    </div>
+
+    <button type="button" id="edit-open-btn" onclick="openProfileEdit()"
+        class="mt-6 w-full rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:border-gray-300 hover:bg-gray-50">
+        프로필 수정
+    </button>
+
+    <div id="profile-edit-box" class="hidden mt-6 pt-6 border-t border-gray-100">
+        <form method="post" action="{% url 'accounts:mypage' %}" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_profile">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 mb-2">닉네임 변경</label>
+                <input type="text" name="nickname" value="{{ request.user.nickname }}" maxlength="12"
+                       class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm transition-all focus:border-red-500 focus:ring-2 focus:ring-red-500/15 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 mb-2">프로필 사진 변경</label>
+                <input type="file" name="profile_picture" accept="image/*"
+                       class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+            </div>
+            <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold tracking-tight text-white shadow-sm hover:bg-red-700 hover:shadow transition-all duration-200">
+                변경 내용 저장
+            </button>
+            <button type="button" onclick="closeProfileEdit()" class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-all duration-200">
+                취소
+            </button>
+        </div>
+        </form>
+    </div>
+</section>
+
+<script>
+function openProfileEdit() {
+    document.getElementById('profile-edit-box').classList.remove('hidden');
+    document.getElementById('edit-open-btn').classList.add('hidden');
+}
+function closeProfileEdit() {
+    document.getElementById('profile-edit-box').classList.add('hidden');
+    document.getElementById('edit-open-btn').classList.remove('hidden');
+}
+</script>

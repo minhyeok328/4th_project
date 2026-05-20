@@ -33,12 +33,12 @@
     </td>
   </tr>
   <tr>
-    <td align="center"><b>Role</b><br>Data<br>Map API<br>Frontend</td>
-    <td align="center"><b>Role</b><br>LLM<br>Frontend</td>
-    <td align="center"><b>Role</b><br>Data<br>Streamlit</td>
-    <td align="center"><b>Role</b><br>Data<br>Map API<br>Frontend</td>
-    <td align="center"><b>Role</b><br>Data<br>LLM</td>
-    <td align="center"><b>Role</b><br>Data<br>DataBase</td>
+    <td align="center"><b>Role</b><br>Frontend</td>
+    <td align="center"><b>Role</b><br>Frontend</td>
+    <td align="center"><b>Role</b><br>Backend</td>
+    <td align="center"><b>Role</b><br>Modeling</td>
+    <td align="center"><b>Role</b><br>Database</td>
+    <td align="center"><b>Role</b><br>Modeling</td>
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/gieun-Park"><img src="https://img.shields.io/badge/gieun-Park-34495e?style=flat&logo=github&logoColor=white"></a></td>
