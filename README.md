@@ -464,17 +464,18 @@ common/llm_frame.ipynb
 ## 11. Limitations
 
 1. **데이터 범위**: LG 가전 5개 카테고리·공식몰 크롤링 데이터에 한정
-2. **비로그인 찜**: 일부 UI에서 로그인 가드가 약함
+2. **비로그인 찜**: 검색 등 일부 진입 경로에서 찜 UX·가드가 상품 상세·마이페이지와 다를 수 있음 (상세/마이페이지는 `wishlist-toggle.js`로 개선됨)
 3. **비밀번호 찾기·결제**: UI만 존재, 서버 미연동
 4. **리뷰/Q&A 탭**: 상품 상세 일부 목업 데이터
 5. **LLM 환각**: 검색 결과 없을 때 안내하지만, 프롬프트·평가로 지속 보완 필요
+6. **프론트 API 에러 UX**: 챗봇·찜은 `api-response.js`로 통일; 검색 필터 옵션 JSON `fetch` 등은 미연동 ([재평가서](docs/03-frontend/frontend-test-report.md))
 
 ---
 
 ## 12. Future Work
 
 - [ ] 평가 세트·자동 채점 파이프라인 정리
-- [ ] 비로그인 UX(찜·채팅) 일관성 개선
+- [ ] 검색 필터 옵션 로드 실패 UX·비로그인 찜 경로 통일 (2차 프론트)
 - [ ] 비밀번호 재설정·이메일 인증
 - [ ] 배포 환경(PostgreSQL, 정적 파일 CDN) 구성
 - [ ] 카테고리·브랜드 확장 검토
@@ -492,6 +493,8 @@ common/llm_frame.ipynb
 - **요구사항 정의서**: _(링크 추가)_
 - **기술 문서 (Docs 위키)**: [`docs/README.md`](docs/README.md) — 파트별·기능별 문서 허브
 - **화면설계서**: [`docs/03-frontend/frontend.md`](docs/03-frontend/frontend.md) (프론트 위키·체크리스트)
+- **프론트 JS·1차 개선**: [`docs/03-frontend/client-javascript.md`](docs/03-frontend/client-javascript.md)
+- **프론트 테스트 평가 (1차 수정 후)**: [`docs/03-frontend/frontend-test-report.md`](docs/03-frontend/frontend-test-report.md)
 - **개발된 LLM 연동 애플리케이션**: 본 저장소 (`/chats/`, `common/`)
 - **시스템 구성도**: README §5.5 · 상세 [`docs/02-architecture/system-architecture.md`](docs/02-architecture/system-architecture.md)
 - **API / DB 문서**: [`docs/06-api/rest-api.md`](docs/06-api/rest-api.md) · [`docs/05-database/schema-and-erd.md`](docs/05-database/schema-and-erd.md)
