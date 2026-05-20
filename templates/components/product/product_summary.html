@@ -12,7 +12,7 @@
     </div>
 
     <div class="flex flex-col justify-center">
-        <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-red-600">{% include "components/product/product_category_label.html" %}</p>
+        <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-red-600">{% include "components/category_label.html" with product_type=product_type %}</p>
 
         <h1 class="mb-4 text-2xl font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl">{{ product_data.name|default:"상품명 없음" }}</h1>
 

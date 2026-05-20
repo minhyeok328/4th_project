@@ -1,4 +1,7 @@
 <section
+    id="product-actions"
+    data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+    data-login-url="{% url 'accounts:loginpage' %}"
     class="mt-6 flex flex-col justify-end gap-3 rounded-3xl border border-gray-200/70 bg-white p-5 shadow-sm sm:flex-row sm:p-6">
 
     <button type="button"
@@ -10,13 +13,35 @@
     </button>
 
     <button type="button"
+        onclick="productActionsRequireLogin()"
         class="rounded-full bg-red-600 px-8 py-3 text-sm font-semibold tracking-tight text-white shadow-sm transition-all duration-200 hover:bg-red-700 hover:shadow cursor-pointer">
         구매하기
     </button>
 </section>
 
 <script>
+function productActionsRequireLogin() {
+    const section = document.getElementById("product-actions");
+    if (!section) {
+        return false;
+    }
+
+    if (section.dataset.isAuthenticated === "true") {
+        return true;
+    }
+
+    const loginUrl = section.dataset.loginUrl;
+    if (loginUrl) {
+        window.location.href = loginUrl;
+    }
+    return false;
+}
+
 function productPageWishlistToggle(button, productCode) {
+    if (!productActionsRequireLogin()) {
+        return;
+    }
+
     if (!productCode) {
         alert("상품 정보를 찾을 수 없습니다.");
         return;
@@ -33,8 +58,35 @@ function productPageWishlistToggle(button, productCode) {
         },
         body: formData
     })
-    .then(response => response.json().then(data => ({ ok: response.ok, data })))
-    .then(({ ok, data }) => {
+    .then(function (response) {
+        const section = document.getElementById("product-actions");
+        const loginUrl = section ? section.dataset.loginUrl : "";
+
+        if (response.redirected && loginUrl) {
+            window.location.href = response.url || loginUrl;
+            return null;
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+            if (loginUrl) {
+                window.location.href = loginUrl;
+            }
+            return null;
+        }
+
+        return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+        });
+    })
+    .then(function (result) {
+        if (!result) {
+            return;
+        }
+
+        const ok = result.ok;
+        const data = result.data;
+
         if (ok && data.ok) {
             if (data.favorited) {
                 button.innerText = "찜 완료";
@@ -48,10 +100,13 @@ function productPageWishlistToggle(button, productCode) {
                 button.setAttribute('data-status', 'none');
             }
         } else {
+            if (!productActionsRequireLogin()) {
+                return;
+            }
             alert("서버 처리 중 오류가 발생했습니다.");
         }
     })
-    .catch(error => {
+    .catch(function (error) {
         console.error('상품페이지 찜 연동 에러:', error);
     });
 }
