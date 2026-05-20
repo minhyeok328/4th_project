@@ -129,7 +129,7 @@
 ├── templates/              # 페이지·컴포넌트 HTML
 ├── static/                 # JS, CSS, 이미지, 필터 JSON
 ├── theme/                  # Tailwind 빌드 (django-tailwind)
-├── docs/                   # frontend.md 등
+├── docs/                   # 파트별·기능별 위키 (docs/README.md)
 ├── manage.py
 ├── requirements.txt
 └── README.md
@@ -412,9 +412,11 @@ Content-Type: application/json
 
 ## 14. Output
 - **요구사항 정의서**: _(링크 추가)_
-- **화면설계서**: `docs/frontend.md` (프론트 위키·체크리스트)
+- **기술 문서 (Docs 위키)**: [`docs/README.md`](docs/README.md) — 파트별·기능별 문서 허브
+- **화면설계서**: [`docs/03-frontend/frontend.md`](docs/03-frontend/frontend.md) (프론트 위키·체크리스트)
 - **개발된 LLM 연동 애플리케이션**: 본 저장소 (`/chats/`, `common/`)
-- **시스템 구성도**: README §5.5
+- **시스템 구성도**: README §5.5 · 상세 [`docs/02-architecture/system-architecture.md`](docs/02-architecture/system-architecture.md)
+- **API / DB 문서**: [`docs/06-api/rest-api.md`](docs/06-api/rest-api.md) · [`docs/05-database/schema-and-erd.md`](docs/05-database/schema-and-erd.md)
 - **테스트 계획 및 결과보고서**: §10 (작성 예정)
 
 ---
