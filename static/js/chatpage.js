@@ -5,6 +5,10 @@
     const messages = [];
     let messageId = 0;
     let inFlight = false;
+    let pendingDotsTimer = null;
+
+    const PENDING_REPLY_BASE = "답변을 작성 중입니다";
+    const PENDING_REPLY_DOTS = [".", "..", "...", "."];
 
     const recommended = document.getElementById("chat-recommended");
     const messagesPanel = document.getElementById("chat-messages");
@@ -194,13 +198,44 @@
 
         const lines = s.split("\n");
         const out = [];
-        let listType = null;
+        let olOpen = false;
+        let olLiOpen = false;
+        let nestedUlOpen = false;
+        let ulOpen = false;
 
-        function closeList() {
-            if (listType) {
-                out.push("</" + listType + ">");
-                listType = null;
+        function closeNestedUl() {
+            if (nestedUlOpen) {
+                out.push("</ul>");
+                nestedUlOpen = false;
             }
+        }
+
+        function closeOlLi() {
+            closeNestedUl();
+            if (olLiOpen) {
+                out.push("</li>");
+                olLiOpen = false;
+            }
+        }
+
+        function closeOl() {
+            closeOlLi();
+            if (olOpen) {
+                out.push("</ol>");
+                olOpen = false;
+            }
+        }
+
+        function closeStandaloneUl() {
+            if (ulOpen) {
+                out.push("</ul>");
+                ulOpen = false;
+            }
+        }
+
+        function closeAllLists() {
+            closeStandaloneUl();
+            closeOl();
         }
 
         for (let i = 0; i < lines.length; i++) {
@@ -209,25 +244,40 @@
             const ulM = raw.match(/^\s*[-*]\s+(.*)$/);
 
             if (olM) {
-                if (listType !== "ol") {
-                    closeList();
+                closeStandaloneUl();
+                closeOlLi();
+                if (!olOpen) {
                     out.push('<ol class="my-2 list-decimal space-y-1 pl-5">');
-                    listType = "ol";
+                    olOpen = true;
                 }
-                out.push("<li>" + olM[1] + "</li>");
+                out.push("<li>" + olM[1]);
+                olLiOpen = true;
             } else if (ulM) {
-                if (listType !== "ul") {
-                    closeList();
-                    out.push('<ul class="my-2 list-disc space-y-1 pl-5">');
-                    listType = "ul";
+                if (olLiOpen) {
+                    if (!nestedUlOpen) {
+                        out.push('<ul class="my-2 list-disc space-y-1 pl-4">');
+                        nestedUlOpen = true;
+                    }
+                    out.push("<li>" + ulM[1] + "</li>");
+                } else {
+                    closeOl();
+                    if (!ulOpen) {
+                        out.push('<ul class="my-2 list-disc space-y-1 pl-5">');
+                        ulOpen = true;
+                    }
+                    out.push("<li>" + ulM[1] + "</li>");
                 }
-                out.push("<li>" + ulM[1] + "</li>");
             } else {
-                closeList();
-                out.push(raw.trim() === "" ? "" : raw);
+                const trimmed = raw.trim();
+                if (trimmed === "") {
+                    out.push("");
+                    continue;
+                }
+                closeAllLists();
+                out.push(raw);
             }
         }
-        closeList();
+        closeAllLists();
 
         let html = "";
         for (let j = 0; j < out.length; j++) {
@@ -313,6 +363,31 @@
         }
     }
 
+    function stopPendingDotsAnimation() {
+        if (pendingDotsTimer !== null) {
+            clearInterval(pendingDotsTimer);
+            pendingDotsTimer = null;
+        }
+    }
+
+    function startPendingDotsAnimation(placeholderMsg) {
+        stopPendingDotsAnimation();
+
+        let step = 0;
+        placeholderMsg.content = PENDING_REPLY_BASE + PENDING_REPLY_DOTS[0];
+
+        pendingDotsTimer = setInterval(function () {
+            if (messages.indexOf(placeholderMsg) === -1) {
+                stopPendingDotsAnimation();
+                return;
+            }
+
+            step = (step + 1) % PENDING_REPLY_DOTS.length;
+            placeholderMsg.content = PENDING_REPLY_BASE + PENDING_REPLY_DOTS[step];
+            renderMessages();
+        }, 450);
+    }
+
     function appendMessage(role, content, tail, pending) {
         messageId += 1;
         const msg = {
@@ -345,8 +420,9 @@
         updateView();
         setBusy(true);
 
-        const placeholder = appendMessage("assistant", "답변을 작성 중입니다…", "", true);
+        const placeholder = appendMessage("assistant", PENDING_REPLY_BASE + ".", "", true);
         renderMessages();
+        startPendingDotsAnimation(placeholder);
 
         let payloadChatId = null;
         if (config.chatId) {
@@ -417,6 +493,7 @@
             appendMessage("assistant", "네트워크 오류로 응답을 받지 못했습니다.");
             updateView();
         } finally {
+            stopPendingDotsAnimation();
             setBusy(false);
             if (inputField) {
                 inputField.focus();

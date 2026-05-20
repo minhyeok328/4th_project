@@ -1,0 +1,55 @@
+{% if product_type == 'ProductTV' %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+    <p class="text-gray-600">화면 크기: <span class="font-semibold text-gray-900">{{ product_data.screen_size }}인치</span></p>
+    <p class="text-gray-600">디스플레이: <span class="font-semibold text-gray-900">{{ product_data.display_type|default:"-" }}</span></p>
+    <p class="text-gray-600">주사율: <span class="font-semibold text-gray-900">{{ product_data.ref_rate|default:"-" }}Hz</span></p>
+    <p class="text-gray-600">소비전력: <span class="font-semibold text-gray-900">{{ product_data.power_consum|default:"-" }}kWh</span></p>
+    <p class="text-gray-600">크기(W x H x D): <span class="font-semibold text-gray-900">{{ product_data.width }} x {{ product_data.height }} x {{ product_data.depth }} mm</span></p>
+</div>
+
+{% elif product_type == 'ProductFridge' %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+    <p class="text-gray-600">총 용량: <span class="font-semibold text-gray-900">{{ product_data.total_cap }}L</span></p>
+    <p class="text-gray-600">도어 수: <span class="font-semibold text-gray-900">{{ product_data.door_cnt }}개</span></p>
+    <p class="text-gray-600">냉장/냉동: <span class="font-semibold text-gray-900">{{ product_data.refrige_cap }}L / {{ product_data.freeze_cap }}L</span></p>
+    <p class="text-gray-600">색상: <span class="font-semibold text-gray-900">{{ product_data.color|default:"-" }}</span></p>
+    <p class="text-gray-600">크기(W x H x D): <span class="font-semibold text-gray-900">{{ product_data.width }} x {{ product_data.height }} x {{ product_data.depth }} mm</span></p>
+</div>
+
+{% elif product_type == 'ProductWash' %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+    <p class="text-gray-600">세탁 용량: <span class="font-semibold text-gray-900">{{ product_data.washing_cap }}kg</span></p>
+    <p class="text-gray-600">건조 용량: <span class="font-semibold text-gray-900">{{ product_data.drying_cap }}kg</span></p>
+    <p class="text-gray-600">제어 방식: <span class="font-semibold text-gray-900">{{ product_data.control_type|default:"-" }}</span></p>
+    <p class="text-gray-600">색상: <span class="font-semibold text-gray-900">{{ product_data.color|default:"-" }}</span></p>
+    <p class="text-gray-600">크기(W x H x D): <span class="font-semibold text-gray-900">{{ product_data.width }} x {{ product_data.height }} x {{ product_data.depth }} mm</span></p>
+</div>
+
+{% elif product_type == 'ProductAC' %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+    <p class="text-gray-600">냉방 능력: <span class="font-semibold text-gray-900">{{ product_data.cool_cap }}W</span></p>
+    <p class="text-gray-600">냉방 면적: <span class="font-semibold text-gray-900">{{ product_data.coverage|default:"-" }}㎡</span></p>
+    <p class="text-gray-600">제습 능력: <span class="font-semibold text-gray-900">{{ product_data.dehumid|default:"-" }}L</span></p>
+    <p class="text-gray-600">색상: <span class="font-semibold text-gray-900">{{ product_data.color|default:"-" }}</span></p>
+</div>
+
+{% elif product_type == 'ProductVAC' %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 text-sm">
+    <p class="text-gray-600">흡입력: <span class="font-semibold text-gray-900">{{ product_data.suction_power }}W</span></p>
+    <p class="text-gray-600">배터리 개수: <span class="font-semibold text-gray-900">{{ product_data.battery_cnt|default:"1" }}개</span></p>
+    <p class="text-gray-600">색상: <span class="font-semibold text-gray-900">{{ product_data.color|default:"-" }}</span></p>
+    <p class="text-gray-600">본체 무게: <span class="font-semibold text-gray-900">{{ product_data.unit_weight|default:"-" }}kg</span></p>
+</div>
+
+{% else %}
+<p class="text-sm text-gray-500">해당 제품의 상세 사양 정보가 존재하지 않습니다.</p>
+{% endif %}
+
+{% if product_data.manual_link %}
+<div class="mt-6 border-t border-gray-100 pt-6">
+    <a href="{{ product_data.manual_link }}" target="_blank" rel="noopener noreferrer"
+        class="inline-flex items-center text-sm font-semibold text-red-600 hover:text-red-700">
+        사용 설명서(Manual) 확인하기 →
+    </a>
+</div>
+{% endif %}

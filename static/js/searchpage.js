@@ -36,6 +36,8 @@
             hertz__gte: "주파수 최소",
             hertz__lte: "주파수 최대",
             resol_code: "해상도",
+            resol_code__in: "해상도",
+            resol_code_in: "해상도",
             display_type: "디스플레이",
             os_type: "OS",
             screen_size__gte: "화면 크기 최소",
@@ -116,8 +118,14 @@
         }
 
         function displayValue(key, value) {
-            if (key === "resol_code" || key.endsWith("resol_code")) {
-                return RESOL_LABELS[value] || value;
+            if (
+                key === "resol_code" ||
+                key === "resol_code__in" ||
+                key === "resol_code_in" ||
+                key.endsWith("resol_code")
+            ) {
+                const code = value.split(",")[0].trim();
+                return RESOL_LABELS[code] || value;
             }
             if (key.startsWith("price")) {
                 return formatWon(value);
@@ -248,6 +256,21 @@
                 });
         }
 
+        function resolveChipParamName(group, field, mode) {
+            if (group.dataset.paramName) {
+                return group.dataset.paramName;
+            }
+            return mode === "single" ? field : field + "__in";
+        }
+
+        function getChipParamValue(field, paramName, mode) {
+            let current = params.get(paramName) || "";
+            if (current || mode !== "single" || field !== "resol_code") {
+                return current;
+            }
+            return params.get("resol_code") || params.get("resol_code_in") || "";
+        }
+
         function syncChipHidden(group) {
             const hidden = group.querySelector("[data-filter-chip-value]");
             const mode = group.dataset.mode || "multi";
@@ -275,9 +298,9 @@
                 const choices = typeOptions[field] || [];
                 list.innerHTML = "";
 
-                const paramName = mode === "single" ? field : field + "__in";
+                const paramName = resolveChipParamName(group, field, mode);
                 hidden.name = paramName;
-                const current = params.get(paramName) || "";
+                const current = getChipParamValue(field, paramName, mode);
                 const selected = new Set(
                     mode === "single"
                         ? current
@@ -308,7 +331,11 @@
                     list.appendChild(button);
                 });
 
-                syncChipHidden(group);
+                if (mode === "single") {
+                    hidden.value = current;
+                } else {
+                    syncChipHidden(group);
+                }
 
                 list.addEventListener("click", function (event) {
                     const chip = event.target.closest("[data-filter-chip]");

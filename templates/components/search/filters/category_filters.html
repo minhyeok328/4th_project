@@ -79,7 +79,7 @@
             <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" /></svg>
         </summary>
         <div class="space-y-4 pt-1">
-            {% include "components/search/filters/_fields.html" with field_type="chips" field="resol_code" label="해상도" mode="single" %}
+            {% include "components/search/filters/_fields.html" with field_type="chips" field="resol_code" label="해상도" mode="single" param_name="resol_code__in" %}
             {% include "components/search/filters/_fields.html" with field_type="chips" field="display_type" label="디스플레이" mode="single" %}
             {% include "components/search/filters/_fields.html" with field_type="chips" field="os_type" label="운영체제" mode="single" %}
             {% include "components/search/filters/_fields.html" with field_type="range" field="screen_size" label="화면 크기" unit="cm" range_min=0 range_step=1 %}

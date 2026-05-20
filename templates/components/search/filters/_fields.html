@@ -20,10 +20,10 @@
 </div>
 
 {% elif field_type == "chips" %}
-<div class="space-y-2" data-filter-chips data-field="{{ field }}" data-mode="{{ mode|default:'multi' }}" data-label="{{ label }}">
+<div class="space-y-2" data-filter-chips data-field="{{ field }}" data-mode="{{ mode|default:'multi' }}" data-label="{{ label }}"{% if param_name %} data-param-name="{{ param_name }}"{% endif %}>
     <p class="text-sm font-medium text-gray-800">{{ label }}</p>
     <div class="flex flex-wrap gap-2" data-filter-chips-list role="group" aria-label="{{ label }}"></div>
-    <input type="hidden" name="{% if mode == 'single' %}{{ field }}{% else %}{{ field }}__in{% endif %}" data-filter-chip-value data-filter-param />
+    <input type="hidden" name="{% if param_name %}{{ param_name }}{% elif mode == 'single' %}{{ field }}{% else %}{{ field }}__in{% endif %}" data-filter-chip-value data-filter-param />
 </div>
 
 {% elif field_type == "toggle" %}
