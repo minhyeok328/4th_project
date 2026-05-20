@@ -1,4 +1,8 @@
-<section class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8">
+<section
+    id="mypage-wishlist-section"
+    data-wishlist-post-url="{% url 'accounts:mypage' %}"
+    data-csrf-token="{{ csrf_token }}"
+    class="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8">
     <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold tracking-tight text-gray-900">내가 찜한 상품</h2>
         <span class="text-[11px] font-semibold tracking-wide text-red-600 bg-red-50 px-2.5 py-1 rounded-full">총 {{ favorites|length }}개</span>
@@ -55,44 +59,3 @@
 
     </div>
 </section>
-
-<script>
-function mypageWishlistToggle(button, productCode) {
-    if (!productCode) {
-        console.error("상품 정보를 찾을 수 없습니다.");
-        return;
-    }
-
-    let formData = new FormData();
-    formData.append("product_code", productCode);
-    formData.append("action", "toggle_favorite");
-    const productCard = button.closest('.group');
-
-    fetch("{% url 'accounts:mypage' %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-    })
-    .then(response => response.json().then(data => ({ ok: response.ok, data })))
-    .then(({ ok, data }) => {
-        if (!ok || !data.ok) {
-            console.error("서버 반영에 실패했습니다.");
-            return;
-        }
-
-        if (productCard) {
-            productCard.remove();
-        }
-
-        if (document.querySelectorAll('.grid > .group').length === 0) {
-            location.reload();
-        }
-    })
-    .catch(error => {
-        console.error('마이페이지 찜 연동 에러:', error);
-    });
-}
-
-</script>

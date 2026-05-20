@@ -2,6 +2,8 @@
     id="product-actions"
     data-is-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
     data-login-url="{% url 'accounts:loginpage' %}"
+    data-wishlist-post-url="{% url 'accounts:mypage' %}"
+    data-csrf-token="{{ csrf_token }}"
     class="mt-6 flex flex-col justify-end gap-3 rounded-3xl border border-gray-200/70 bg-white p-5 shadow-sm sm:flex-row sm:p-6">
 
     <button type="button"
@@ -37,77 +39,5 @@ function productActionsRequireLogin() {
     return false;
 }
 
-function productPageWishlistToggle(button, productCode) {
-    if (!productActionsRequireLogin()) {
-        return;
-    }
-
-    if (!productCode) {
-        alert("상품 정보를 찾을 수 없습니다.");
-        return;
-    }
-
-    let formData = new FormData();
-    formData.append("product_code", productCode);
-    formData.append("action", "toggle_favorite");
-
-    fetch("{% url 'accounts:mypage' %}", {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-    })
-    .then(function (response) {
-        const section = document.getElementById("product-actions");
-        const loginUrl = section ? section.dataset.loginUrl : "";
-
-        if (response.redirected && loginUrl) {
-            window.location.href = response.url || loginUrl;
-            return null;
-        }
-
-        const contentType = response.headers.get("content-type") || "";
-        if (!contentType.includes("application/json")) {
-            if (loginUrl) {
-                window.location.href = loginUrl;
-            }
-            return null;
-        }
-
-        return response.json().then(function (data) {
-            return { ok: response.ok, data: data };
-        });
-    })
-    .then(function (result) {
-        if (!result) {
-            return;
-        }
-
-        const ok = result.ok;
-        const data = result.data;
-
-        if (ok && data.ok) {
-            if (data.favorited) {
-                button.innerText = "찜 완료";
-                button.classList.remove('bg-white', 'text-red-600', 'hover:bg-red-50');
-                button.classList.add('bg-red-600', 'text-white', 'hover:bg-red-700');
-                button.setAttribute('data-status', 'done');
-            } else {
-                button.innerText = "찜하기";
-                button.classList.remove('bg-red-600', 'text-white', 'hover:bg-red-700');
-                button.classList.add('bg-white', 'text-red-600', 'hover:bg-red-50');
-                button.setAttribute('data-status', 'none');
-            }
-        } else {
-            if (!productActionsRequireLogin()) {
-                return;
-            }
-            alert("서버 처리 중 오류가 발생했습니다.");
-        }
-    })
-    .catch(function (error) {
-        console.error('상품페이지 찜 연동 에러:', error);
-    });
-}
+// REFACTOR (찜 기능 중복 실행 방지): 토글 로직은 static/js/wishlist-toggle.js 공통 모듈로 위임
 </script>
