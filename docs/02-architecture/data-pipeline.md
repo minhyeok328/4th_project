@@ -24,8 +24,12 @@ flowchart LR
 
 ## 2. 전처리·적재 (ETL)
 
-- 카테고리별 `*_db.ipynb`에서 CSV 정제
-- `products/loaddata.ipynb`로 Django 모델 스키마에 맞게 bulk 적재
+| 단계 | 위치 | 산출물 |
+|------|------|--------|
+| 전처리 | `products/data/preprocessing/` | 카테고리별 `*_pre.ipynb`, `*_db.ipynb`로 CSV 정제 |
+| 적재용 CSV | `products/data/database/` | `ProductTV.csv`, `ProductFridge.csv` 등 |
+| ORM 적재 | `products/loaddata.ipynb` | 위 CSV → Django 모델 → SQLite |
+
 - `product_code` 3자리 prefix로 카테고리 구분
 
 | Prefix | 모델 | 카테고리 |
@@ -50,12 +54,15 @@ LangGraph `db_search` 노드 → 동일 `search_model()` + 슬롯(`from_favorite
 
 | 항목 | 값 |
 |------|-----|
+| 오프라인 적재 | `products/data/embedding/` — `pdfdown.ipynb`, `embedding.ipynb`, `pinecone_uploader.ipynb` |
 | Namespace | `user_manual` |
 | Embedding | `text-embedding-3-small` |
 | 메타 필터 | `product_code_header` (TVT/ACT/REF/VAC/WMT) |
-| 구현 | `common/vector_search.py` |
+| 런타임 검색 | `common/vector_search.py` |
 
 챗봇에서 `intent_router`의 `vector_search` 슬롯 → `answer_with_result`에서 근거 인용.
+
+디렉터리 트리: [directory-structure.md § products/data](directory-structure.md#productsdata)
 
 ## 관련 문서
 
