@@ -23,9 +23,12 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'css/search_filter.css' %}" />
+<link rel="stylesheet" href="{% static 'css/mobile-viewport.css' %}" />
 <script>
     window.SEARCH_FILTER_OPTIONS_URL = "{% static 'data/search_filter_options.json' %}";
 </script>
+<!-- REFACTOR (검색 loadOptions 실패 시 사용자 안내): loadOptions가 ApiResponse 공통 정책을 쓰도록 선행 로드 -->
+<script src="{% static 'js/api-response.js' %}"></script>
 <!-- REFACTOR (유지보수성): searchpage.js의 대형 로직을 역할별 모듈로 분리 -->
 <script src="{% static 'js/search/filter.js' %}"></script>
 <script src="{% static 'js/search/pagination.js' %}"></script>

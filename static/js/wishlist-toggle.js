@@ -45,25 +45,30 @@
         formData.append("product_code", productCode);
         formData.append("action", "toggle_favorite");
 
-        return fetch(postUrl, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrfToken,
-            },
-            body: formData,
-        })
-            .then(function (response) {
-                // REFACTOR (API 실패 UX 표준화): 찜 API 응답 파싱을 공통 유틸로 통일
-                return ApiResponse.parseFetchJsonResponse(response, {
-                    loginUrl: loginUrl,
-                });
-            })
+        return ApiResponse.fetchJson(
+            postUrl,
+            ApiResponse.buildFormPostInit({
+                body: formData,
+                csrfToken: csrfToken,
+            }),
+            {
+                loginUrl: loginUrl,
+                logContext: "찜 연동 에러:",
+            }
+        )
             .then(function (result) {
                 if (!result) {
                     return;
                 }
 
+                // REFACTOR (ApiResponse 적용 범위 확대): 네트워크 실패는 공통 fetchJson이 처리 — 찜 전용 문구는 기존과 동일하게 WISHLIST
+                if (result.error === ApiResponse.ERROR_CODES.NETWORK) {
+                    ApiResponse.notifyApiError("WISHLIST");
+                    return;
+                }
+
                 if (!result.ok || !result.data || !result.data.ok) {
+                    // REFACTOR (ApiResponse 적용 범위 확대): 본문 ok:false(HTTP 200)는 notifyJsonFetchError 대상이 아니므로 기존 문구 매핑 유지
                     ApiResponse.notifyApiError(
                         result.error === ApiResponse.ERROR_CODES.PARSE
                             ? "PARSE"
@@ -75,10 +80,6 @@
                 if (typeof onSuccess === "function") {
                     onSuccess(result.data, button);
                 }
-            })
-            .catch(function (error) {
-                ApiResponse.logApiError("찜 연동 에러:", error);
-                ApiResponse.notifyApiError("WISHLIST");
             })
             .finally(function () {
                 wishlistInFlight.delete(productCode);
@@ -95,6 +96,20 @@
             csrfToken: root.dataset.csrfToken || "",
             loginUrl: root.dataset.loginUrl || "",
         };
+    }
+
+    // REFACTOR (마이페이지 찜 카운트 동기화): 찜 해제로 카드만 제거될 때 서버 렌더 뱃지가 갱신되지 않으므로 남은 카드 수로 DOM 반영
+    function syncMypageWishlistCount() {
+        const section = document.getElementById("mypage-wishlist-section");
+        if (!section) {
+            return;
+        }
+        const badge = section.querySelector("[data-wishlist-count-badge]");
+        if (!badge) {
+            return;
+        }
+        const count = section.querySelectorAll(".grid > .group").length;
+        badge.textContent = "총 " + count + "개";
     }
 
     function applyProductPageFavoriteUi(button, favorited) {
@@ -149,6 +164,9 @@
                 if (productCard) {
                     productCard.remove();
                 }
+
+                // REFACTOR (마이페이지 찜 카운트 동기화): 카드 제거 직후 뱃지 문구를 남은 찜 개수와 일치시킴
+                syncMypageWishlistCount();
 
                 if (document.querySelectorAll(".grid > .group").length === 0) {
                     location.reload();
