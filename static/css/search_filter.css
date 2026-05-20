@@ -1,3 +1,13 @@
+/**
+ * 검색 필터 보조 스타일 (searchpage.html에서 로드).
+ *
+ * - 칩 버튼: 긴 라벨 truncate
+ * - aria-pressed="true": 선택 칩 강조( Tailwind와 중복 보완 )
+ * - 활성 필터 pill 영역이 비면 숨김
+ *
+ * 상세 필터 UI·동작은 static/js/search/filter.js
+ */
+
 [data-filter-chip] {
     max-width: 100%;
 }

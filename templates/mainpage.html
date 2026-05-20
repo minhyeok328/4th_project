@@ -96,6 +96,7 @@
     </section>
 </main>
 
+{# 메인 히어로 캐러셀: 서버 요청 없음 — 슬라이드·인디케이터 DOM만 토글·10초 자동 전환 #}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const slides = document.querySelectorAll(".slide");
@@ -106,6 +107,7 @@
 
         let slideTimer = null;
 
+        // 지정 인덱스 슬라이드만 보이게 opacity·인디케이터·aria-selected 갱신
         function showSlide(index) {
             currentSlide = index;
             slides.forEach((slide, i) => {
@@ -129,6 +131,7 @@
             showSlide((currentSlide + 1) % totalSlides);
         }
 
+        // 인디케이터 클릭 후에도 자동 재생 타이머를 리셋
         function startAutoSlide() {
             if (slideTimer) {
                 clearInterval(slideTimer);

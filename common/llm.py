@@ -19,10 +19,25 @@ import common.vector_search as vector_db
 
 from chats.models import Chatroom
 
+"""
+LG 가전 챗봇 LangGraph 오케스트레이션.
+
+실행 순서(요약):
+  fall_case → 대화 state(initial/subseq/context) 분기 → 제품군 분류 → intent·슬롯 추출
+  → DB 검색 → 건수에 따라 답변 생성 / 조건 되돌리기 / 검색 URL 안내
+
+외부 연결:
+  - common.llm_agent: 노드별 LLM 호출
+  - common.utils.search_product, vector_search: 상품·매뉴얼 검색
+  - Chatroom.agent_state: 그래프 상태 영속화
+  - api.views.send_chat → add_chat() 가 진입점
+"""
+
 ############################################################
 # state definition
 ############################################################
 
+# 이 건수 초과 시 목록 대신 검색 페이지 링크만 안내(answer_without_result)
 result_boundary = 5
 
 ConversationState = Literal["initial", "subseq", "context"]
@@ -86,10 +101,12 @@ class GraphState(TypedDict, total=False):
 
 
 def _is_empty_condition(value):
+    """검색 조건 dict에서 제외할 빈 값 여부."""
     return value is None or value == "" or value == [] or value == () or value == set()
 
 
 def _as_condition_list(value):
+    """__in·icontains 병합용으로 스칼라를 리스트로 정규화."""
     if value is None:
         return []
     if isinstance(value, list):
@@ -102,6 +119,7 @@ def _as_condition_list(value):
 
 
 def _get_condition_lookup(key):
+    """필드 키 접미사에서 Django lookup 종류를 추출(gte/lte/in/icontains)."""
     for lookup in ("gte", "lte", "in", "icontains"):
         if key.endswith(f"_{lookup}"):
             return lookup
@@ -109,6 +127,10 @@ def _get_condition_lookup(key):
 
 
 def add_condition(base_condition: dict, new_condition: dict) -> dict:
+    """
+    슬롯·intent 검색 조건을 lookup 규칙에 맞게 병합한다.
+    gte는 max, lte는 min, in은 교집합, icontains는 리스트 합친다.
+    """
     result = {
         key: deepcopy(value)
         for key, value in (base_condition or {}).items()
@@ -146,6 +168,7 @@ def add_condition(base_condition: dict, new_condition: dict) -> dict:
     return result
 
 def get_searchable_conditions(code_header: str) -> list[str]:
+    """제품군 코드(TVT/REF 등)별로 사용자에게 안내할 검색 가능 조건 라벨 목록."""
     match code_header:
         # TV
         case "TVT":
@@ -615,6 +638,19 @@ graph_instance = builder.compile()
 ############################################################
 
 def add_chat(root_url:str, room:Chatroom, user_input:str) -> str:
+    """
+    한 턴의 사용자 입력을 처리하고 (응답 본문, response_tail)을 반환한다.
+
+    Args:
+        root_url: 검색 링크 등 절대 URL 생성용(요청 scheme+host)
+        room: 대화방 — agent_state 로드·저장, Chat 레코드 추가
+        user_input: 사용자 메시지
+
+    Returns:
+        (response, response_tail) — tail은 UI 하단 보조 문구(가능한 조건 등)
+
+    흐름: room 상태 복원 → graph_instance.invoke → next_state·slots 저장 → assistant Chat 저장
+    """
     global graph_instance
 
     formal_state = room.agent_state

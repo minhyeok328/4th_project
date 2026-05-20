@@ -1,9 +1,26 @@
+/**
+ * 찜(즐겨찾기) 토글 공통 스크립트.
+ *
+ * 역할:
+ * - 상품 상세·마이페이지에서 동일 API로 찜 on/off
+ * - 중복 POST·연속 클릭 방지, 인증·에러 UX는 `ApiResponse`에 위임
+ *
+ * 외부 연결:
+ * - `data-wishlist-post-url`, `data-csrf-token` (템플릿 data-*)
+ * - POST FormData: product_code, action=toggle_favorite
+ * - 전역: `window.productPageWishlistToggle`, `window.mypageWishlistToggle`
+ */
 (function () {
     "use strict";
 
     // REFACTOR (찜 기능 중복 실행 방지): 동일 product_code에 대한 동시 요청 차단
     const wishlistInFlight = new Set();
 
+    /**
+     * 찜 버튼 busy 상태 — 요청 중 재클릭·중복 POST를 막기 위한 시각·접근성 피드백.
+     * @param {HTMLButtonElement|null} button
+     * @param {boolean} busy
+     */
     // REFACTOR (찜 기능 중복 실행 방지): 요청 중 버튼 비활성화로 연속 클릭·중복 POST 방지
     function setWishlistButtonBusy(button, busy) {
         if (!button) {
@@ -20,6 +37,11 @@
         }
     }
 
+    /**
+     * 찜 토글 API를 호출하고 성공 시 `onSuccess` 콜백을 실행한다.
+     * @param {Object} options - button, productCode, postUrl, csrfToken, loginUrl, onSuccess
+     * @returns {Promise<void>}
+     */
     function postToggleFavorite(options) {
         const button = options.button;
         const productCode = options.productCode;
@@ -87,6 +109,7 @@
             });
     }
 
+    /** 템플릿 루트 요소의 data-*에서 찜 API URL·CSRF·로그인 URL을 읽는다. */
     function getWishlistConfigFromElement(root) {
         if (!root) {
             return { postUrl: "", csrfToken: "", loginUrl: "" };
@@ -98,6 +121,10 @@
         };
     }
 
+    /**
+     * 마이페이지 찜 섹션 뱃지 문구를 남은 카드 수와 맞춘다.
+     * 서버 전체 리렌더 없이 카드 DOM만 제거될 때 카운트 불일치를 방지한다.
+     */
     // REFACTOR (마이페이지 찜 카운트 동기화): 찜 해제로 카드만 제거될 때 서버 렌더 뱃지가 갱신되지 않으므로 남은 카드 수로 DOM 반영
     function syncMypageWishlistCount() {
         const section = document.getElementById("mypage-wishlist-section");
@@ -112,6 +139,7 @@
         badge.textContent = "총 " + count + "개";
     }
 
+    /** 상품 상세 찜 버튼 라벨·색상을 favorited 상태에 맞게 갱신한다. */
     function applyProductPageFavoriteUi(button, favorited) {
         if (favorited) {
             button.innerText = "찜 완료";
@@ -126,6 +154,7 @@
         }
     }
 
+    /** 상품 상세: 미로그인 시 로그인 URL로 이동, 로그인 시 찜 토글 후 버튼 UI 갱신. */
     window.productPageWishlistToggle = function (button, productCode) {
         const section = document.getElementById("product-actions");
         if (!section || section.dataset.isAuthenticated !== "true") {
@@ -150,6 +179,7 @@
         });
     };
 
+    /** 마이페이지: 찜 해제 시 카드 제거·뱃지 동기화, 목록이 비면 전체 새로고침. */
     window.mypageWishlistToggle = function (button, productCode) {
         const section = document.getElementById("mypage-wishlist-section");
         const config = getWishlistConfigFromElement(section);

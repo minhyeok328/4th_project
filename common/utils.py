@@ -1,14 +1,23 @@
+"""
+상품·찜 공통 조회 유틸.
+
+- product_code 앞 3자(ACT/REF/TVT/VAC/WMT)로 제품군 모델 분기
+- 챗봇 DB 검색(llm.db_search_node), 상세·마이페이지·API 찜에서 사용
+"""
+
 from django.db import models
 from products import models as p_models
 from accounts import models as a_models
 
 def safe_get(mod:models.Model, dct):
+    """DoesNotExist 시 None, 있으면 단일 ORM 인스턴스."""
     try:
         return mod.objects.get(**dct)
     except mod.DoesNotExist:
         return None
 
 def get_model(product_code:str):
+    """제품군 3자 코드(또는 product_code 접두)로 Product* 모델 클래스를 반환한다."""
     if not product_code or len(product_code) < 3:
         return None
 
@@ -29,6 +38,12 @@ def get_model(product_code:str):
             return None
 
 def get_product(product_code:str):
+    """
+    전체 product_code로 DB 테이블명·상품 인스턴스를 조회한다.
+
+    Returns:
+        (db_table 또는 product_type 문자열, 모델 인스턴스|None)
+    """
     header = product_code[0:3].upper()
 
     p_code = header + product_code[3:]
@@ -53,6 +68,7 @@ def get_product(product_code:str):
             return None, None
 
 def get_favorites(account_id:int):
+    """계정의 찜 product_code 목록 — 챗봇 from_favorites 검색 범위 제한용."""
     return list(
         a_models.UserFavorite.objects
         .filter(account_id=account_id)
@@ -60,6 +76,14 @@ def get_favorites(account_id:int):
     )
 
 def search_product(product_type, range, conditions):
+    """
+    제품군 모델의 search()로 조건 필터링된 상품 queryset/리스트 반환.
+
+    Args:
+        product_type: ACT/REF/TVT/VAC/WMT
+        range: product_code_in 등 선필터(챗봇)
+        conditions: intent·slots 병합 dict (__gte, __in 등)
+    """
     model = get_model(product_type)
     if model is None:
         return []

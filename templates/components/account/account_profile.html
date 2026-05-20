@@ -48,11 +48,14 @@
     </div>
 </section>
 
+{# 프로필 수정: 폼은 POST accounts:mypage (update_profile) — 아래 JS는 패널 표시만 담당 #}
 <script>
+/** 수정 폼 영역 표시, 열기 버튼 숨김 */
 function openProfileEdit() {
     document.getElementById('profile-edit-box').classList.remove('hidden');
     document.getElementById('edit-open-btn').classList.add('hidden');
 }
+/** 수정 폼 숨김, 열기 버튼 복원 */
 function closeProfileEdit() {
     document.getElementById('profile-edit-box').classList.add('hidden');
     document.getElementById('edit-open-btn').classList.remove('hidden');

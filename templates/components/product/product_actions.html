@@ -21,7 +21,12 @@
     </button>
 </section>
 
+{# 구매하기: 미로그인 시 data-login-url로 이동. 찜은 wishlist-toggle.js #}
 <script>
+/**
+ * 구매하기 클릭 시 로그인 여부 확인.
+ * @returns {boolean} 로그인됨 true, 아니면 로그인 페이지 이동 후 false
+ */
 function productActionsRequireLogin() {
     const section = document.getElementById("product-actions");
     if (!section) {

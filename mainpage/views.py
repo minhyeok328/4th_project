@@ -1,5 +1,10 @@
+"""
+메인(홈) 페이지 — 카테고리 카드·캐러셀(템플릿 인라인 JS).
+"""
+
 from django.shortcuts import render
 
+# 검색 페이지 product_type 쿼리와 동일 코드
 CATEGORIES = [
     {"label": "TV", "product_type": "TVT"},
     {"label": "세탁기", "product_type": "WMT"},
@@ -10,6 +15,7 @@ CATEGORIES = [
 
 
 def mainpage(request):
+    """홈 SSR — 로그인 닉네임·카테고리 목록만 컨텍스트로 전달."""
     return render(
         request,
         "mainpage.html",

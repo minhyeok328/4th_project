@@ -1,11 +1,20 @@
+"""
+계정·마이페이지 뷰.
+
+마이페이지 POST action:
+- toggle_favorite: wishlist-toggle.js (JSON)
+- update_profile: account_profile.html 폼
+- logout
+"""
+
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from common.utils import get_product
 from .models import Account, UserFavorite
 
-# Create your views here.
 def registerpage(request):
+    """회원가입 POST → Account 생성 후 로그인 페이지로 이동."""
     if request.user.is_authenticated:
         return redirect("accounts:mypage")
 
@@ -32,6 +41,7 @@ def registerpage(request):
 
 
 def mypage(request):
+    """마이페이지 SSR + POST 멀티액션(찜 토글·프로필·로그아웃)."""
     if not request.user.is_authenticated:
         return redirect("accounts:loginpage")
 
@@ -42,6 +52,7 @@ def mypage(request):
             logout(request)
             return redirect("mainpage:mainpage")
 
+        # ApiResponse.fetchJson + wishlist-toggle.js — { ok, favorited } JSON 반환
         if action == "toggle_favorite":
             product_code = request.POST.get("product_code", "").strip()
             if not product_code:
@@ -83,12 +94,18 @@ def mypage(request):
     )
 
 def logout_view(request):
+    """헤더 로그아웃 폼 POST 처리 후 메인으로."""
     if request.method == "POST":
         logout(request)
     return redirect("mainpage:mainpage")
 
 
 def loginpage(request):
+    """
+    로그인 폼 — authenticate 성공 시 mainpage, 실패 시 session login_fail 플래그.
+
+    클라이언트 검증은 static/js/loginpage.js, 서버는 Django auth.
+    """
     if request.user.is_authenticated:
         return redirect("accounts:mypage")
 

@@ -1,3 +1,12 @@
+"""
+LangGraph 노드별 LLM 호출 레이어.
+
+역할:
+- OpenAI structured output으로 fall_case·후속질문·제품군·슬롯·최종답변 추출
+- common.llm 의 각 graph 노드가 invoke_* 함수를 호출
+
+모델: gpt-4o-mini, temperature=0 (일관된 분류·추출)
+"""
 
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
@@ -17,6 +26,10 @@ TEMPERATURE = 0
 ############################################################
 
 def invoke_llm(llm, prompt:str, chats:list[str]):
+    """
+    시스템 프롬프트 + chats(짝수=user, 홀수=assistant) 메시지 배열로 LLM 1회 호출.
+    structured output이 붙은 llm이면 Pydantic 모델 인스턴스를 반환한다.
+    """
     buff = []
     buff.append(SystemMessage(content=prompt))
     for i in range(len(chats)):
@@ -81,6 +94,7 @@ fall_case_prompt = """
 """
 
 def invoke_fall_case_node(chats:list[str]):
+    """전자제품 상담 범위 밖(fall case) 여부·유도 응답. llm.fall_case_node 진입 전."""
     global fall_case_node, fall_case_prompt
     return invoke_llm(fall_case_node, fall_case_prompt, chats)
 
@@ -181,6 +195,7 @@ subsequence_router_prompt = """
 """
 
 def invoke_subsequence_router_node(chats:list[str]):
+    """직전 검색/추천 맥락을 이어받는 후속 질문인지 판별. 최근 1턴만 전달."""
     global subsequence_router_node, subsequence_router_prompt
     return invoke_llm(subsequence_router_node, subsequence_router_prompt, chats)
 
@@ -363,6 +378,7 @@ product_type = ""
 """
 
 def invoke_product_classification_node(chats:list[str]):
+    """사용자 입력에서 제품군 코드(TVT/ACT/REF/VAC/WMT) 추출."""
     global product_classification_node, product_classification_prompt
     return invoke_llm(product_classification_node, product_classification_prompt, chats)
 
@@ -895,6 +911,10 @@ vector_search 규칙:
 """
 
 def invoke_intent_router_node(product_type:str, chats:list[str]):
+    """
+    제품군별 Pydantic 스키마로 검색 슬롯·벡터 검색어·from_favorites 등 intent 추출.
+    product_type에 맞는 structured output 모델을 선택한다.
+    """
     global ACT_node, TVT_node, REF_node, VAC_node, WMT_node
     global intent_router_prompt
 
@@ -991,6 +1011,10 @@ answer_with_result_prompt = """
 """
 
 def invoke_answer_with_result_node(graph_state, chats:list[str]):
+    """
+    DB·매뉴얼 검색 결과를 컨텍스트에 넣어 최종 자연어 답변 생성.
+    graph_state: search_results, manual_results 등 llm.GraphState 필드.
+    """
     global answer_with_result_node, answer_with_result_prompt
 
     recent_user_chat = chats[-1]

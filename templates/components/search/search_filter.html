@@ -1,3 +1,4 @@
+{# 검색 필터: GET products:searchpage — initSearchFilter (옵션 JSON, 칩, submit) #}
 {% load static %}
 {% with pt=request.GET.product_type|default:"REF" %}
 <aside class="md:sticky md:top-24 md:self-start" data-search-filter data-product-type="{{ pt }}">
