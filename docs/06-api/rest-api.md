@@ -37,11 +37,13 @@ LG봇 메시지 전송·LangGraph 실행.
 ```json
 {
   "response": "추천 답변 본문...",
-  "response_tail": "상품 링크 HTML 등 (채팅 로그 제외)",
+  "response_tail": "가능한 조건: 가격, 용량, ...",
   "chat_id": 3,
   "chatroom_name": "500L 이상 냉장고 추천해줘"
 }
 ```
+
+`response_tail`은 UI 보조 문자열(예: 조건 안내·링크 문구)이며, 채팅 로그에는 저장되지 않습니다.
 
 ### Errors
 

@@ -44,7 +44,7 @@ flowchart TD
 | `is_subsequence` | 후속 질문 |
 | `search_results` | ORM 검색 결과 |
 | `manual_results` | RAG 청크 |
-| `response` / `response_tail` | 답변 본문 / UI용 부가 HTML |
+| `response` / `response_tail` | 답변 본문 / UI 보조 문자열(조건 안내 등) |
 
 ## 노드 역할
 

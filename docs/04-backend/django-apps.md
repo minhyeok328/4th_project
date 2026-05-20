@@ -4,7 +4,7 @@
 
 ## INSTALLED_APPS (`config/settings.py`)
 
-`mainpage`, `accounts`, `products`, `chats`, `tailwind`, `theme` + Django 기본 앱
+`mainpage`, `accounts`, `products`, `chats`, `tailwind`, `theme`, `django.contrib.humanize` + Django 기본 앱
 
 `AUTH_USER_MODEL = "accounts.Account"`
 

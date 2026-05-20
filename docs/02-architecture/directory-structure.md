@@ -6,7 +6,7 @@
 
 ```
 4th_project/
-├── config/                 # settings, urls, wsgi
+├── config/                 # settings, urls, wsgi, asgi
 ├── accounts/               # 회원·찜 (UserFavorite)
 ├── products/               # 상품 모델·검색 뷰·크롤링 데이터
 │   └── data/raw/data_crawling/   # 카테고리별 CSV·노트북

@@ -41,7 +41,7 @@ sequenceDiagram
     API-->>B: JsonResponse
 ```
 
-`response`는 채팅 로그에 저장, `response_tail`은 상품 카드 HTML 등 UI용(로그 제외).
+`response`는 채팅 로그에 저장되고, `response_tail`은 조건 안내·링크 문구 같은 UI 보조 문자열로 사용됩니다(로그 제외).
 
 ## 대화 상태 (`agent_state`)
 
