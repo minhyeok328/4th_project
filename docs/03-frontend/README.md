@@ -10,6 +10,8 @@
 | 문서 | 내용 |
 |------|------|
 | [frontend.md](frontend.md) | 화면설계·페이지 체크리스트 |
+| [client-javascript.md](client-javascript.md) | 공통 JS 모듈·1차 개선(api-response, wishlist, 챗봇 보안) |
+| [frontend-test-report.md](frontend-test-report.md) | 1차 수정 후 재평가·잔여 리스크 |
 | [pages-and-routes.md](pages-and-routes.md) | URL ↔ 템플릿 ↔ 뷰 매핑 |
 | [templates-components.md](templates-components.md) | 컴포넌트 트리·include 구조 |
 
@@ -24,7 +26,7 @@
 | 경로 | 역할 |
 |------|------|
 | `templates/` | 페이지·재사용 컴포넌트 |
-| `static/js/` | 페이지별 클라이언트 로직 |
+| `static/js/` | 페이지별·공통 클라이언트 로직 (`api-response.js`, `wishlist-toggle.js` 등) |
 | `static/css/` | 보조 CSS |
 | `static/data/` | 필터 옵션 JSON |
 | `theme/` | Tailwind 소스·빌드 |
