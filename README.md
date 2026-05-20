@@ -8,27 +8,27 @@
 <table>
   <tr>
     <td align="center">
-      <img src="https://tamagotchi-official.com/tamagotchi/jp/character/2024/05/08/X9QXrv0KcSLHIzUl/12_%E3%81%BF%E3%82%8B%E3%81%8F%E3%81%A3%E3%81%A1.png" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/tiger.png?raw=true" width="110px;" /><br />
       <b>박기은</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/bpNfyV2EO3ktFabEh7y_2Mi6dC1jQwjb87Df6IwaWFWZF6l6dOjiaYwKhACtE5kJgZz5TEX6dA8M3IqdDkhpCsG2sO3rmQxFRwuTirPtzeN5P4BG_cG6Wnko6Ge30upzJddWYkC8qcVzR3Z3mEtScA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/bear.png?raw=true" width="110px;" /><br />
       <b>서민혁</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/iWqehAOlzWPA-xfifB92okVTnhJSFBj-k633W8aHxc-EW57srm7A5IXwVsJ4rgwPo1kPAoDz_cKjONSWQ3vwKb3GtRLQgFF7m3moHup98KtISftIgs96YS6viGFW_Wtu8eQB0DA4VxHuKbf3O-rzyA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/fox.png?raw=true" width="110px;" /><br />
       <b>유동현</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/wOGUauoibb0a2w-jLXvKhjd53tDQARKn_Z_vPzoTstH1AgoQXmtmwt_S6HgNwh7Dhso52_xjT8uEJnNnBe_yaA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/squirrel.png?raw=true" width="110px;" /><br />
       <b>윤정연</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/Va9_ASdKJ_Vd8Neo3gKw2p5D-gzePCcrJP25bg6QgE2w21yZuNAhLxGljLISe-d90WnWfEHsSRUNbeuwa0M5Pg.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/dog.png?raw=true" width="110px;" /><br />
       <b>이레</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/bXkgQGQUNylk38qKKYmFFRkdfadMyH1ej-wEDI3syJX6JYDPlh0L3SFXGPEWvZOjuCFoUGKIWsiz9RB6jfPTpAdvByVnXaO6D3WZHYT7Y1O4VOBolw_3BvmkuBonu6s-hmiNThLrSrlQMb0S8UMoYg.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/cat.png?raw=true" width="110px;" /><br />
       <b>정영일</b><br />
     </td>
   </tr>
@@ -129,7 +129,7 @@
 ├── templates/              # 페이지·컴포넌트 HTML
 ├── static/                 # JS, CSS, 이미지, 필터 JSON
 ├── theme/                  # Tailwind 빌드 (django-tailwind)
-├── docs/                   # frontend.md 등
+├── docs/                   # 파트별·기능별 위키 (docs/README.md)
 ├── manage.py
 ├── requirements.txt
 └── README.md
@@ -412,9 +412,11 @@ Content-Type: application/json
 
 ## 14. Output
 - **요구사항 정의서**: _(링크 추가)_
-- **화면설계서**: `docs/frontend.md` (프론트 위키·체크리스트)
+- **기술 문서 (Docs 위키)**: [`docs/README.md`](docs/README.md) — 파트별·기능별 문서 허브
+- **화면설계서**: [`docs/03-frontend/frontend.md`](docs/03-frontend/frontend.md) (프론트 위키·체크리스트)
 - **개발된 LLM 연동 애플리케이션**: 본 저장소 (`/chats/`, `common/`)
-- **시스템 구성도**: README §5.5
+- **시스템 구성도**: README §5.5 · 상세 [`docs/02-architecture/system-architecture.md`](docs/02-architecture/system-architecture.md)
+- **API / DB 문서**: [`docs/06-api/rest-api.md`](docs/06-api/rest-api.md) · [`docs/05-database/schema-and-erd.md`](docs/05-database/schema-and-erd.md)
 - **테스트 계획 및 결과보고서**: §10 (작성 예정)
 
 ---
