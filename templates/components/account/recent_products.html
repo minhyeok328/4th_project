@@ -1,3 +1,4 @@
+{% load humanize %}
 <section
     id="mypage-wishlist-section"
     data-wishlist-post-url="{% url 'accounts:mypage' %}"
@@ -33,7 +34,7 @@
                         {% endwith %}
                     </span>
                     <h3 class="text-sm font-bold tracking-tight text-gray-900 truncate">{{ product.name }}</h3>
-                    <p class="text-xs font-black tracking-tight text-gray-900">{{ product.price }}원</p>
+                    <p class="text-xs font-black tracking-tight text-gray-900">{{ product.price|floatformat:0|intcomma }}원</p>
                 </div>
             </div>
 
