@@ -8,19 +8,26 @@
 4th_project/
 ├── config/                 # settings, urls, wsgi, asgi
 ├── accounts/               # 회원·찜 (UserFavorite)
-├── products/               # 상품 모델·검색 뷰·크롤링 데이터
-│   └── data/raw/data_crawling/   # 카테고리별 CSV·노트북
-├── chats/                  # 대화방·메시지
-├── api/                    # send_chat, favorite REST
-├── common/                 # LangGraph, 에이전트, 벡터 검색
+├── products/               # 상품 모델·검색 뷰·데이터 파이프라인
+│   ├── loaddata.ipynb
+│   └── data/
+│       ├── raw/data_crawling/
+│       ├── preprocessing/
+│       ├── database/
+│       └── embedding/
+├── chats/                  # 대화방·메시지·agent_state
+├── api/                    # send_chat, favorite, check_favorite
+├── common/                 # LangGraph, 에이전트, 벡터 검색, utils
 ├── mainpage/               # 메인 페이지
-├── templates/              # 페이지·컴포넌트 HTML
+├── templates/              # 페이지·components/
 ├── static/                 # JS, CSS, 필터 JSON
-├── theme/                  # Tailwind (django-tailwind)
+├── theme/static_src/       # Tailwind npm build
+├── media/                  # 프로필 업로드
 ├── docs/                   # 본 위키
+├── debug.py
 ├── manage.py
 ├── requirements.txt
-├── debug.py                # LangGraph 단독 디버그
+├── db.sqlite3
 └── README.md
 ```
 
@@ -36,7 +43,9 @@
 | `common/llm_agent.py` | LLM 프롬프트·structured output |
 | `common/vector_search.py` | Pinecone 매뉴얼 검색 |
 | `common/utils.py` | `get_product`, `search_product`, `get_favorites` |
+| `common/llm_frame.ipynb` | LLM 노드 평가·테스트 (README §10.6) |
 | `api/views.py` | `send_chat`, `favorite`, `check_favorite` |
+| `products/loaddata.ipynb` | `data/database/` CSV → SQLite |
 
 ## templates 구조
 
@@ -79,18 +88,23 @@ templates/
 
 상세: [클라이언트 JS 모듈](../03-frontend/client-javascript.md)
 
-## 데이터·크롤링
+## products/data
 
 ```
-products/data/raw/data_crawling/
-├── TV/
-├── refrigerator/    # REF
-├── washing_machine/ # WMT
-├── vacuum/          # VAC
-├── (에어컨 ACT 관련 디렉터리)
-├── selenium_auto_module.py
-└── */ *_db.ipynb, *_all_products.csv
+products/data/
+├── raw/data_crawling/     # 수집: Selenium, *_all_products.csv
+│   ├── TV/
+│   ├── AC/                # ACT
+│   ├── refrigerator/      # REF
+│   ├── washing_machine/   # WMT
+│   ├── vacuum/            # VAC
+│   └── selenium_auto_module.py
+├── preprocessing/         # 전처리: *_pre.ipynb, *_db.ipynb
+├── database/              # ORM 적재용 CSV (ProductTV.csv 등)
+└── embedding/             # PDF·임베딩·Pinecone (pdfdown.ipynb, pinecone_uploader.ipynb)
 ```
+
+`products/loaddata.ipynb` — `database/` CSV → SQLite
 
 제품 코드 prefix: `TVT`, `ACT`, `REF`, `VAC`, `WMT` — [DB 스키마](../05-database/schema-and-erd.md)
 
