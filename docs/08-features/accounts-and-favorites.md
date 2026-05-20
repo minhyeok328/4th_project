@@ -55,17 +55,17 @@ get_favorites(user_id)  # → product_code 리스트
 
 예: 「찜한 제품 중 에너지 1등급 냉장고」
 
-## 프론트엔드 찜 UI (1차 개선)
+## 프론트엔드 찜 UI (1·2차 개선)
 
 | 화면 | 구현 |
 |------|------|
 | 상품 상세 | `wishlist-toggle.js` — `productPageWishlistToggle`, `#product-actions` data 속성 |
-| 마이페이지 | `wishlist-toggle.js` — `mypageWishlistToggle`, 카드 제거·빈 목록 시 reload |
-| 공통 | `wishlistInFlight`, 요청 중 버튼 disable, `ApiResponse` 파싱·실패 `alert` |
+| 마이페이지 | `mypageWishlistToggle`, 카드 제거·`data-wishlist-count-badge` 동기화·빈 목록 시 reload |
+| 공통 | `wishlistInFlight`, `ApiResponse.fetchJson` + `buildFormPostInit`, 실패 `alert` |
 
 스크립트: `productpage.html`·`mypage.html`에서 `api-response.js` → `wishlist-toggle.js` 순 로드.
 
-→ [client-javascript.md](../03-frontend/client-javascript.md)
+→ [client-javascript.md](../03-frontend/client-javascript.md) · [2차 QA 평가서](../03-frontend/frontend-final-report.md)
 
 ## 로그인 가드
 
