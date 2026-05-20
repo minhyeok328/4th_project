@@ -69,13 +69,14 @@ sequenceDiagram
 - **fall case**: 전자제품 상담 외 질문 정중 거절
 - **후속**: 이전 `slots`·검색 맥락 유지 (`add_condition`)
 
-## 클라이언트 (1차 개선)
+## 클라이언트 (1·2차 개선)
 
-- **전송:** `inFlight` + 입력/버튼 disable, `ApiResponse.parseFetchJsonResponse`로 실패 시 말풍선 메시지
+- **전송:** `inFlight` + `ApiResponse.fetchJson` / `buildJsonPostInit` — 실패 시 말풍선 메시지
 - **렌더:** `renderMarkdown` → `isSafeHttpUrl` → `sanitizeChatHtml` (http/https만 링크·이미지)
 - **이미지:** 마크다운·자동 URL 중 이미지 URL은 인라인 `<img>` (공통 Tailwind 클래스)
+- **모바일:** 사이드바 backdrop·`aria-*`·ESC·`mobile-viewport.css` (실기기 QA는 [QA 평가서](../03-frontend/frontend-final-report.md))
 
-→ [client-javascript.md](../03-frontend/client-javascript.md) · [테스트 평가서](../03-frontend/frontend-test-report.md)
+→ [client-javascript.md](../03-frontend/client-javascript.md) · [1차 테스트 평가서](../03-frontend/frontend-test-report.md) · [2차 QA 평가서](../03-frontend/frontend-final-report.md)
 
 ## 관련 문서
 

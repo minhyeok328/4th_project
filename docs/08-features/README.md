@@ -28,7 +28,7 @@ flowchart LR
 
 아키텍처·스키마·API는 각 파트 문서를 참고하세요.
 
-- Frontend: [03-frontend](../03-frontend/README.md)
+- Frontend: [03-frontend](../03-frontend/README.md) — [1차 테스트 평가](../03-frontend/frontend-test-report.md) · [2차 QA](../03-frontend/frontend-final-report.md)
 - Backend: [04-backend](../04-backend/README.md)
 - DB: [05-database](../05-database/schema-and-erd.md)
 - AI: [07-ai-modeling](../07-ai-modeling/README.md)

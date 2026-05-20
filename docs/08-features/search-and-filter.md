@@ -68,6 +68,14 @@ flowchart TD
 | 조건 | 사용자가 직접 선택 | LLM 슬롯 추출 |
 | 엔진 | 동일 `search_model()` | LangGraph + 동일 ORM |
 
+## 클라이언트 (2차 개선)
+
+- **옵션 로드:** `filter.js` — `ApiResponse.fetchJson`, 로딩/에러 배너 (`search_filter.html`)
+- **submit:** `filterSubmitInFlight`, range `clamp`, 모바일 `visualViewport` 높이 조정
+- **스타일:** `search_filter.css`, `mobile-viewport.css` — `searchpage.html`에서 로드
+
+→ [client-javascript.md](../03-frontend/client-javascript.md) · [2차 QA 평가서](../03-frontend/frontend-final-report.md)
+
 ## 관련 문서
 
 - [상품 상세](product-detail.md)

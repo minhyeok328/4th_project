@@ -75,6 +75,7 @@ templates/
 | `static/js/loginpage.js` | 로그인 패널 전환 |
 | `static/data/search_filter_options.json` | 카테고리별 필터 옵션 |
 | `static/css/search_filter.css` | 검색 필터 스타일 |
+| `static/css/mobile-viewport.css` | 모바일 터치·입력·safe-area (챗봇·검색 필터) |
 
 상세: [클라이언트 JS 모듈](../03-frontend/client-javascript.md)
 
