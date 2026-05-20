@@ -66,10 +66,11 @@ python manage.py migrate
 
 상품 데이터는 다음 중 하나로 준비합니다.
 
-- 팀 제공 `db.sqlite3` 사용
-- `products/loaddata.ipynb` 및 카테고리별 `*_db.ipynb`로 CSV 적재
+- 팀 제공 `db.sqlite3` 사용 (`.gitignore` — 로컬만 유지)
+- `products/data/database/` CSV → `products/loaddata.ipynb`로 SQLite 적재
+- 처음부터 구축 시: `products/data/raw/data_crawling/` 수집 → `products/data/preprocessing/` 전처리 → 위 CSV 생성
 
-크롤링·적재 절차는 [데이터 파이프라인](../02-architecture/data-pipeline.md)을 참고하세요.
+크롤링·적재·RAG 적재 절차는 [데이터 파이프라인](../02-architecture/data-pipeline.md) · [디렉터리 구조](../02-architecture/directory-structure.md)를 참고하세요.
 
 ## IDE·로컬 팁
 

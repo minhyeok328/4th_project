@@ -36,9 +36,9 @@
     <td align="center"><b>Role</b><br>Frontend</td>
     <td align="center"><b>Role</b><br>Frontend</td>
     <td align="center"><b>Role</b><br>Backend</td>
-    <td align="center"><b>Role</b><br>Modeling</td>
+    <td align="center"><b>Role</b><br>Modeling (RAG)</td>
     <td align="center"><b>Role</b><br>Database</td>
-    <td align="center"><b>Role</b><br>Modeling</td>
+    <td align="center"><b>Role</b><br>Modeling (LangGraph)</td>
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/gieun-Park"><img src="https://img.shields.io/badge/gieun-Park-34495e?style=flat&logo=github&logoColor=white"></a></td>
@@ -119,21 +119,34 @@
 ```
 4th_project/
 ├── config/                 # Django settings, urls, wsgi, asgi
-├── accounts/               # 회원·찜(UserFavorite)
-├── products/               # 상품 모델·검색 뷰·크롤링 데이터
-│   └── data/raw/data_crawling/   # 카테고리별 CSV·크롤링 스크립트
-├── chats/                  # 채팅방·메시지 모델·채팅 페이지
-├── api/                    # send_chat 등 REST API
-├── common/                 # LangGraph(llm.py), 에이전트(llm_agent.py), 벡터 검색
+├── accounts/               # 회원·찜 (UserFavorite)
+├── products/               # 상품 모델·검색 뷰·데이터 파이프라인
+│   ├── loaddata.ipynb      # CSV → SQLite ORM 적재
+│   └── data/
+│       ├── raw/data_crawling/   # Selenium 크롤링, CSV, selenium_auto_module.py
+│       ├── preprocessing/       # 카테고리별 전처리 (*_pre.ipynb, *_db.ipynb)
+│       ├── database/            # ORM 적재용 CSV (ProductTV.csv 등)
+│       └── embedding/           # PDF·임베딩·Pinecone 적재 노트북
+├── chats/                  # 채팅방·메시지·agent_state (JSON)
+├── api/                    # send_chat, favorite, check_favorite REST
+├── common/                 # LangGraph, 에이전트, 벡터 검색, 상품 유틸
+│   ├── llm.py, llm_agent.py, vector_search.py, utils.py
+│   └── llm_frame.ipynb     # LLM 노드 평가·테스트
 ├── mainpage/               # 메인 페이지
-├── templates/              # 페이지·컴포넌트 HTML
-├── static/                 # JS, CSS, 이미지, 필터 JSON
-├── theme/                  # Tailwind 빌드 (django-tailwind)
+├── templates/              # 페이지·components/ (검색·상세·채팅·계정·인증)
+├── static/                 # JS, CSS, 이미지, search_filter_options.json
+├── theme/                  # Tailwind (django-tailwind)
+│   └── static_src/         # npm install · build · dev
+├── media/                  # 업로드 프로필 이미지 (accounts)
 ├── docs/                   # 파트별·기능별 위키 (docs/README.md)
+├── debug.py                # LangGraph 단독 디버그
 ├── manage.py
 ├── requirements.txt
+├── db.sqlite3              # 개발 DB (팀 배포본 사용 가능, .gitignore)
 └── README.md
 ```
+
+상세 트리·앱별 파일: [`docs/02-architecture/directory-structure.md`](docs/02-architecture/directory-structure.md)
 
 ---
 
@@ -147,7 +160,8 @@
 
 ### 5.2 전처리
 
-- Notebook(`*_db.ipynb`, `loaddata.ipynb`)으로 CSV 정제 후 Django 모델 스키마에 맞게 적재
+- **전처리**: `products/data/preprocessing/` — 카테고리별 `*_pre.ipynb`, `*_db.ipynb`로 CSV 정제
+- **적재**: `products/loaddata.ipynb` + `products/data/database/` CSV → Django ORM → SQLite
 - 제품 코드 prefix로 카테고리 구분 (`TVT`, `ACT`, `REF`, `VAC`, `WMT`)
 
 ### 5.3 저장
@@ -155,7 +169,7 @@
 | 저장소 | 내용 |
 |--------|------|
 | **SQLite** | `ProductTV`, `ProductFridge`, `ProductWash`, `ProductAC`, `ProductVAC` 등 |
-| **Pinecone** | 사용설명서 청크(메타: `product_code`, `page_number`, `product_code_header`) |
+| **Pinecone** | 사용설명서 청크 — `products/data/embedding/` 노트북 적재 (메타: `product_code`, `page_number`, `product_code_header`) |
 
 ### 5.4 활용 (Runtime)
 

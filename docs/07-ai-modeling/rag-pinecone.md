@@ -8,6 +8,16 @@
 
 사용설명서 PDF/텍스트를 청크 단위로 임베딩해 Pinecone에 저장하고, 사용자 질의와 유사한 페이지를 검색해 LLM 답변 근거로 사용합니다.
 
+### 오프라인 적재 (노트북)
+
+| 경로 | 역할 |
+|------|------|
+| `products/data/embedding/pdfdown.ipynb` | 매뉴얼 PDF 수집 |
+| `products/data/embedding/embedding.ipynb` | 청킹·임베딩 |
+| `products/data/embedding/pinecone_uploader.ipynb` | Pinecone `user_manual` 업로드 |
+
+→ [데이터 파이프라인 §4](../02-architecture/data-pipeline.md#4-매뉴얼-rag-pinecone)
+
 ## 설정
 
 | 환경 변수 | 용도 |

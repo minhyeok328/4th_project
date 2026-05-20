@@ -19,7 +19,9 @@
 | `common/llm.py` | `GraphState`, 노드, `graph_instance`, `add_chat()` |
 | `common/llm_agent.py` | 프롬프트·structured output 호출 |
 | `common/vector_search.py` | `search_manual`, `get_page` |
-| `debug.py` | 그래프 단독 실행 |
+| `common/llm_frame.ipynb` | 노드별 평가·혼동행렬 테스트 |
+| `debug.py` | 그래프 단독 실행 (루트) |
+| `products/data/embedding/` | PDF·임베딩·Pinecone 오프라인 적재 |
 
 ## 모델·외부 서비스
 

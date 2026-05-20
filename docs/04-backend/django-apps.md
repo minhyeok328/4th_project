@@ -26,8 +26,9 @@
 | 검색 | `search_model()` 클래스 메서드 — lookup: `gte`, `lte`, `in`, `icontains`, `exact` |
 | Views | `searchpage`, `productpage` |
 | URLs | `''`, `'<product_code>/'` |
+| 데이터 | `products/data/` (raw → preprocessing → database), `loaddata.ipynb` |
 
-→ [검색](../08-features/search-and-filter.md) · [상세](../08-features/product-detail.md)
+→ [검색](../08-features/search-and-filter.md) · [상세](../08-features/product-detail.md) · [데이터 파이프라인](../02-architecture/data-pipeline.md)
 
 ## accounts
 

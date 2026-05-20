@@ -137,11 +137,20 @@ ProductFridge.search(range=None, price__gte=1000000, name_icontains="디오스")
 - `range`: `product_code__in` 제한 (찜 검색 등)
 - 키 형식: Django `field__lookup` 또는 LLM 슬롯 `field_lookup` (`price_gte` 등) — `search_model()`이 통합 파싱
 
+## SQLite 초기 데이터
+
+| 경로 | 설명 |
+|------|------|
+| `products/data/database/` | ORM 적재 전 카테고리별 CSV |
+| `products/loaddata.ipynb` | CSV → `Product*` 테이블 bulk 적재 |
+| `db.sqlite3` | 개발 DB (팀 배포본 또는 로컬 적재 결과, `.gitignore`) |
+
 ## Pinecone (비관계형)
 
-SQLite와 별도. 매뉴얼 청크 메타: `product_code`, `page_number`, `product_code_header`, `content`, `index`
+SQLite와 별도. 매뉴얼 청크 메타: `product_code`, `page_number`, `product_code_header`, `content`, `index`  
+오프라인 적재: `products/data/embedding/`
 
-→ [RAG 문서](../07-ai-modeling/rag-pinecone.md)
+→ [RAG 문서](../07-ai-modeling/rag-pinecone.md) · [데이터 파이프라인](../02-architecture/data-pipeline.md)
 
 ## 관련 문서
 
