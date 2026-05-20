@@ -23,8 +23,10 @@
     const inputField = document.getElementById("chat-input-field");
     const inputSubmit = document.getElementById("chat-input-submit");
     const sidebarOverlay = document.getElementById("chat-sidebar-overlay");
+    const sidebarBackdrop = document.querySelector("[data-chat-sidebar-backdrop]");
     const sidebarOpenBtn = document.getElementById("chat-sidebar-open");
     const sidebarCloseBtn = document.getElementById("chat-sidebar-close");
+    const mobileMedia = window.matchMedia("(max-width: 767px)");
     const recommendedButtons = document.querySelectorAll("[data-recommended-question]");
 
     function getConfig() {
@@ -640,27 +642,23 @@
         const wasNew = payloadChatId === null;
 
         try {
-            const response = await fetch(config.sendUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": config.csrf,
-                    "X-Requested-With": "XMLHttpRequest",
-                },
-                credentials: "same-origin",
-                body: JSON.stringify({
-                    chat_id: payloadChatId,
-                    user_input: trimmed,
+            // REFACTOR (ApiResponse 적용 범위 확대): fetch·JSON POST init·응답 파싱을 fetchJson 한 경로로 통일(말풍선 표시는 기존 유지)
+            const parsed = await ApiResponse.fetchJson(
+                config.sendUrl,
+                ApiResponse.buildJsonPostInit({
+                    csrfToken: config.csrf,
+                    body: JSON.stringify({
+                        chat_id: payloadChatId,
+                        user_input: trimmed,
+                    }),
                 }),
-            });
+                { logContext: "챗봇 전송 오류:" }
+            );
 
             const idx = messages.indexOf(placeholder);
             if (idx !== -1) {
                 messages.splice(idx, 1);
             }
-
-            // REFACTOR (API 실패 UX 표준화): 챗봇 응답 파싱·에러 문구를 공통 정책으로 처리
-            const parsed = await ApiResponse.parseFetchJsonResponse(response, {});
 
             if (!parsed) {
                 updateView();
@@ -704,8 +702,12 @@
             if (idx !== -1) {
                 messages.splice(idx, 1);
             }
+            // REFACTOR (ApiResponse 적용 범위 확대): fetchJson이 처리하지 않는 예외만 fallback 로그·말풍선 표시
             ApiResponse.logApiError("챗봇 전송 오류:", err);
-            appendMessage("assistant", ApiResponse.MESSAGES.NETWORK);
+            appendMessage(
+                "assistant",
+                ApiResponse.getErrorMessage(ApiResponse.ERROR_CODES.NETWORK)
+            );
             updateView();
         } finally {
             stopPendingDotsAnimation();
@@ -719,12 +721,23 @@
     function openSidebar() {
         if (sidebarOverlay) {
             sidebarOverlay.classList.remove("hidden");
+            sidebarOverlay.setAttribute("aria-hidden", "false");
+        }
+        // REFACTOR (모바일 화면): 사이드바 열림 시 배경 스크롤 잠금으로 터치 스크롤 간섭 방지
+        document.body.classList.add("overflow-hidden");
+        if (sidebarOpenBtn) {
+            sidebarOpenBtn.setAttribute("aria-expanded", "true");
         }
     }
 
     function closeSidebar() {
         if (sidebarOverlay) {
             sidebarOverlay.classList.add("hidden");
+            sidebarOverlay.setAttribute("aria-hidden", "true");
+        }
+        document.body.classList.remove("overflow-hidden");
+        if (sidebarOpenBtn) {
+            sidebarOpenBtn.setAttribute("aria-expanded", "false");
         }
     }
 
@@ -754,11 +767,27 @@
         sidebarCloseBtn.addEventListener("click", closeSidebar);
     }
 
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener("click", function (event) {
-            if (event.target === sidebarOverlay) {
-                closeSidebar();
-            }
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener("click", closeSidebar);
+    }
+
+    // REFACTOR (모바일 화면): ESC·배경 탭으로 사이드바 닫기 — 터치·키보드 조작 모두 지원
+    document.addEventListener("keydown", function (event) {
+        if (
+            event.key === "Escape" &&
+            sidebarOverlay &&
+            !sidebarOverlay.classList.contains("hidden")
+        ) {
+            closeSidebar();
+        }
+    });
+
+    // REFACTOR (모바일 화면): 가상 키보드 표시 시 입력창이 가려지지 않도록 스크롤 보정
+    if (inputField && mobileMedia.matches) {
+        inputField.addEventListener("focus", function () {
+            window.setTimeout(function () {
+                inputField.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }, 300);
         });
     }
 
