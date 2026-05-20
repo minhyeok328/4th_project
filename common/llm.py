@@ -52,6 +52,7 @@ RouteFromDBSearch = Literal[
 class GraphState(TypedDict, total=False):
     # 사용자 id
     user_id: int
+    root_url: str
 
     # 현재 대화 상태
     state: ConversationState
@@ -445,8 +446,11 @@ def answer_without_result_node(state: GraphState) -> GraphState:
     # 제시할 수 있는 답변 목록
     response = f"해당 조건에 맞는 검색 결과는 총 {state['result_count']}건 입니다.\n다른 조건을 추가하거나 아래의 링크를 이용해 주세요."
 
+    subq = deepcopy(state['slots'])
+    subq["product_type"] = state["product_type"]
+
     base_url = reverse("products:searchpage")
-    url = f"{base_url}?{urlencode(state['slots'])}"
+    url = f"{state['root_url']}/{base_url}?{urlencode(subq, doseq=True)}"
 
     rstate = deepcopy(state)
     rstate["next_state"] = "context"
@@ -610,7 +614,7 @@ graph_instance = builder.compile()
 # global utilities
 ############################################################
 
-def add_chat(room:Chatroom, user_input:str) -> str:
+def add_chat(root_url:str, room:Chatroom, user_input:str) -> str:
     global graph_instance
 
     formal_state = room.agent_state
@@ -620,6 +624,7 @@ def add_chat(room:Chatroom, user_input:str) -> str:
         formal_state = room.agent_state
 
     state = deepcopy(formal_state)
+    state["root_url"] = root_url
 
     room.add_chat(True, user_input)
     chats = []

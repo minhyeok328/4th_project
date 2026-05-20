@@ -82,7 +82,8 @@ def send_chat(request):
         name = user_input[:30] or "새 대화"
         target_room = request.user.add_chatroom(name)
 
-    response, response_tail = llm.add_chat(target_room, user_input)
+    root_url = f"{request.scheme}://{request.get_host()}"
+    response, response_tail = llm.add_chat(root_url, target_room, user_input)
 
     return JsonResponse({
         "response": response,

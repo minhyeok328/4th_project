@@ -2,6 +2,30 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from common.utils import get_product, search_product
 
+LIST_CONDITION_SUFFIXES = ("_in", "_icontains", "__in", "__icontains")
+
+
+def _is_list_condition(key):
+    return key.endswith(LIST_CONDITION_SUFFIXES)
+
+
+def _get_condition_values(key, values):
+    clean_values = [value for value in values if value is not None and value != ""]
+
+    if not _is_list_condition(key):
+        return clean_values[-1] if clean_values else None
+
+    if key.endswith(("_in", "__in")):
+        return [
+            item.strip()
+            for value in clean_values
+            for item in value.split(",")
+            if item.strip()
+        ]
+
+    return clean_values
+
+
 # Create your views here.
 def productpage(request, product_code):
     product_type, product_data = get_product(product_code)
@@ -33,8 +57,14 @@ def searchpage(request):
     product_type = request.GET.get("product_type", default_type)
     page_num = request.GET.get("page", 1)
 
-    # key in request.GET
-    conditions = {k: v for k, v in request.GET.items() if k not in ["product_type", "page"]}
+    conditions = {}
+    for key in request.GET:
+        if key in ["product_type", "page"]:
+            continue
+
+        values = _get_condition_values(key, request.GET.getlist(key))
+        if values is not None and values != []:
+            conditions[key] = values
 
     products = search_product(product_type, [], conditions)
 
