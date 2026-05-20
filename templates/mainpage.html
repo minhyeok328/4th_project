@@ -20,7 +20,7 @@
                     </div>
                     <div class="relative h-full w-1/2 flex items-center justify-center">
                         <img src="{% static 'images/evotv.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG QNED AI TV">
-                        <a href="{% url 'products:productpage' '27ART10AKPL' %}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 40%; left: 45%;">
+                        <a href="{% url 'products:searchpage' %}?product_type=TVT&amp;page=1&amp;name={{ 'QNED AI'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 40%; left: 45%;">
                             <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
                             <span class="text-xs font-bold tracking-tight">상세보기</span>
                         </a>
@@ -37,7 +37,7 @@
                     </div>
                     <div class="relative h-full w-1/2 flex items-center justify-center">
                         <img src="{% static 'images/washtower.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG 워시타워">
-                        <a href="{% url 'products:productpage' 'W20EG' %}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 35%; left: 40%;">
+                        <a href="{% url 'products:searchpage' %}?product_type=WMT&amp;page=1&amp;name={{ '오브제컬렉션'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 35%; left: 40%;">
                             <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
                             <span class="text-xs font-bold tracking-tight">상세보기</span>
                         </a>
@@ -54,7 +54,7 @@
                     </div>
                     <div class="relative h-full w-1/2 flex items-center justify-center">
                         <img src="{% static 'images/refrigerator.png' %}" class="h-48 md:h-64 w-full object-contain" alt="LG 디오스 노크온">
-                        <a href="{% url 'products:productpage' 'M874AAA111' %}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 50%; left: 45%;">
+                        <a href="{% url 'products:searchpage' %}?product_type=REF&amp;page=1&amp;name={{ '노크온'|urlencode }}" class="absolute group flex h-9 w-auto items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-gray-900 pl-3 pr-4 shadow-lg border border-gray-100 transition-all duration-300 hover:bg-red-600 hover:text-white hover:scale-105 animate-bounce gap-1" style="top: 50%; left: 45%;">
                             <span class="text-lg font-black text-red-600 group-hover:text-white transition-colors leading-none">+</span>
                             <span class="text-xs font-bold tracking-tight">상세보기</span>
                         </a>
@@ -63,10 +63,10 @@
             </div>
         </div>
 
-        <div class="absolute bottom-4 left-8 sm:left-16 flex gap-2 z-10 items-center">
-            <span class="indicator h-2 w-2 rounded-full bg-gray-400 transition-all duration-300"></span>
-            <span class="indicator h-2 w-2 rounded-full bg-gray-300 transition-all duration-300"></span>
-            <span class="indicator h-2 w-2 rounded-full bg-gray-300 transition-all duration-300"></span>
+        <div class="absolute bottom-4 left-8 sm:left-16 flex gap-2 z-10 items-center" role="tablist" aria-label="메인 배너 슬라이드">
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-400 transition-all duration-300 cursor-pointer hover:bg-gray-600" aria-label="1번 슬라이드" aria-selected="true"></button>
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-300 transition-all duration-300 cursor-pointer hover:bg-gray-500" aria-label="2번 슬라이드" aria-selected="false"></button>
+            <button type="button" class="indicator h-2 w-2 shrink-0 rounded-full border-0 p-0 bg-gray-300 transition-all duration-300 cursor-pointer hover:bg-gray-500" aria-label="3번 슬라이드" aria-selected="false"></button>
         </div>
     </section>
 
@@ -104,31 +104,47 @@
         const totalSlides = slides.length;
         const intervalTime = 10000;
 
+        let slideTimer = null;
+
         function showSlide(index) {
+            currentSlide = index;
             slides.forEach((slide, i) => {
                 if (i === index) {
                     slide.classList.remove("opacity-0", "pointer-events-none");
                     slide.classList.add("opacity-100");
-                    // 활성화된 점은 바 형태로 가로로 길어지게 스타일 통일 (`w-6`)
-                    indicators[i].classList.remove("bg-gray-300", "w-2");
+                    indicators[i].classList.remove("bg-gray-300", "bg-gray-400", "w-2");
                     indicators[i].classList.add("bg-gray-800", "w-6");
+                    indicators[i].setAttribute("aria-selected", "true");
                 } else {
                     slide.classList.remove("opacity-100");
                     slide.classList.add("opacity-0", "pointer-events-none");
-                    // 비활성화된 점은 원래의 원 형태 유지 (`w-2`)
                     indicators[i].classList.remove("bg-gray-800", "w-6");
                     indicators[i].classList.add("bg-gray-300", "w-2");
+                    indicators[i].setAttribute("aria-selected", "false");
                 }
             });
         }
 
         function nextSlide() {
-            currentSlide = (currentSlide + 1) % totalSlides;
-            showSlide(currentSlide);
+            showSlide((currentSlide + 1) % totalSlides);
         }
 
+        function startAutoSlide() {
+            if (slideTimer) {
+                clearInterval(slideTimer);
+            }
+            slideTimer = setInterval(nextSlide, intervalTime);
+        }
+
+        indicators.forEach(function (indicator, index) {
+            indicator.addEventListener("click", function () {
+                showSlide(index);
+                startAutoSlide();
+            });
+        });
+
         showSlide(currentSlide);
-        setInterval(nextSlide, intervalTime);
+        startAutoSlide();
     });
 </script>
 
