@@ -11,7 +11,7 @@ langchain-core==1.2.27
 langchain-openai==1.1.12
 langgraph==1.1.6
 openai==2.30.0
-pinecone==7.3.0
+pinecone==9.0.0
 pydantic==2.12.4
 
 # Product data crawling (products/data/** — selenium_auto_module.py, notebooks)
