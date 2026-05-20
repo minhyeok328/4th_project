@@ -118,7 +118,7 @@
 
 ```
 4th_project/
-├── config/                 # Django settings, urls, wsgi
+├── config/                 # Django settings, urls, wsgi, asgi
 ├── accounts/               # 회원·찜(UserFavorite)
 ├── products/               # 상품 모델·검색 뷰·크롤링 데이터
 │   └── data/raw/data_crawling/   # 카테고리별 CSV·크롤링 스크립트
@@ -315,7 +315,10 @@ Content-Type: application/json
 }
 ```
 
-응답: `response`, `response_tail`, `chat_id`, `chatroom_name`
+성공 응답: `response`, `response_tail`, `chat_id`, `chatroom_name`
+
+오류 응답:
+- `401` (비로그인), `400` (JSON/입력 오류), `405` (POST 외 메서드)
 
 ### 8.3 Python — LangGraph 직접 호출
 
@@ -355,31 +358,106 @@ Content-Type: application/json
 
 ## 10. Evaluation Results
 
-평가 기준 및 결과는 **작성 예정**입니다. 확정 후 아래 표를 채웁니다.
 
 ### 10.1 평가 설정
-- 미정 (질의 세트, Pass 기준, 채점 항목)
+- fall_case_node의 is_fall_case True, False 판정 확인
+- subsequence_router_node의 is_subsequence True, False 판정 확인
+- product_classification_node의 분류 정확도 확인
+
+
 
 ### 10.2 차수별 핵심 성능 비교
-| Stage | Report | Pass/Total | Pass Rate | Avg Score | Route | Payload | Target | Answer | Retrieval |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 미정 | 미정 | 미정 | 미정 | 미정 | 미정 | 미정 | 미정 | 미정 | 미정 |
 
-### 10.3 질의 유형별 비교 (`embedding` / `fixed`)
-| Stage | Embedding Pass Rate | Fixed Pass Rate |
-|---|---:|---:|
-| 미정 | 미정 | 미정 |
+- fall_case_node Confusion Matrix
+
+|                | Predicted Positive | Predicted Negative |
+|----------------|-------------------|-------------------|
+| Actual Positive | 24 | 1 |
+| Actual Negative | 3 | 22 |
+
+- fall_case_node Metrics
+
+| Metric | Score |
+|--------|--------|
+| Accuracy | 0.9200 |
+| Precision | 0.8889 |
+| Recall | 0.9600 |
+| F1 Score | 0.9231 |
+
+- subsequence_router_node Confusion Matrix
+
+|                | Predicted Positive | Predicted Negative |
+|----------------|-------------------|-------------------|
+| Actual Positive | 25 | 0 |
+| Actual Negative | 0 | 25 |
+
+- subsequence_router_node Metrics
+
+| Metric | Score |
+|--------|--------|
+| Accuracy | 1.0000 |
+| Precision | 1.0000 |
+| Recall | 1.0000 |
+| F1 Score | 1.0000 |
+
+- product_classification_node Prediction Results
+
+| Index | 사용자의 질문 | 정답 라벨 | predict_label | is_correct |
+|------|-----------------------------|-----------|---------------|------------|
+| 0 | TV 화면이 너무 어두워 | TVT | TVT | True |
+| 1 | 티비 리모컨 연결 방법 알려줘 | TVT | TVT | True |
+| 2 | 에어컨 자동 청소 기능 어떻게 써? | ACT | ACT | True |
+| 3 | 제습 잘 되는 에어컨 찾아줘 | ACT | ACT | True |
+| 4 | 냉장고 필터 교체 방법 알려줘 | REF | REF | True |
+| 5 | 김치냉장고 추천해줘 | REF | REF | True |
+| 6 | 흡입력 좋은 청소기 찾아줘 | VAC | VAC | True |
+| 7 | 로봇청소기 물걸레 기능 있어? | VAC | VAC | True |
+| 8 | 세탁기 UE 에러가 뭐야? | WMT | WMT | True |
+| 9 | 건조 기능 있는 세탁기 찾아줘 | WMT | WMT | True |
+| 10 | 안녕 |  |  | True |
+| 11 | 오늘 날씨 어때? |  |  | True |
+| 12 | 전자레인지 추천해줘 |  |  | True |
+| 13 | 노트북 찾아줘 |  |  | True |
+| 14 | 공기청정기 필터 교체 방법 알려줘 |  |  | True |
+| 15 | 그중에 제일 싼 거 |  |  | True |
+| 16 | 두 번째 거 설명해줘 |  |  | True |
+| 17 | 삼성 거 추천해줘 |  |  | True |
+| 18 | LG 제품 찾아줘 |  |  | True |
+| 19 | 건조기 추천해줘 |  |  | True |
+
+- product_classification_node Accuracy
+Accuracy: **100.00%**
+
+
+### 10.3 질의 유형별 비교
+3개의 분기 node모두 단순한 작업 단위로 나누어 llm요청을 보냈기 때문에
+분기, 분류에 있어 높은 정확도를 확인할 수 있었다.
+
 
 ### 10.4 차수별 실패 패턴과 보완 포인트
-- 미정
+- fall_case_node의 경우 아래의 test case가 예측이 실패했다
+
+- 정답 라벨에서 fall_case가 False로 제시되어 있는 아래 질문들에 llm은 fall_case True를 판정했다.
+비교해줘 > 어떤 전자제품을 비교해드릴까요? 제품명이나 종류를 알려주시면 도움을 드리겠습니다.
+안녕 > 안녕하세요! 전자제품에 대한 질문이 있으시면 도와드릴게요.
+질문해도 돼? > 전자제품에 대한 질문이 있으시면 말씀해 주세요!
+>> 위의 질문들은 간단한 사교성/혹은 바로 답변할 수 있는 질문들로 fall_case True라고 할 수 있다.
+
+- 정답 라벨에서 fall_case가 True로 제시되어 있는 아래 질문에 llm은 fall_case False를 판정했다.
+이 TV 바로 구매해줘
+>> 위의 질문은 TV의 구매라는 llm의 역할 범위 외의 질문이었지만 TV가 내용에 포함되어 있어 fall_case 판정에 실패했다.
 
 ### 10.5 무엇을 추가로 보완해야 하는가
-- 미정
+- llm prompt의 허점을 확인하기 위해서 더 많은 테스트 케이스의 확인
+- 더 많은 사용자 요청에 답변할 수 있게끔 langgraph node 구조의 고도화
+- intent_router_node에 대해서도 추가로 슬롯 추출 정확도 테스트
+- 확인한 제품 정보를 활용해서 더 다양한 답변을 생성할 수 있도록 프롬프트 최적화
+
 
 ### 10.6 재현 방법
-```powershell
-# 평가 스크립트·재현 절차 확정 후 기입
-```
+llm 테스트는 아래의 파일의 코드를 통해 수행하였음
+common/llm_frame.ipynb
+
 
 ---
 
@@ -417,7 +495,7 @@ Content-Type: application/json
 - **개발된 LLM 연동 애플리케이션**: 본 저장소 (`/chats/`, `common/`)
 - **시스템 구성도**: README §5.5 · 상세 [`docs/02-architecture/system-architecture.md`](docs/02-architecture/system-architecture.md)
 - **API / DB 문서**: [`docs/06-api/rest-api.md`](docs/06-api/rest-api.md) · [`docs/05-database/schema-and-erd.md`](docs/05-database/schema-and-erd.md)
-- **테스트 계획 및 결과보고서**: §10 (작성 예정)
+- **테스트 계획 및 결과보고서**: README §10 (정리 완료, 추가 자동평가 파이프라인 보완 예정)
 
 ---
 
@@ -504,7 +582,7 @@ Content-Type: application/json
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">이레</td>
-            <td style="border: 1px solid #ddd; padding: 10px;">노션 페이지 관리와 프론트 구현을 담당하시며 프로젝트 문서화와 작업 내용 정리에 큰 도움을 주셨습니다. 필요한 내용을 체계적으로 정리해주셔서 협업 과정이 더욱 수월했습니다.</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">노션 페이지 관리와 프론트 구현을 담당하시며 프로젝트 진행 상황과 작업 내용을 체계적으로 정리해주셨습니다. 회의 내용과 진행 현황을 보기 쉽게 정리해주셔서 팀원들이 현재 상황을 빠르게 파악할 수 있었고, 협업 과정에서도 많은 도움이 되었습니다. 또한 프론트 구현 과정에서도 맡은 역할을 성실하게 수행하시며 프로젝트 완성도 향상에 기여해주셨습니다. 특히 디자인 일관성과 사용자 경험을 고려한 UI 구조를 설계해주셨으며, 같은 파트를 맡은 팀원과 지속적으로 소통하며 프로젝트를 안정적으로 마무리할 수 있도록 기여해주셨습니다.</td>
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">정영일</td>
@@ -539,7 +617,7 @@ Content-Type: application/json
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">이레</td>
-            <td style="border: 1px solid #ddd; padding: 10px;">프론트엔드와 UI 구현, Git 관리를 맡아 프로젝트 환경을 안정적으로 유지해주셨습니다. 또한 의견 차이가 있는 상황에서도 대화를 피하지 않고 소통하려는 태도가 인상적이었습니다.</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">프론트엔드와 UI 구현, Git 관리를 맡아 프로젝트 환경을 안정적으로 유지하는 데 큰 역할을 해주셨습니다. 화면 구성과 사용자 입장에서의 편의성을 고려해 UI를 구현해주셨으며, Git 관리 과정에서도 팀원들이 작업을 원활하게 진행할 수 있도록 도와주셨습니다. 특히 Tailwind CSS와 JavaScript를 활용해 UI를 구현하고 Django API 엔드포인트와의 통신 기능을 개발하시며 프론트와 백엔드가 자연스럽게 연결될 수 있도록 작업해주셨습니다. 또한 의견 차이가 있는 상황에서도 대화를 피하지 않고 서로의 생각을 공유하며 해결 방향을 찾으려는 태도가 인상적이었습니다.</td>
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">정영일</td>
@@ -576,7 +654,7 @@ Content-Type: application/json
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">이레</td>
-            <td style="border: 1px solid #ddd; padding: 10px;">프로젝트 기획과 LLM 설계 및 구현을 주도적으로 맡아 프로젝트의 전체 방향성을 잘 이끌어주셨습니다. 또한 의견이 다르더라도 타인을 이해하려는 태도로 팀원들과 원활하게 소통해주셨습니다.</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">프로젝트 기획과 LLM 설계 및 구현을 주도적으로 맡아 프로젝트의 전체적인 방향성과 흐름을 잘 이끌어주셨습니다. 초기 기능 구성과 서비스 방향을 구체화하는 과정에서 팀원들의 의견을 조율하며 프로젝트의 중심을 잡아주셨고, 실제 구현 과정에서도 적극적으로 참여해주셨습니다. 특히 Django 기반 백엔드 구조와 전체 서비스 흐름을 안정적으로 설계하시며 기능 간 연결과 데이터 흐름을 체계적으로 구성해주셨습니다. 또한 의견이 다르더라도 상대방의 생각을 이해하려는 태도로 소통해주셔서 협업 과정에서 많은 도움이 되었습니다.</td>
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">정영일</td>
@@ -613,7 +691,7 @@ Content-Type: application/json
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">이레</td>
-            <td style="border: 1px solid #ddd; padding: 10px;">데이터 임베딩과 전처리를 진행하시며 프로젝트의 데이터 기반을 안정적으로 구축해주셨습니다. 데이터 품질을 높이기 위해 꼼꼼하게 작업해주신 점이 인상적이었습니다.</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">데이터 임베딩과 전처리를 담당하시며 프로젝트의 데이터 기반을 안정적으로 구축해주셨습니다. 데이터 품질이 모델 성능에 큰 영향을 미치는 만큼 꼼꼼하게 데이터를 정리하고 전처리를 진행해주셨으며, 임베딩 과정에서도 다양한 방식을 고민하며 프로젝트에 적합한 방향을 찾기 위해 노력해주셨습니다. 특히 데이터 벡터화와 Pinecone 적재 작업을 담당하시며 검색 기능의 기반이 되는 데이터 환경을 안정적으로 구축해주셨고, 요구사항 정의서를 작성하며 프로젝트 목표와 기능을 체계적으로 정리해주셨습니다. 보이지 않는 부분에서도 꾸준히 작업해주신 덕분에 전체 프로젝트가 안정적으로 진행될 수 있었습니다.</td>
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">정영일</td>
@@ -689,7 +767,7 @@ Content-Type: application/json
         </tr>
         <tr>
             <td style="text-align: center; border: 1px solid #ddd;">이레</td>
-            <td style="border: 1px solid #ddd; padding: 10px;">LLM 모델링과 평가를 담당하시며 모델 성능 향상과 검증 과정에 꾸준히 기여해주셨습니다. 실험 결과를 기반으로 문제를 분석하고 개선 방향을 고민하는 모습이 인상적이었습니다.</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">LLM 모델링과 평가를 담당하시며 모델 성능 개선과 결과 검증 과정에 꾸준히 기여해주셨습니다. 다양한 테스트와 평가를 통해 모델의 문제점을 분석하고 개선 방향을 고민하는 모습이 인상적이었으며, 결과를 단순히 확인하는 것에 그치지 않고 왜 이러한 결과가 나왔는지 함께 고민해주셨습니다. 또한 LangGraph 기반 LLM 대화 흐름 설계를 담당하시며 사용자 입력에 따라 기능이 자연스럽게 연결될 수 있도록 전체 파이프라인을 체계적으로 구현해주셨습니다. 프로젝트 완성도를 높이기 위해 세부적인 부분까지 신경 써주신 점이 좋았습니다.</td>
         </tr>
     </tbody>
 </table>
