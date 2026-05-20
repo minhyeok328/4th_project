@@ -8,27 +8,27 @@
 <table>
   <tr>
     <td align="center">
-      <img src="https://tamagotchi-official.com/tamagotchi/jp/character/2024/05/08/X9QXrv0KcSLHIzUl/12_%E3%81%BF%E3%82%8B%E3%81%8F%E3%81%A3%E3%81%A1.png" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/tiger.png?raw=true" width="110px;" /><br />
       <b>박기은</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/bpNfyV2EO3ktFabEh7y_2Mi6dC1jQwjb87Df6IwaWFWZF6l6dOjiaYwKhACtE5kJgZz5TEX6dA8M3IqdDkhpCsG2sO3rmQxFRwuTirPtzeN5P4BG_cG6Wnko6Ge30upzJddWYkC8qcVzR3Z3mEtScA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/bear.png?raw=true" width="110px;" /><br />
       <b>서민혁</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/iWqehAOlzWPA-xfifB92okVTnhJSFBj-k633W8aHxc-EW57srm7A5IXwVsJ4rgwPo1kPAoDz_cKjONSWQ3vwKb3GtRLQgFF7m3moHup98KtISftIgs96YS6viGFW_Wtu8eQB0DA4VxHuKbf3O-rzyA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/fox.png?raw=true" width="110px;" /><br />
       <b>유동현</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/wOGUauoibb0a2w-jLXvKhjd53tDQARKn_Z_vPzoTstH1AgoQXmtmwt_S6HgNwh7Dhso52_xjT8uEJnNnBe_yaA.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/squirrel.png?raw=true" width="110px;" /><br />
       <b>윤정연</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/Va9_ASdKJ_Vd8Neo3gKw2p5D-gzePCcrJP25bg6QgE2w21yZuNAhLxGljLISe-d90WnWfEHsSRUNbeuwa0M5Pg.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/dog.png?raw=true" width="110px;" /><br />
       <b>이레</b><br />
     </td>
     <td align="center">
-      <img src="https://i.namu.wiki/i/bXkgQGQUNylk38qKKYmFFRkdfadMyH1ej-wEDI3syJX6JYDPlh0L3SFXGPEWvZOjuCFoUGKIWsiz9RB6jfPTpAdvByVnXaO6D3WZHYT7Y1O4VOBolw_3BvmkuBonu6s-hmiNThLrSrlQMb0S8UMoYg.webp" width="110px;" /><br />
+      <img src="https://github.com/SKN26-4th-1st/.github/blob/main/img/cat.png?raw=true" width="110px;" /><br />
       <b>정영일</b><br />
     </td>
   </tr>
