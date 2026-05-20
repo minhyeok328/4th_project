@@ -164,6 +164,192 @@
     }
 
     const LINK_CLASS = "font-semibold text-red-600 underline hover:text-red-700";
+    const CHAT_IMG_CLASS =
+        "my-3 block w-full max-h-64 max-w-full rounded-xl border border-gray-200/70 bg-gray-50 object-contain object-center p-2";
+
+    const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|bmp|svg|avif)(\?[^\s#]*)?$/i;
+    const LGE_IMAGE_PATH_RE = /\/kr\/images\//i;
+
+    // REFACTOR (AI 대화 이미지): URL이 이미지인지 판별 — 마크다운·자동링크를 공통 <img>로 통일
+    function isImageUrl(url) {
+        if (!isSafeHttpUrl(url)) {
+            return false;
+        }
+
+        try {
+            const parsed = new URL(url.trim(), window.location.href);
+            const pathQuery = parsed.pathname + parsed.search;
+            if (IMAGE_EXT_RE.test(pathQuery)) {
+                return true;
+            }
+            if (
+                parsed.hostname.endsWith("lge.co.kr") &&
+                LGE_IMAGE_PATH_RE.test(parsed.pathname)
+            ) {
+                return true;
+            }
+            return false;
+        } catch (_err) {
+            return false;
+        }
+    }
+
+    function buildChatImageHtml(url, alt) {
+        const safeAlt = (alt || "상품 이미지").trim() || "상품 이미지";
+        return (
+            '<img src="' + url.trim() + '" alt="' + safeAlt +
+            '" class="' + CHAT_IMG_CLASS + '" loading="lazy">'
+        );
+    }
+
+    // REFACTOR (챗봇 URL 보안): javascript:/data: 등 위험 스킴 차단 — http·https만 링크/이미지에 허용
+    function isSafeHttpUrl(url) {
+        if (!url || typeof url !== "string") {
+            return false;
+        }
+
+        const trimmed = url.trim();
+        if (!trimmed) {
+            return false;
+        }
+
+        const schemeMatch = trimmed.match(/^([a-z][a-z0-9+.-]*):/i);
+        if (schemeMatch) {
+            const scheme = schemeMatch[1].toLowerCase();
+            if (scheme !== "http" && scheme !== "https") {
+                return false;
+            }
+        }
+
+        try {
+            const parsed = new URL(trimmed, window.location.href);
+            return parsed.protocol === "http:" || parsed.protocol === "https:";
+        } catch (_err) {
+            return false;
+        }
+    }
+
+    // REFACTOR (챗봇 URL 보안): 렌더 결과에서 허용 태그·속성만 남기고 이벤트 핸들러·위험 URL 제거
+    function sanitizeChatHtml(html) {
+        if (!html) {
+            return "";
+        }
+
+        const doc = new DOMParser().parseFromString(
+            '<div id="chat-md-sanitize-root">' + html + "</div>",
+            "text/html"
+        );
+        const root = doc.getElementById("chat-md-sanitize-root");
+        if (!root) {
+            return "";
+        }
+
+        const ALLOWED_TAGS = new Set([
+            "A",
+            "STRONG",
+            "EM",
+            "OL",
+            "UL",
+            "LI",
+            "IMG",
+            "BR",
+            "DIV",
+        ]);
+
+        const LIST_CLASS =
+            "my-2 list-decimal space-y-1 pl-5";
+        const NESTED_UL_CLASS = "my-2 list-disc space-y-1 pl-4";
+        const UL_CLASS = "my-2 list-disc space-y-1 pl-5";
+        const TAIL_DIV_CLASS =
+            "mt-3 border-t border-gray-200 pt-3 text-xs leading-relaxed text-gray-600";
+        const IMG_CLASS = CHAT_IMG_CLASS;
+
+        function allowedClass(tagName, className) {
+            if (!className) {
+                return tagName === "BR";
+            }
+            if (tagName === "A") {
+                return className === LINK_CLASS;
+            }
+            if (tagName === "IMG") {
+                return className === IMG_CLASS;
+            }
+            if (tagName === "OL") {
+                return className === LIST_CLASS;
+            }
+            if (tagName === "UL") {
+                return className === NESTED_UL_CLASS || className === UL_CLASS;
+            }
+            if (tagName === "DIV") {
+                return className === TAIL_DIV_CLASS;
+            }
+            return tagName === "LI" || tagName === "STRONG" || tagName === "EM";
+        }
+
+        function scrubElement(el) {
+            const nodes = Array.from(el.childNodes);
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.nodeType === Node.TEXT_NODE) {
+                    continue;
+                }
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    node.remove();
+                    continue;
+                }
+
+                const tag = node.tagName;
+                if (!ALLOWED_TAGS.has(tag)) {
+                    const text = doc.createTextNode(node.textContent || "");
+                    node.replaceWith(text);
+                    continue;
+                }
+
+                const savedHref = tag === "A" ? node.getAttribute("href") : null;
+                const savedSrc = tag === "IMG" ? node.getAttribute("src") : null;
+                const savedAlt = tag === "IMG" ? node.getAttribute("alt") : null;
+                const savedClass = node.getAttribute("class");
+
+                Array.from(node.attributes).forEach(function (attr) {
+                    node.removeAttribute(attr.name);
+                });
+
+                if (tag === "A") {
+                    if (isSafeHttpUrl(savedHref || "")) {
+                        node.setAttribute("href", savedHref.trim());
+                        node.setAttribute("target", "_blank");
+                        node.setAttribute("rel", "noopener");
+                        node.setAttribute("class", LINK_CLASS);
+                    } else {
+                        const plain = doc.createTextNode(node.textContent || "");
+                        node.replaceWith(plain);
+                        continue;
+                    }
+                } else if (tag === "IMG") {
+                    if (isSafeHttpUrl(savedSrc || "")) {
+                        node.setAttribute("src", savedSrc.trim());
+                        node.setAttribute("alt", savedAlt || "");
+                        node.setAttribute("class", IMG_CLASS);
+                        node.setAttribute("loading", "lazy");
+                    } else {
+                        node.remove();
+                        continue;
+                    }
+                } else if (tag === "BR") {
+                    // no attributes
+                } else if (allowedClass(tag, savedClass)) {
+                    if (savedClass) {
+                        node.setAttribute("class", savedClass);
+                    }
+                }
+
+                scrubElement(node);
+            }
+        }
+
+        scrubElement(root);
+        return root.innerHTML;
+    }
 
     function renderMarkdown(text) {
         if (!text) {
@@ -172,20 +358,26 @@
 
         let s = escapeHtml(String(text));
 
-        // images: ![alt](url)
+        // REFACTOR (챗봇 URL 보안 + AI 대화 이미지): 마크다운 이미지를 공통 스타일로 인라인 표시
         s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, function (_m, alt, url) {
-            return (
-                '<img src="' + url + '" alt="' + alt +
-                '" class="my-2 max-w-full rounded-lg" loading="lazy">'
-            );
+            if (isSafeHttpUrl(url)) {
+                return buildChatImageHtml(url, alt);
+            }
+            return "![" + alt + "](" + url + ")";
         });
 
-        // inline link: [text](url)
+        // REFACTOR (챗봇 URL 보안 + AI 대화 이미지): 이미지 URL 링크는 <a> 대신 <img>로 바로 렌더
         s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_m, label, url) {
-            return (
-                '<a href="' + url + '" target="_blank" rel="noopener" class="' +
-                LINK_CLASS + '">' + label + "</a>"
-            );
+            if (isSafeHttpUrl(url)) {
+                if (isImageUrl(url)) {
+                    return buildChatImageHtml(url, label);
+                }
+                return (
+                    '<a href="' + url + '" target="_blank" rel="noopener" class="' +
+                    LINK_CLASS + '">' + label + "</a>"
+                );
+            }
+            return "[" + label + "](" + url + ")";
         });
 
         // bold: **text**
@@ -194,8 +386,14 @@
         // italic: *text*
         s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
 
-        // raw URL autolink (only outside HTML attributes)
+        // REFACTOR (챗봇 URL 보안 + AI 대화 이미지): 노출된 이미지 URL은 링크가 아닌 인라인 이미지로 표시
         s = s.replace(/(^|[\s(])(https?:\/\/[^\s)<]+)/g, function (_m, lead, url) {
+            if (!isSafeHttpUrl(url)) {
+                return lead + url;
+            }
+            if (isImageUrl(url)) {
+                return lead + buildChatImageHtml(url, "");
+            }
             return (
                 lead + '<a href="' + url + '" target="_blank" rel="noopener" class="' +
                 LINK_CLASS + '">' + url + "</a>"
@@ -299,7 +497,8 @@
                 html += part + (isLast ? "" : "<br>");
             }
         }
-        return html;
+        // REFACTOR (챗봇 URL 보안): 마크다운 치환 후 DOM sanitizer로 잔여 위험 태그·속성 제거
+        return sanitizeChatHtml(html);
     }
 
     function renderMessages() {
@@ -460,26 +659,35 @@
                 messages.splice(idx, 1);
             }
 
-            if (!response.ok) {
-                appendMessage("assistant", "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            // REFACTOR (API 실패 UX 표준화): 챗봇 응답 파싱·에러 문구를 공통 정책으로 처리
+            const parsed = await ApiResponse.parseFetchJsonResponse(response, {});
+
+            if (!parsed) {
                 updateView();
                 return;
             }
 
-            const data = await response.json().catch(function () {
-                return null;
-            });
-
-            if (!data) {
-                appendMessage("assistant", "응답을 해석할 수 없습니다.");
+            if (!parsed.ok || !parsed.data) {
+                appendMessage(
+                    "assistant",
+                    ApiResponse.getErrorMessage(
+                        parsed.error,
+                        ApiResponse.MESSAGES.SERVER
+                    )
+                );
                 updateView();
                 return;
             }
 
+            const data = parsed.data;
             const reply = typeof data.response === "string" ? data.response : "";
             const tail = typeof data.response_tail === "string" ? data.response_tail : "";
 
-            appendMessage("assistant", reply || "답변을 생성하지 못했습니다.", tail);
+            appendMessage(
+                "assistant",
+                reply || ApiResponse.MESSAGES.CHAT_EMPTY,
+                tail
+            );
             updateView();
 
             if (data.chat_id) {
@@ -496,7 +704,8 @@
             if (idx !== -1) {
                 messages.splice(idx, 1);
             }
-            appendMessage("assistant", "네트워크 오류로 응답을 받지 못했습니다.");
+            ApiResponse.logApiError("챗봇 전송 오류:", err);
+            appendMessage("assistant", ApiResponse.MESSAGES.NETWORK);
             updateView();
         } finally {
             stopPendingDotsAnimation();
