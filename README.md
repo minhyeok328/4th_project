@@ -564,7 +564,7 @@ common/llm_frame.ipynb
 ---
 
 ## 14. Output
-- **요구사항 정의서**: _(링크 추가)_
+- **요구사항 정의서**: [링크 바로 가기](https://www.notion.so/ohgiraffers/365649136c11801a9fb0ed51b93e199a?source=copy_link)
 - **기술 문서 (Docs 위키)**: [`docs/README.md`](docs/README.md) — 파트별·기능별 문서 허브
 - **화면설계서**: [`docs/03-frontend/frontend.md`](docs/03-frontend/frontend.md) (프론트 위키·체크리스트)
 - **프론트 JS·1·2차 개선**: [`docs/03-frontend/client-javascript.md`](docs/03-frontend/client-javascript.md)
