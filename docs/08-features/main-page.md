@@ -1,48 +1,18 @@
 # 메인 페이지
 
-[← 기능 인덱스](README.md) · [Frontend 화면설계](../03-frontend/frontend.md)
+[기능 안내](README.md)
 
-## 개요
+## 진입점
 
-LG 가전 5개 카테고리 진입점과 LG봇 CTA를 제공하는 랜딩 페이지입니다.
+GET `/`에서 [mainpage/views.py](../../mainpage/views.py)가 [mainpage.html](../../templates/mainpage.html)을 렌더링합니다. 카테고리 탐색과 LG봇 진입을 연결하는 화면입니다.
 
-## URL · 구현
+## 구성과 이동
 
-| 항목 | 값 |
-|------|-----|
-| URL | `/` |
-| App | `mainpage` |
-| Template | `templates/mainpage.html` |
-| View | `mainpage.views.mainpage` |
+- 공통 [header.html](../../templates/components/header.html)에서 검색·채팅·계정 화면으로 이동합니다.
+- [category_card.html](../../templates/components/category_card.html)로 5개 제품군 진입점을 표시합니다.
+- 카테고리 링크는 `/products/`에 `product_type`을 전달합니다. 누락된 페이지 값은 검색 뷰가 보완합니다.
+- LG봇은 `/chats/`로 연결되며 비로그인은 서버 가드에 따라 로그인 화면으로 이동합니다.
 
-## 사용자 흐름
+메인 캐러셀 등 일부 상호작용은 템플릿 인라인 스크립트에 있습니다. 공통 헤더나 카드 수정 시 키보드 접근·모바일 레이아웃·정적 이미지 경로를 함께 확인합니다.
 
-```mermaid
-sequenceDiagram
-    participant U as 사용자
-    participant M as 메인
-    participant S as 검색
-    participant C as LG봇
-
-    U->>M: 접속
-    U->>M: 카테고리 카드 클릭
-    M->>S: /products/?product_type=REF
-    U->>M: LG봇 CTA
-    alt 로그인
-        M->>C: /chats/
-    else 비로그인
-        M->>C: 로그인 페이지 유도
-    end
-```
-
-## UI 구성
-
-- `components/header.html` — 전역 네비
-- `components/category_card.html` — 카테고리별 이미지·링크
-- LG 브랜드 히어로·LGneer 소개 섹션
-
-## 관련 문서
-
-- [검색·필터](search-and-filter.md)
-- [채팅](chat-lgneer.md)
-- [페이지 URL 매핑](../03-frontend/pages-and-routes.md)
+[검색](search-and-filter.md) · [채팅](chat-lgneer.md) · [페이지 매핑](../03-frontend/pages-and-routes.md)

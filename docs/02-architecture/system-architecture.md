@@ -1,86 +1,44 @@
-# 시스템 아키텍처
+# 시스템 구조
 
-[← Docs 홈](../README.md) · [LLM 플로우](../07-ai-modeling/langgraph-flow.md)
+[문서 홈](../README.md) · [데이터 흐름](data-flow.md)
 
 ## 전체 구성
 
 ```mermaid
 flowchart LR
-    Browser["Browser\nDjango SSR + JS"]
-    Django["Django\nViews / API"]
-    SQLite[(SQLite)]
-    OpenAI[OpenAI API]
-    Pinecone[(Pinecone)]
-
-    Browser --> Django
-    Django --> SQLite
-    Django --> OpenAI
-    Django --> Pinecone
+    Browser[브라우저] --> Django[Django 뷰와 JSON API]
+    Django --> Template[템플릿과 정적 파일]
+    Django --> SQLite[(SQLite)]
+    Django --> Graph[LangGraph]
+    Graph --> SQLite
+    Graph --> OpenAI[OpenAI]
+    Graph --> Pinecone[(Pinecone)]
 ```
 
-| 계층 | 역할 | 주요 경로 |
-|------|------|-----------|
-| Presentation | 템플릿·정적 JS | `templates/`, `static/` |
-| Application | URL·뷰·API | `config/`, `*/views.py`, `api/` |
-| Domain / AI | 검색·그래프·RAG | `common/`, `products/models.py` |
-| Data | ORM·벡터 | SQLite, Pinecone `user_manual` |
+Django가 HTML을 렌더링하고 JavaScript가 채팅 전송, 찜 토글, 필터 옵션 표시를 보완합니다. 독립된 프론트엔드 서버나 별도 AI 워커는 없습니다.
 
-## Django 앱 의존 관계
+## 모듈 경계
 
-```mermaid
-flowchart TB
-    config[config]
-    mainpage[mainpage]
-    accounts[accounts]
-    products[products]
-    chats[chats]
-    api[api]
-    common[common]
-    theme[theme]
+| 경계 | 구현과 책임 |
+|---|---|
+| URL | [config/urls.py](../../config/urls.py)가 앱 URL을 연결 |
+| 화면 | [templates](../../templates/)와 [static](../../static/) |
+| 상품 | [products/views.py](../../products/views.py), [models.py](../../products/models.py) |
+| 인증·개인화 | [accounts](../../accounts/)의 세션 인증·프로필·찜 |
+| 대화 | [chats](../../chats/)의 방·메시지·상태 |
+| AI 진입 | [api/views.py](../../api/views.py)의 `send_chat` → [common/llm.py](../../common/llm.py)의 `add_chat` |
+| 외부 검색 | [common/vector_search.py](../../common/vector_search.py) |
 
-    config --> mainpage
-    config --> accounts
-    config --> products
-    config --> chats
-    config --> api
-    api --> common
-    api --> accounts
-    api --> products
-    chats --> common
-    products --> common
-    accounts --> chats
-    common --> products
-    common --> chats
-```
+`common`은 Django 앱이 아닌 공유 Python 패키지입니다. `api`는 URL로 연결되며 별도 모델을 사용하지 않습니다.
 
-## 요청 처리 패턴
+## 요청과 상태
 
-### SSR 페이지
+검색은 GET 파라미터를 ORM 조건으로 바꾼 뒤 12개씩 페이지를 렌더링합니다. 채팅은 JSON POST 한 번 안에서 그래프를 동기 실행하고 최종 JSON 응답을 반환합니다. 스트리밍·백그라운드 큐는 없습니다.
 
-1. `config/urls.py` → 앱 `urls.py` → `views.py`
-2. `render()` + `templates/*.html`
-3. 필요 시 `static/js/*.js`에서 추가 API 호출
+로그인은 Django 세션을 사용하며 CSRF 미들웨어가 POST를 검사합니다. 대화방은 사용자 소유 관계로 제한하고, `agent_state`에 검색 조건과 그래프 상태를 JSON으로 저장합니다. 모델 호출에 필요한 전체 대화 문자열은 DB 메시지에서 다시 읽습니다.
 
-### 채팅 (AJAX)
+## 운영상 경계
 
-1. `api-response.js` + `chatpage.js` → `POST /api/send_chat/`
-2. `api/views.send_chat` → `common.llm.add_chat`
-3. LangGraph 실행 → `Chatroom`·`SingleChat`·`agent_state` 갱신
-4. 클라이언트: 마크다운 렌더·URL sanitizer·`ApiResponse` 에러 말풍선
+서버 프로세스는 웹 처리와 AI 호출을 함께 수행합니다. 외부 응답 지연이 요청 처리 시간에 영향을 주며, 클라이언트의 중복 클릭 방지가 서버의 동시 요청 잠금이나 트랜잭션을 대체하지 않습니다. SQLite와 Pinecone 사이에는 분산 트랜잭션이나 자동 정합성 검사가 없습니다.
 
-### 찜 (AJAX)
-
-1. `api-response.js` + `wishlist-toggle.js` → `POST /accounts/mypage/` (`toggle_favorite`)
-2. in-flight 가드·버튼 busy·JSON/리다이렉트 공통 파싱
-
-## 인증
-
-- 커스텀 사용자: `accounts.Account` (`AUTH_USER_MODEL`)
-- 세션 쿠키 기반 (`django.contrib.auth`)
-- 채팅·`send_chat` API: 로그인 필수
-
-## 관련 문서
-
-- [디렉터리 구조](directory-structure.md)
-- [Django 앱 상세](../04-backend/django-apps.md)
-- [REST API](../06-api/rest-api.md)
+[API 계약](../06-api/api-reference.md), [DB 관계](../05-database/schema-and-erd.md), [배포 조건](../09-deployment/deployment.md)을 함께 확인합니다.

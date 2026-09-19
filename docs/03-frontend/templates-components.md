@@ -4,7 +4,7 @@
 
 ## 베이스 레이아웃
 
-- `base_page.html` — 공통 `<head>`, Tailwind, `{% block content %}`, `{% block extra_js %}`
+- [base_page.html](../../templates/base_page.html) — 공통 `<head>`, Tailwind, `title`, `extra_head`, `content`, `extra_js` 블록
 - 모든 페이지는 `{% extends "base_page.html" %}`
 
 ## 컴포넌트 트리
@@ -47,7 +47,7 @@ base_page.html
 
 | 페이지 | JS (로드 순서) |
 |--------|----------------|
-| `searchpage.html` | `search/filter.js` → `search/pagination.js` → `searchpage.js` |
+| `searchpage.html` | `api-response.js` → `search/filter.js` → `search/pagination.js` → `searchpage.js` |
 | `productpage.html` | `api-response.js` → `wishlist-toggle.js` → `productpage.js` |
 | `chatpage.html` | `api-response.js` → `chatpage.js` |
 | `mypage.html` | `api-response.js` → `wishlist-toggle.js` |
@@ -66,3 +66,9 @@ data 속성: [client-javascript.md](client-javascript.md)
 - [클라이언트 JS 모듈](client-javascript.md)
 - [디렉터리 구조](../02-architecture/directory-structure.md)
 - [검색 기능](../08-features/search-and-filter.md)
+
+## 템플릿과 클라이언트의 계약
+
+`#product-actions`는 인증·찜 API·CSRF·로그인 URL을 전달하고, `#mypage-wishlist-section`은 찜 POST 정보, `data-wishlist-count-badge`는 개수 표시를 제공합니다. 채팅 히스토리의 `data-server-message`는 클라이언트가 textContent로 읽습니다. 검색은 옵션 JSON URL을 정의한 다음 API 유틸·필터·페이지네이션·초기화 순서로 로드합니다.
+
+프로필·메인 캐러셀·구매 로그인 확인에는 인라인 스크립트가 남아 있습니다. 컴포넌트 include 관계와 JavaScript 전역 함수 사용을 함께 점검합니다.

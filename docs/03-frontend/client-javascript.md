@@ -6,10 +6,7 @@
 
 Django 템플릿(SSR) 위에서 페이지별·공통 바닐라 JS 모듈로 상호작용을 처리합니다.
 
-| 단계 | 내용 | 문서 |
-|------|------|------|
-| 1차 (#93) | 챗봇 마크다운 보안, 찜 in-flight, `ApiResponse` 파싱·알림 | [frontend-test-report.md §0](frontend-test-report.md#0-1차-수정-반영-요약-재평가-전제) |
-| 2차 (#100) | `fetchJson` 통합, 검색 필터 로딩/에러 UI, 마이페이지 찜 카운트, 로그인 검증, 모바일 보완 | [frontend-final-report.md](frontend-final-report.md) |
+구현 기준은 [static/js](../../static/js/)와 [페이지 템플릿](../../templates/)입니다. 아래는 현재 모듈 계약이며 과거 수정 과정은 [1차 기록](frontend-test-report.md)과 [2차 기록](frontend-final-report.md)에 별도로 보존합니다.
 
 ## 모듈 구조
 
@@ -50,7 +47,7 @@ static/css/
 
 ## 찜: `wishlist-toggle.js`
 
-템플릿 인라인 `fetch` 로직을 모듈로 이전했습니다.
+상세와 마이페이지가 동일한 폼 POST 함수와 상품 코드별 요청 잠금을 사용합니다.
 
 | 전역 함수 | 호출 위치 |
 |-----------|-----------|
@@ -71,7 +68,7 @@ static/css/
 |------|------|
 | `#product-actions` | `data-wishlist-post-url`, `data-csrf-token`, `data-login-url`, `data-is-authenticated` |
 | `#mypage-wishlist-section` | `data-wishlist-post-url`, `data-csrf-token` |
-| `[data-wishlist-count-badge]` | 마이페이지 찜 개수 뱃지 (2차) |
+| `[data-wishlist-count-badge]` | 마이페이지 찜 개수 뱃지 |
 
 ## 챗봇: `chatpage.js`
 
@@ -86,7 +83,7 @@ static/css/
 | 모바일 사이드바 | `data-chat-sidebar-backdrop`, `aria-*`, ESC 닫기, `overflow-hidden`, 입력 focus scroll |
 | 인라인 이미지 | `isImageUrl` + `buildChatImageHtml` (확장자·`lge.co.kr/kr/images/`) |
 
-에러 시 assistant 말풍선에 `getErrorMessage` 문구 표시. **잔여:** `send_chat` 401 시 `loginUrl` 미전달 — [QA 평가서 §5](frontend-final-report.md#5-우선순위별-개선-권장-사항).
+에러 시 assistant 말풍선에 `getErrorMessage` 문구 표시. **잔여:** `send_chat` 401 시 `loginUrl` 미전달 — [QA 평가서 §5](frontend-final-report.md).
 
 ## 검색: `searchpage.js` + `search/*`
 
@@ -102,8 +99,8 @@ static/css/
 
 ## 로그인: `loginpage.js`
 
-- `data-auth-mode` 패널 전환 (기존)
-- 2차: `username` trim·길이(150)·`^[\w.@+-]+$`, 비밀번호 필수 — `setCustomValidity` + `reportValidity`
+- `data-auth-mode` 패널 전환
+- `username` trim·길이(150)·`^[\w.@+-]+$`, 비밀번호 필수 — `setCustomValidity` + `reportValidity`
 
 회원가입·비밀번호 찾기는 HTML5 위주 — [QA 평가서](frontend-final-report.md).
 
@@ -123,6 +120,10 @@ static/css/
 - [기능: 검색·필터](../08-features/search-and-filter.md)
 - [기능: 계정·찜](../08-features/accounts-and-favorites.md)
 - [기능: 상품 상세](../08-features/product-detail.md)
-- [REST API](../06-api/rest-api.md)
+- [REST API](../06-api/api-reference.md)
 - [1차 테스트 평가서](frontend-test-report.md)
 - [2차 QA 평가서](frontend-final-report.md)
+
+## 변경 시 확인
+
+API 유틸은 `window.ApiResponse`, 검색은 `window.LGSearchPage`, 찜은 전역 호출 함수를 사용합니다. DOM의 data 속성이나 로드 순서를 바꾸면 연결이 끊길 수 있습니다. 채팅의 in-flight와 상품 코드별 찜 잠금은 해당 브라우저 페이지에서만 적용됩니다. 서버 동시 요청을 막거나 실패한 AI 호출의 DB 저장을 되돌리지 않습니다.

@@ -1,92 +1,32 @@
-# 계정 · 찜 (개인화)
+# 계정과 관심 제품
 
-[← 기능 인덱스](README.md) · [DB 스키마](../05-database/schema-and-erd.md)
+[기능 안내](README.md) · [스키마](../05-database/schema-and-erd.md)
 
-## 개요
+## 경로
 
-닉네임·프로필 사진 기반 회원 기능과 `product_code` 단위 찜 목록. 챗봇의 **찜 범위 검색**(`from_favorites`)에 사용됩니다.
+| 경로 | 처리 |
+|---|---|
+| `/accounts/` | 로그인 폼, 성공 시 메인으로 이동 |
+| `/accounts/register/` | 가입 폼, 생성 후 로그인 화면으로 이동 |
+| `/accounts/mypage/` | 로그인 사용자의 프로필과 찜 목록 |
+| `/accounts/logout/` | POST 로그아웃 후 메인으로 이동 |
 
-## URL
+[accounts/views.py](../../accounts/views.py)는 Django 세션 인증을 사용합니다. 회원가입은 사용자명·비밀번호·닉네임·선택 사진을 받아 `create_user`로 저장합니다. 중복 사용자 등 예외를 통일된 폼 오류로 처리하는 구현은 없습니다.
 
-| 경로 | 기능 |
-|------|------|
-| `/accounts/` | 로그인 |
-| `/accounts/register/` | 회원가입 |
-| `/accounts/mypage/` | 프로필·찜 목록 |
-| `/accounts/logout/` | 로그아웃 |
+## 마이페이지 액션
 
-## 모델
+| POST action | 입력 | 결과 |
+|---|---|---|
+| `toggle_favorite` | `product_code` | JSON `{ok, favorited}` |
+| `update_profile` | `nickname`, 선택 `profile_picture` | 저장 후 마이페이지 redirect |
+| `logout` | 추가 필드 없음 | 메인 redirect |
 
-- `Account` — `AUTH_USER_MODEL`, `nickname`, `profile_picture`
-- `UserFavorite` — `(account, product_code)` 다대일
+찜은 `UserFavorite` 문자열 코드로 저장합니다. 빈 코드는 400이며 상품 존재 검증은 하지 않습니다. 마이페이지 표시 시 `get_product`에서 찾지 못한 코드는 목록에서 제외됩니다.
 
-헬퍼: `Account.add_favorite`, `view_chatrooms`, `add_chatroom` 등
+## 화면과 상담 연결
 
-## 마이페이지 POST 액션
+[wishlist-toggle.js](../../static/js/wishlist-toggle.js)가 상세와 마이페이지의 찜을 공통 처리합니다. 동일 상품 동시 클릭 가드, 버튼 busy, 실패 알림, 제거 후 개수 배지 갱신이 있습니다. 비로그인 상세 찜은 로그인 화면으로 이동합니다.
 
-| action | 설명 |
-|--------|------|
-| `toggle_favorite` | 찜 추가/삭제 → JSON |
-| `update_profile` | 닉네임·사진 수정 |
-| `logout` | 세션 종료 → 메인 |
+상담에서 `from_favorites`가 추출되면 [llm.py](../../common/llm.py)의 `intent_router`가 사용자의 찜 코드를 제품군별로 고릅니다. DB에는 사용자·상품 코드 unique 제약이 없으므로 클라이언트 가드만으로 중복 생성 방지를 보장하지 않습니다.
 
-### toggle_favorite 예시
-
-```http
-POST /accounts/mypage/
-Content-Type: multipart/form-data
-X-CSRFToken: ...
-
-action=toggle_favorite&product_code=REFF12345678
-```
-
-```json
-{ "ok": true, "favorited": true }
-```
-
-## 찜 ↔ 챗봇
-
-LangGraph `db_search`에서 `from_favorites` 슬롯이 true이면:
-
-```python
-get_favorites(user_id)  # → product_code 리스트
-# → search_model(..., range=favorites)
-```
-
-예: 「찜한 제품 중 에너지 1등급 냉장고」
-
-## 프론트엔드 찜 UI (1·2차 개선)
-
-| 화면 | 구현 |
-|------|------|
-| 상품 상세 | `wishlist-toggle.js` — `productPageWishlistToggle`, `#product-actions` data 속성 |
-| 마이페이지 | `mypageWishlistToggle`, 카드 제거·`data-wishlist-count-badge` 동기화·빈 목록 시 reload |
-| 공통 | `wishlistInFlight`, `ApiResponse.fetchJson` + `buildFormPostInit`, 실패 `alert` |
-
-스크립트: `productpage.html`·`mypage.html`에서 `api-response.js` → `wishlist-toggle.js` 순 로드.
-
-→ [client-javascript.md](../03-frontend/client-javascript.md) · [2차 QA 평가서](../03-frontend/frontend-final-report.md)
-
-## 로그인 가드
-
-| 기능 | 비로그인 |
-|------|----------|
-| `/chats/` | 로그인 페이지 리다이렉트 |
-| `send_chat` API | 401 |
-| 상품 찜 | `wishlist-toggle.js`에서 로그인 페이지 이동 |
-| 마이페이지 | 로그인 페이지 리다이렉트 |
-
-> 검색 결과 등 비로그인 찜 진입 경로는 UI별로 상이할 수 있음 — [제한사항](../../README.md#11-limitations)
-
-## REST 대안
-
-- `POST /api/favorite/<code>/`
-- `POST /api/check_favorite/<code>/`
-
-→ [API 명세](../06-api/rest-api.md)
-
-## 관련 문서
-
-- [상품 상세 찜](product-detail.md#찜-연동)
-- [채팅 from_favorites](chat-lgneer.md#찜-범위-검색)
-- [Backend accounts](../04-backend/django-apps.md#accounts)
+`/api/favorite/`와 `/api/check_favorite/`는 다른 응답 의미를 가진 대안 경로입니다. [API 명세](../06-api/api-reference.md)를 확인한 후 사용합니다.

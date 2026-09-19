@@ -1,111 +1,48 @@
-# LG Home — 프로젝트 Docs 위키
+# LG Home 개발 문서
 
-> SKN26 4th Project · 파트별·기능별 기술 문서 허브  
-> 저장소 루트 개요는 [README.md](../README.md)를 참고하세요.
+[프로젝트 소개](../README.md) · [원본 저장소](https://github.com/SKN26-4th-1st/4th_project)
 
----
+현재 저장소의 코드·설정·포함 자료를 기준으로 개발에 필요한 구조와 실행 조건을 설명합니다.
 
-## 문서 구성 (파트별 카테고리)
+## 문서 구성
 
-| 파트 | 담당 역할 | 문서 홈 |
-|------|-----------|---------|
-| **공통** | 전체 개요·아키텍처 | [00-overview](00-overview/project-overview.md) · [02-architecture](02-architecture/system-architecture.md) |
-| **시작하기** | 환경·실행 | [01-getting-started](01-getting-started/development-environment.md) |
-| **Frontend** | 박기은, 서민혁 | [03-frontend](03-frontend/README.md) |
-| **Backend** | 유동현 | [04-backend](04-backend/README.md) |
-| **Database** | 이레 | [05-database](05-database/schema-and-erd.md) |
-| **API** | Backend 연동 | [06-api](06-api/rest-api.md) |
-| **AI / Modeling** | 윤정연, 정영일 | [07-ai-modeling](07-ai-modeling/README.md) |
-| **기능 단위** | 기능 흐름 | [08-features](08-features/README.md) |
+| 구분 | 문서 | 내용 |
+| --- | --- | --- |
+| 00. 개요 | [프로젝트 개요](00-overview/project-overview.md) | 목적·기능 범위·구현 경계 |
+| 01. 개발 환경과 실행 | [개발 환경](01-getting-started/development-environment.md) | 런타임·의존성·환경변수·준비 자료 |
+| 01. 개발 환경과 실행 | [실행과 운영](01-getting-started/run-and-operations.md) | 실행 순서·초기 데이터·장애 확인 |
+| 02. 아키텍처 | [시스템 구조](02-architecture/system-architecture.md) | 구성 요소·의존성·처리 경계 |
+| 02. 아키텍처 | [디렉터리 구조](02-architecture/directory-structure.md) | 주요 파일과 수정 위치 |
+| 02. 아키텍처 | [데이터 흐름](02-architecture/data-flow.md) | 입력·가공·저장·조회 흐름 |
+| 03. 프런트엔드 | [화면과 상태](03-frontend/README.md) | 화면 구성·사용자 입력·상태 관리 |
+| 04. 백엔드 | [처리 모듈](04-backend/README.md) | 서버 또는 프로세스 내부 처리 |
+| 05. 데이터 | [스키마와 관계](05-database/schema-and-erd.md) | 테이블·필드·관계·데이터 조건 |
+| 06. API | [인터페이스](06-api/api-reference.md) | HTTP 또는 Python 호출 계약 |
+| 07. AI·모델링 | [모델과 처리 규칙](07-ai-modeling/README.md) | 계산식·학습 모델·검색·생성 중 구현된 방식 |
+| 08. 기능 | [기능 명세](08-features/README.md) | 입력·처리·결과·예외 |
+| 09. 배포 | [배포와 운영 조건](09-deployment/deployment.md) | 제공 구성·외부 자원·운영 제약 |
+| 10. 품질 | [검증과 한계](10-quality/verification-and-limitations.md) | 검증 절차·평가 범위·알려진 한계 |
 
----
+## 읽는 순서
 
-## 기능별 문서 (주제 인덱스)
+1. 프로젝트 개요에서 목적과 구현 범위를 확인합니다.
+2. 개발 환경과 실행 문서에서 의존성·설정·데이터 준비 조건을 확인합니다.
+3. 시스템 구조와 데이터 흐름을 읽고 변경할 기능의 상세 문서로 이동합니다.
+4. 데이터·인터페이스 계약을 대조한 뒤 검증 방법과 배포 조건을 확인합니다.
 
-| 기능 | 설명 | 문서 |
-|------|------|------|
-| 메인 페이지 | 카테고리 탐색·LG봇 CTA | [main-page](08-features/main-page.md) |
-| 필터 검색 | 카테고리·스펙·페이지네이션 | [search-and-filter](08-features/search-and-filter.md) |
-| 상품 상세 | 스펙·찜·매뉴얼 링크 | [product-detail](08-features/product-detail.md) |
-| LG봇 (LGneer) | LangGraph 채팅·히스토리 | [chat-lgneer](08-features/chat-lgneer.md) |
-| 계정·찜 | 회원·마이페이지·개인화 | [accounts-and-favorites](08-features/accounts-and-favorites.md) |
+## 프로젝트별 상세 문서
 
----
+- 아키텍처: [데이터 파이프라인 문서 안내](02-architecture/data-pipeline.md)
+- 프런트엔드: [클라이언트 JavaScript 모듈](03-frontend/client-javascript.md), [프론트엔드 QA 평가서 (2차 수정 후) — 과거 정적 분석 기록](03-frontend/frontend-final-report.md), [프론트엔드 테스트 평가서 — 과거 정적 분석 기록](03-frontend/frontend-test-report.md), [화면 구성](03-frontend/frontend.md), [페이지 · URL 매핑](03-frontend/pages-and-routes.md), [템플릿 · 컴포넌트 구조](03-frontend/templates-components.md)
+- 백엔드: [Django 앱 상세](04-backend/django-apps.md)
+- API: [API 문서 안내](06-api/rest-api.md)
+- AI·모델링: [LangGraph 흐름](07-ai-modeling/langgraph-flow.md), [사용설명서 RAG와 Pinecone](07-ai-modeling/rag-pinecone.md)
+- 기능: [계정과 관심 제품](08-features/accounts-and-favorites.md), [LG봇 채팅](08-features/chat-lgneer.md), [메인 페이지](08-features/main-page.md), [상품 상세](08-features/product-detail.md), [검색과 필터](08-features/search-and-filter.md)
+- 품질: [모델 노드 평가 기록](10-quality/model-evaluation-history.md)
 
-## 빠른 링크
+## 문서 기준
 
-### 개발·운영
-- [개발 환경 설정](01-getting-started/development-environment.md) — Python·Tailwind·`NPM_BIN_PATH`·`.env`
-- [실행 및 일상 운영](01-getting-started/run-and-operations.md)
-
-### 구조·데이터
-- [디렉터리 구조](02-architecture/directory-structure.md)
-- [시스템 아키텍처](02-architecture/system-architecture.md)
-- [데이터 파이프라인](02-architecture/data-pipeline.md)
-- [DB 스키마·ERD](05-database/schema-and-erd.md)
-
-### 연동
-- [REST API 명세](06-api/rest-api.md)
-- [LangGraph 플로우](07-ai-modeling/langgraph-flow.md)
-- [RAG · Pinecone](07-ai-modeling/rag-pinecone.md)
-
-### 프론트
-- [화면설계·체크리스트](03-frontend/frontend.md)
-- [클라이언트 JS 모듈](03-frontend/client-javascript.md) — `ApiResponse`·`fetchJson`·챗봇·찜·검색·로그인 (1·2차 개선)
-- [프론트 테스트 평가서 (1차 수정 후)](03-frontend/frontend-test-report.md) — 2차 개선 권장(§5) 근거
-- [프론트 QA 평가서 (2차 수정 후)](03-frontend/frontend-final-report.md) — §5 반영 코드 재평가
-- [페이지·URL 매핑](03-frontend/pages-and-routes.md)
-- [템플릿·컴포넌트](03-frontend/templates-components.md)
-
----
-
-## 문서 트리
-
-```
-docs/
-├── README.md                          ← 이 파일 (위키 허브)
-├── 00-overview/
-│   └── project-overview.md
-├── 01-getting-started/
-│   ├── development-environment.md
-│   └── run-and-operations.md
-├── 02-architecture/
-│   ├── system-architecture.md
-│   ├── directory-structure.md
-│   └── data-pipeline.md
-├── 03-frontend/
-│   ├── README.md
-│   ├── frontend.md
-│   ├── client-javascript.md
-│   ├── frontend-test-report.md   # 1차 수정 후 재평가 → 2차 §5 근거
-│   ├── frontend-final-report.md    # 2차 수정 후 QA 재평가
-│   ├── pages-and-routes.md
-│   └── templates-components.md
-├── 04-backend/
-│   ├── README.md
-│   └── django-apps.md
-├── 05-database/
-│   └── schema-and-erd.md
-├── 06-api/
-│   └── rest-api.md
-├── 07-ai-modeling/
-│   ├── README.md
-│   ├── langgraph-flow.md
-│   └── rag-pinecone.md
-└── 08-features/
-    ├── README.md
-    ├── main-page.md
-    ├── search-and-filter.md
-    ├── product-detail.md
-    ├── chat-lgneer.md
-    └── accounts-and-favorites.md
-```
-
----
-
-## 문서 작성·갱신 가이드
-
-1. **기능 추가 시**: `08-features/`에 주제 문서를 추가하고, 이 README의 기능 인덱스와 파트 홈 README를 갱신합니다.
-2. **API 변경 시**: [rest-api.md](06-api/rest-api.md)와 해당 기능 문서의「연동」절을 함께 수정합니다.
-3. **교차 참조**: 상대 경로 링크 사용 (예: `../06-api/rest-api.md`).
-4. **중복 최소화**: 상세 설치·평가·회고는 루트 [README.md](../README.md)에 두고, Docs는 **구현·운영 관점**에 집중합니다.
+- 프로젝트에 실제로 있는 기능과 처리 방식을 설명합니다. 별도 서버나 AI 모델이 없는 경우 해당 문서에서 내부 함수·계산 규칙을 안내합니다.
+- 실행 명령은 문서에 적힌 작업 디렉터리에서 수행합니다. 환경변수는 이름과 용도를 설명하며 인증정보 값은 기록하지 않습니다.
+- 소스·설정·테스트 파일의 존재와 실행 성공은 구분합니다. 과거 평가 수치는 해당 데이터와 측정 조건 안에서 해석합니다.
+- 기능·스키마·설정을 바꾸면 연결된 문서와 검증 항목을 함께 갱신합니다.

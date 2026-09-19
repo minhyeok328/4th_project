@@ -2,7 +2,9 @@
 
 [← Frontend 홈](README.md) · [Backend URL](../04-backend/django-apps.md)
 
-## 루트 URL (`config/urls.py`)
+## 루트 URL
+
+기준: [config/urls.py](../../config/urls.py)와 각 앱 `urls.py`. 관리자 패키지는 설정에 포함되어 있지만 현재 루트 URL에 `/admin/`은 연결되어 있지 않습니다.
 
 | include | prefix |
 |---------|--------|
@@ -27,7 +29,7 @@
 
 ## 검색 쿼리 파라미터
 
-`searchpage`는 `product_type`, `page`가 없으면 기본값으로 리다이렉트합니다.
+`searchpage`는 `product_type`, `page` 중 누락된 값만 채워 리다이렉트합니다. 이미 전달된 필터는 유지합니다.
 
 | 파라미터 | 기본값 | 설명 |
 |----------|--------|------|
@@ -46,4 +48,8 @@
 ## 관련 문서
 
 - [실행·URL 빠른 참조](../01-getting-started/run-and-operations.md)
-- [REST API](../06-api/rest-api.md)
+- [REST API](../06-api/api-reference.md)
+
+## 접근과 실패 처리
+
+`/chats/`·`/accounts/mypage/`는 로그인으로 리다이렉트하고, `/api/send_chat/`은 401 JSON을 반환합니다. 잘못된 상세 코드는 명시적 404 대신 빈 상품 데이터를 렌더링합니다. 로그아웃은 POST에서만 세션을 종료합니다. 현재 API 오류 계약은 [API 명세](../06-api/api-reference.md)에 있습니다.

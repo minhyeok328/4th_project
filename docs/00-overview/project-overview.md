@@ -1,66 +1,31 @@
 # 프로젝트 개요
 
-[← Docs 홈](../README.md) · [시스템 아키텍처](../02-architecture/system-architecture.md)
+[문서 홈](../README.md)
 
-## 서비스 소개
+## 해결하려는 문제
 
-**LG Home**은 LG 가전 5개 카테고리(TV, 냉장고, 세탁기, 에어컨, 청소기)를 대상으로 한 **통합 검색·AI 상담** 웹 서비스입니다.
+가전은 제품군마다 비교 사양이 다르고 사용 방법은 별도 설명서에 분산되어 있습니다. LG Home은 구조화된 상품 검색과 자연어 상담을 같은 웹 화면에서 제공하여 상품 탐색과 사용 정보 확인을 연결합니다.
 
-| 탐색 방식 | 설명 |
-|-----------|------|
-| **필터 검색 UI** | 카테고리·가격·스펙 조건 선택 → ORM 검색 |
-| **LG봇 (LGneer)** | 자연어 질의 → LangGraph 슬롯 추출 → DB·매뉴얼 RAG |
+## 제공 범위
 
-## 팀·파트 구성
+| 영역 | 현재 구현 |
+|---|---|
+| 제품군 | TV(TVT), 에어컨(ACT), 냉장고(REF), 청소기(VAC), 세탁기(WMT) |
+| 상품 탐색 | 카테고리별 ORM 조건 검색, 12개씩 페이지 표시, 상세 사양 |
+| 개인 데이터 | 세션 로그인, 프로필, 찜 목록, 대화방과 메시지 |
+| AI | 범위 판정, 제품군 분류, 조건 추출, 검색 결과를 활용한 답변 |
+| 설명서 | 임베딩 검색과 페이지 본문 복원 |
 
-| 파트 | 담당 | Docs |
-|------|------|------|
-| Frontend | 박기은, 서민혁 | [03-frontend](../03-frontend/README.md) |
-| Backend | 유동현 | [04-backend](../04-backend/README.md) |
-| Database | 이레 | [05-database](../05-database/schema-and-erd.md) |
-| Modeling (AI) | 윤정연, 정영일 | [07-ai-modeling](../07-ai-modeling/README.md) |
+상품 데이터는 수집·전처리된 CSV를 적재하는 방식입니다. 요청할 때마다 공식몰 가격과 재고를 갱신하는 서비스는 아닙니다. 구매·결제, 비밀번호 재설정, 실제 리뷰·Q&A 등록은 구현 범위에 포함되지 않습니다.
 
-## 핵심 기능 맵
+## 주요 사용 흐름
 
-```mermaid
-flowchart TB
-    subgraph UI["Django SSR"]
-        Main[메인]
-        Search[검색]
-        Detail[상품 상세]
-        Chat[LG봇]
-        Account[계정·마이페이지]
-    end
+메인 → 카테고리 검색 → 조건 선택 → 상품 상세 → 로그인 후 찜 → LG봇 상담으로 이어집니다. LG봇은 추천 결과가 1~5건일 때 답변을 생성하고, 많으면 조건 추가를 안내하며, 0건이면 최근 조건을 되돌리는 안내를 제공합니다.
 
-    subgraph Core["Django + common"]
-        ORM[(SQLite 상품 DB)]
-        Graph[LangGraph]
-        RAG[Pinecone RAG]
-    end
+## 구현 근거
 
-    Main --> Search
-    Main --> Chat
-    Search --> Detail
-    Detail --> Account
-    Chat --> Graph
-    Graph --> ORM
-    Graph --> RAG
-```
+- [상품 검색 뷰](../../products/views.py), [상품 모델](../../products/models.py)
+- [계정 뷰](../../accounts/views.py), [대화방 뷰](../../chats/views.py)
+- [채팅 API](../../api/views.py), [LangGraph](../../common/llm.py)
 
-## 기술 스택 요약
-
-| 레이어 | 기술 |
-|--------|------|
-| Web | Django 6.0, Templates SSR, Tailwind v4, DaisyUI, django-tailwind |
-| DB | SQLite, Django ORM |
-| LLM | OpenAI `gpt-4o-mini`, LangGraph |
-| Vector | Pinecone (`user_manual`), `text-embedding-3-small` |
-| Data | `products/data/` — raw 크롤링 → preprocessing → database CSV → `loaddata.ipynb`; embedding → Pinecone |
-
-상세 스택·제한사항·로드맵은 [루트 README §3·§11·§12](../../README.md)를 참고하세요.
-
-## 관련 문서
-
-- [개발 환경](../01-getting-started/development-environment.md)
-- [기능별 문서 인덱스](../08-features/README.md)
-- [API 명세](../06-api/rest-api.md)
+[개발 환경](../01-getting-started/development-environment.md)에서 실행 준비를 시작하고, 전체 데이터 이동은 [데이터 흐름](../02-architecture/data-flow.md)을 참고합니다.
